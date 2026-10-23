@@ -1,0 +1,32 @@
+{
+  "name": "torelax",
+  "github": "https://github.com/torelax",
+  "about": "",
+  "projects": [],
+  "articles": [
+    {
+      "slug": "python-line-count",
+      "title": "Python 文件行数统计：几种实现方式",
+      "category": "Python / 技术笔记",
+      "summary": "从逐行读取到缓冲区计数，整理几种统计文本文件行数的方法。迁自旧站，保留原始示例供参考。",
+      "blocks": [
+        {"type": "p", "text": "这篇笔记整理自旧站 README 中的 Python 示例。不同方法对空文件、文件末尾是否换行的处理并不完全一致，使用时需要先确定自己的计数口径。"},
+        {"type": "h2", "text": "逐行读取"},
+        {"type": "p", "text": "使用迭代器逐行计数，表达直接。相比一次性读取全部行，这种写法不需要把整个文件载入内存。"},
+        {"type": "code", "text": "with open(file_name) as stream:\n    line_count = sum(1 for _ in stream)"},
+        {"type": "h2", "text": "使用 enumerate"},
+        {"type": "p", "text": "旧站也收录了使用 enumerate 枚举行的方式。这里从 1 开始计数，并预设 count = 0，覆盖空文件的情况。"},
+        {"type": "code", "text": "def enumerate_count(file_name):\n    count = 0\n    with open(file_name) as stream:\n        for count, _ in enumerate(stream, 1):\n            pass\n    return count"},
+        {"type": "h2", "text": "按缓冲区统计换行符"},
+        {"type": "p", "text": "对于较大的文件，可以按固定大小读取二进制块，再累计换行符数量。这统计的是换行符；如果最后一行没有换行符，结果与逐行迭代的行数会有差异。"},
+        {"type": "code", "text": "def buff_count(file_name):\n    with open(file_name, 'rb') as stream:\n        count = 0\n        buf_size = 1024 * 1024\n        buf = stream.read(buf_size)\n        while buf:\n            count += buf.count(b'\\n')\n            buf = stream.read(buf_size)\n        return count"},
+        {"type": "h2", "text": "使用 itertools 构造块迭代器"},
+        {"type": "p", "text": "旧站还收录了 itertools 的写法：通过 repeat 持续读取数据块，并使用 takewhile 在遇到空块时结束。"},
+        {"type": "code", "text": "def iter_count(file_name):\n    from itertools import takewhile, repeat\n    buffer = 1024 * 1024\n    with open(file_name, 'rb') as stream:\n        blocks = takewhile(\n            lambda block: block,\n            (stream.read(buffer) for _ in repeat(None))\n        )\n        return sum(block.count(b'\\n') for block in blocks)"},
+        {"type": "h2", "text": "选择前先明确计数口径"},
+        {"type": "list", "items": ["文件是否可能为空？", "最后一行没有换行符时，是否仍算一行？", "需要按文本编码读取，还是仅统计换行符？", "面对实际文件大小，在自己的环境中测量耗时。"]},
+        {"type": "p", "text": "原始笔记保存在仓库 legacy/README.md。旧记录中的性能表没有完整的运行环境和测量说明，因此这里没有将其作为可复现的性能结论展示。"}
+      ]
+    }
+  ]
+}
