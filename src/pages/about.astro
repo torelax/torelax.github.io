@@ -1,0 +1,12 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import SocialList from "@/components/SocialList.astro";
+---
+<PageLayout meta={{ title: "关于", description: "torelax 的个人主页" }}>
+  <h1 class="title mb-12">关于</h1>
+  <div class="prose prose-sm prose-cactus mb-8 max-w-none">
+    <p>你好，我是 torelax。欢迎来到我的个人主页。</p>
+    <p>这里收录公开的项目、技术笔记与文章。</p>
+  </div>
+  <SocialList />
+</PageLayout>
