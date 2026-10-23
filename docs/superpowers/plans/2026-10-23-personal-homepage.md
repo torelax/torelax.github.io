@@ -12,4 +12,4 @@
 - [x] Populate `content/site.json` using only the verified username and existing public Python note; keep `legacy/README.md` intact. No invented biography, dates, projects, or contact details.
 - [x] Add `.gitignore`, `.github/workflows/pages.yml`, and maintenance documentation. Only `dist/` becomes the Pages artifact; local selection manifests and the original library remain outside publication.
 - [x] Run unit tests, build, a desktop/mobile browser check, navigation/search checks, and an independent code review. Show the local preview to the owner.
-- [ ] Prepare a reviewable GitHub branch and pull request. Preserve the existing main branch while the owner reviews the first version and supplies biography/project content. Report any Pages configuration or authentication limitation accurately.
+- [x] Prepare a reviewable GitHub branch and pull request. Preserve the existing main branch while the owner reviews the first version and supplies biography/project content. Report any Pages configuration or authentication limitation accurately.
