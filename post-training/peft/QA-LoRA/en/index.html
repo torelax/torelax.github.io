@@ -1,0 +1,4900 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/QA-LoRA/en/">
+      
+      
+        <link rel="prev" href="../QA-LoRA%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="next" href="../zh/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>QA-LoRA · 英文原文 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#qa-lora-quantization-aware-low-rank-adaptation-of-large-language-models" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              QA-LoRA · 英文原文
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_14" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_14" id="__nav_4_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_14_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    QA-LoRA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA 论文研读：分组适配与量化模型的等价合并
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-proposed-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Proposed Approach
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Proposed Approach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-low-rank-adaptation-and-low-bit-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline: Low-rank Adaptation and Low-bit Quantization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#objective-efficient-adaptation-and-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objective: Efficient Adaptation and Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-group-wise-quantization-with-low-rank-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution: Group-wise Quantization with Low-rank Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-proposed-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Proposed Approach
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Proposed Approach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-low-rank-adaptation-and-low-bit-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline: Low-rank Adaptation and Low-bit Quantization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#objective-efficient-adaptation-and-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objective: Efficient Adaptation and Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-group-wise-quantization-with-low-rank-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution: Group-wise Quantization with Low-rank Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="qa-lora-quantization-aware-low-rank-adaptation-of-large-language-models">QA-LoRA: Quantization-Aware Low-Rank Adaptation of Large Language Models<a class="headerlink" href="#qa-lora-quantization-aware-low-rank-adaptation-of-large-language-models" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Source: <a href="https://arxiv.org/html/2309.14717v2">arXiv:2309.14717v2</a> · Original authors are credited below.
+Complete English transcription of the paper body, appendices, tables, captions, footnotes and references; layout is normalized from the original HTML.</p>
+</blockquote>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Yuhui Xu Lingxi Xie Xiaotao Gu Xin Chen Heng Chang Affiliation: Hengheng Zhang Zhengsu Chen Xiaopeng Zhang Qi Tian Affiliation: Huawei Inc. Email: {xyh6666,198808xc,guxt1994,chenxin061}@gmail.com Email: {changh.heng,imhmhm,chenzhengsu1,zxphistory}@gmail.com Email: tian.qi1@huawei.com</p>
+<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<p>Recently years have witnessed a rapid development of large language models (LLMs). Despite the strong ability in many language-understanding tasks, the heavy computational burden largely restricts the application of LLMs especially when one needs to deploy them onto edge devices. In this paper, we propose a quantization-aware low-rank adaptation ( QA-LoRA ) algorithm. The motivation lies in the imbalanced degrees of freedom of quantization and adaptation, and the solution is to use group-wise operators which increase the degree of freedom of quantization meanwhile decreasing that of adaptation. QA-LoRA is easily implemented with a few lines of code, and it equips the original LoRA with two-fold abilities: (i) during fine-tuning, the LLM’s weights are quantized ( e.g. , into INT4 ) to reduce time and memory usage; (ii) after fine-tuning, the LLM and auxiliary weights are naturally integrated into a quantized model without loss of accuracy. We apply QA-LoRA to the LLaMA and LLaMA2 model families and validate its effectiveness in different fine-tuning datasets and downstream scenarios. Code will be made available at https://github.com/yuhuixu1993/qa-lora .</p>
+<table>
+<thead>
+<tr>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>Recently, large language models (LLMs) ( Brown et al., 2020 ; Scao et al., 2022 ; Zhang et al., 2022 ; Touvron et al., 2023a ; Chowdhery et al., 2022 ; OpenAI, 2023 ; Zeng et al., 2023 ) have shown unprecedented performance across a wide range of language understanding tasks ( Wei et al., 2022a ) and served as the foundation of state-of-the-art chat systems ( Bubeck et al., 2023 ) . The diversity of real-world applications calls for a pipeline in which LLMs can be fine-tuned to fit different scenarios and quantized to be deployed onto edge devices ( e.g. , mobile phones), and the key issue is to get rid of the heavy computational burden brought by the large number of parameters of LLMs.</p>
+<p>There are two lines of research for this purpose. The first one is parameter-efficient fine-tuning (PEFT) ( Houlsby et al., 2019 ; Li &amp; Liang, 2021 ; Liu et al., 2021 ; He et al., 2022 ; Hu et al., 2021 ) which introduced a small number of learnable parameters while keeping most pre-trained parameters unchanged. Among them, low-rank adaptation (LoRA) ( Hu et al., 2021 ) , a popular PEFT algorithm, proposed to fine-tune low-rank matrices to complement the pre-trained weights. Despite the comparable performance to full-parameter fine-tuning, the memory usage of LoRA is still large, especially when the base LLM is large ( e.g. , LLaMA-65B). The second one studies parameter quantization ( Yao et al., 2022 ; Dettmers et al., 2022 ; Wei et al., 2022b ; Frantar et al., 2023 ; Lin et al., 2023 ; Xiao et al., 2023 ; Dettmers et al., 2023b ) where the trained weights are quantized into low-bit integers or floating point numbers. Although these methods can alleviate the computational burden, they often report unsatisfying accuracy especially when the quantization bit width is low.</p>
+<p>Hence, it is an important topic to integrate PEFT with quantization. A naive solution is to perform post-training quantization (PTQ) after PEFT, but it reports unsatisfying accuracy especially when the quantization bit width is low. Advanced methods exist, but they are either computationally expensive in the fine-tuning stage ( Liu et al., 2023 ) or unable to maintain the quantized property after fine-tuning ( Dettmers et al., 2023a ) . In this paper, we propose a simple yet effective method for quantization-aware low-rank adaptation ( QA-LoRA ). Our idea is based on the imbalanced degrees of freedom for quantization and adaptation. Specifically, each column of the pre-trained weight matrix is accompanied by only one pair of scaling and zero parameters but many more LoRA parameters. This imbalance not only results in large quantization errors (which harm the LLM’s accuracy), but also makes it difficult to integrate the auxiliary weights into the main model. QA-LoRA addresses the issue by introducing group-wise operators which increase the degree of freedom of low-bit quantization (each group is quantized individually) and decrease that of LoRA (each group shares the adaptation parameters). QA-LoRA enjoys two-fold benefits: (i) an efficient fine-tuning stage thanks to the LLM’s weights being quantized into low-bit integers; (ii) a lightweight, fine-tuned model without the need for PTQ which often incurs loss of accuracy.</p>
+<p>QA-LoRA is easily implemented and applies to a wide range of scenarios. We evaluate QA-LoRA on the LLaMA and LLAMA2 model families ( Touvron et al., 2023a ; Touvron et al., 2023b ) and validate it on various language understanding benchmarks. Figure 1 compares the <span class="arithmatex">\(5\)</span> -shot accuracy on the MMLU benchmark of QA-LoRA and the direct baseline, QLoRA ( Dettmers et al., 2023a ) with and without PTQ, when both methods are fine-tuned on the Alpaca dataset. QA-LoRA consistently outperforms QLoRA with PTQ on top of LLMs of different scales (the advantage becomes more significant when the quantization bit width is lower) and is on par with QLoRA without PTQ. Note that during inference, QA-LoRA has exactly the same complexity as QLoRA with PTQ and is much more efficient than QLoRA without PTQ. Hence, QA-LoRA serves as an effective and off-the-shelf method for joint quantization and adaptation of LLMs.</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>Figure 1: The comparison of <span class="arithmatex">\(5\)</span> -shot MMLU accuracy (%) with different quantization bit widths based on the LLaMA model family. QLoRA ( NF4 &amp; FP16 ) refers to the original QLoRA models with pre-trained weights in INT4 and adapter weights in FP16 , and QLoRA ( INT4 ) refers to performing post-training quantization (into INT4 ) upon the merged QLoRA models. All models are fine-tuned on the Alpaca dataset. Full results are provided in Table 1 .</p>
+<h2 id="related-work">Related Work<a class="headerlink" href="#related-work" title="Permanent link">&para;</a></h2>
+<p>Large language models (LLMs) ( Devlin et al., 2019 ; Brown et al., 2020 ; Zhao et al., 2023a ; Hadi et al., 2023 ) have emerged as a dominant paradigm in natural language processing which has achieved state-of-the-art performance on various tasks ( Zhao et al., 2023b ; Zhou et al., 2023 ) and served as the fundamental of chat systems ( OpenAI, 2023 ) . However, their deployment in real-world scenarios is hindered by their high computational and memory requirements during inference ( Chang et al., 2023 ) . To tackle this issue, various methods have been proposed, including distillation ( Liu et al., 2023 ) , quantization ( Yao et al., 2022 ; Dettmers et al., 2022 ; Wei et al., 2022b ; Frantar et al., 2023 ; Lin et al., 2023 ; Xiao et al., 2023 ) , pruning ( Frantar &amp; Alistarh, 2023 ; Ma et al., 2023 ; Sun et al., 2023 ) , etc. ( Weng, 2023 ) . This paper mainly focuses on the quantization of LLMs.</p>
+<p>Fine-tuning LLMs with adapters. Parameter efficient fine-tuning (PEFT) is an important topic for LLMs. One of the most popular approaches is low-rank adaptation (LoRA) ( Hu et al., 2021 ; Valipour et al., 2022 ) , where the key insight is to decompose the adapter weights into the multiplication of two low-rank (and thus parameter-efficient) matrices. LoRA has claimed comparable performance to full fine-tuning while using much fewer learnable parameters. Meanwhile, there are also other branches of adapters for LLMs such as the series adapter ( Houlsby et al., 2019 ) and parallel adapter ( He et al., 2022 ) . Please refer to ( Mangrulkar et al., 2022 ; Hu et al., 2023 ) for a review of these adapters.</p>
+<p>Quantization of LLMs. Quantization is a compression technique that reduces the bit width of the parameters and/or activations of LLMs to improve their efficiency and scalability ( Xiao et al., 2023 ; Dettmers et al., 2022 ; Dettmers et al., 2023a ) . Existing methods mostly focused on preserving or restoring the accuracy of quantized LLMs during the inference stage ( Zhu et al., 2023 ) , where the key is to reduce the memory footprint and computational costs without re-training the LLMs. One of the main challenges is to handle the outliers in the parameter distribution ( Xiao et al., 2023 ) , which can cause significant errors when quantized. To address this issue, some methods proposed to use either adaptive or dynamic quantization schemes that adjust the quantization range or precision according to the parameters ( Xiao et al., 2023 ; Dettmers et al., 2022 ) . Other methods used sophisticated grouping or clustering techniques to partition the parameters into different groups and applied different quantization strategies for each group ( Park et al., 2022 ; Yao et al., 2022 ; Wu et al., 2023 ) .</p>
+<p>Joint adaptation and quantization. This paper aims to achieve the objectives of both parameter-efficient adaptation and computation-efficient tuning and deployment, which can further improve the efficiency and scalability of LLMs as well as mitigate the negative impact of quantization errors. However, this also poses additional challenges, such as propagating gradients through discrete values and optimizing the quantization parameters. To overcome these challenges, lossy quantization methods proposed to use stochastic rounding ( Shen et al., 2020 ) or learned rounding ( Esser et al., 2019 ) to approximate the gradients and update the parameters, but applying these methods to LLMs is often difficult. Other methods proposed to use switchback layers ( Wortsman et al., 2023 ) or mixed-precision inference ( Dettmers et al., 2023a ) to alternate between quantized and full/half-precision values, which often result in low inference speed.</p>
+<p>To the best of our knowledge, the most related work is QLoRA ( Dettmers et al., 2023a ) which squeezed the pre-trained weights into NF4 and added LoRA. However, QLoRA added the adaption weights back to pre-trained weights and turned them into FP16 again, and thus the deployed model is still slow. We solve this problem with the proposed QA-LoRA approach.</p>
+<h2 id="the-proposed-approach">The Proposed Approach<a class="headerlink" href="#the-proposed-approach" title="Permanent link">&para;</a></h2>
+<h3 id="baseline-low-rank-adaptation-and-low-bit-quantization">Baseline: Low-rank Adaptation and Low-bit Quantization<a class="headerlink" href="#baseline-low-rank-adaptation-and-low-bit-quantization" title="Permanent link">&para;</a></h3>
+<p>We follow the notation system used in LoRA ( Hu et al., 2021 ) which assumed pre-trained weights to form a matrix <span class="arithmatex">\(\mathbf{W}\)</span> and the features form a vector <span class="arithmatex">\(\mathbf{x}\)</span> . The definition is easily applied to a wide range of scenarios and extended into <span class="arithmatex">\(\mathbf{x}\)</span> is a set of vectors ( e.g. , a feature matrix). Let the size of <span class="arithmatex">\(\mathbf{W}\)</span> be <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{out}}\)</span> and <span class="arithmatex">\(\mathbf{x}\)</span> has the length of <span class="arithmatex">\(D_{\mathrm{in}}\)</span> , and thus the computation is easily written as <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}\)</span> where <span class="arithmatex">\(\mathbf{y}\)</span> is the output vector with a length of <span class="arithmatex">\(D_{\mathrm{out}}\)</span> .</p>
+<p>The key idea of LoRA is to introduce a pair of matrices, <span class="arithmatex">\(\mathbf{A}\)</span> and <span class="arithmatex">\(\mathbf{B}\)</span> , to supplement <span class="arithmatex">\(\mathbf{W}\)</span> . <span class="arithmatex">\(\mathbf{A}\)</span> and <span class="arithmatex">\(\mathbf{B}\)</span> have sizes of <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}\)</span> and <span class="arithmatex">\(D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> , respectively, so that their multiplication, <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> , has the same size as <span class="arithmatex">\(\mathbf{W}\)</span> . The intermediate dimensionality, <span class="arithmatex">\(D_{\mathrm{int}}\)</span> , is often set to be a small value ( i.e. , <span class="arithmatex">\(D_{\mathrm{int}}\ll\min\{D_{\mathrm{in}},D_{\mathrm{out}}\}\)</span> ), making <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> a low-rank matrix compared to <span class="arithmatex">\(\mathbf{W}\)</span> . During fine-tuning, we compute <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}+s\cdot(\mathbf{A}\mathbf{B})^{\top}\mathbf{x}\)</span> , where <span class="arithmatex">\(s\)</span> is the coefficient for weight tuning, and <span class="arithmatex">\(\mathbf{W}\)</span> is fixed while <span class="arithmatex">\(\mathbf{A}\)</span> and <span class="arithmatex">\(\mathbf{B}\)</span> can be adjusted, arriving at the goal of parameter-efficient fine-tuning. After fine-tuning, the computation is reformulated into <span class="arithmatex">\(\mathbf{y}=(\mathbf{W}+s\cdot\mathbf{A}\mathbf{B})^{\top}\mathbf{x}\)</span> , where <span class="arithmatex">\(\mathbf{W}\)</span> is replaced by <span class="arithmatex">\(\mathbf{W}^{\prime}=\mathbf{W}+s\cdot\mathbf{A}\mathbf{B}\)</span> for fast inference.</p>
+<p>Another effective way to reduce computational costs lies in low-bit quantization. We only consider the quantization of weights throughout this paper. In particular, we apply a simple method named min-max quantization. Mathematically, given the bit width <span class="arithmatex">\(N\)</span> and a pre-trained weight matrix <span class="arithmatex">\(\mathbf{W}\)</span> , we compute the minimum and maximum values across all elements of <span class="arithmatex">\(\mathbf{W}\)</span> , denoted as <span class="arithmatex">\(\min(\mathbf{W})\)</span> and <span class="arithmatex">\(\max(\mathbf{W})\)</span> , respectively. Then, <span class="arithmatex">\(\mathbf{W}\)</span> is quantized into <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> by computing</p>
+<div class="arithmatex">\[
+\tilde{\mathbf{W}}=\alpha\cdot\hat{\mathbf{W}}+\beta\doteq\alpha\cdot\left\lfloor\frac{\mathbf{W}-\beta}{\alpha}\right\rceil+\beta,
+\]</div>
+<p>where <span class="arithmatex">\(\alpha=(\max(\mathbf{W})-\min(\mathbf{W}))/(2^{N}-1)\)</span> and <span class="arithmatex">\(\beta=\min(\mathbf{W})\)</span> are called the scaling and zero factors, respectively; <span class="arithmatex">\(\left\lfloor\cdot\right\rceil\)</span> denotes the integer rounding operation. All elements in <span class="arithmatex">\(\hat{\mathbf{W}}\)</span> are in the set of <span class="arithmatex">\(\{0,1,\ldots,2^{N}-1\}\)</span> and thus stored as <span class="arithmatex">\(B\)</span> -bit integers. The computation, <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}\)</span> , is approximated as <span class="arithmatex">\(\mathbf{y}=\tilde{\mathbf{W}}^{\top}\mathbf{x}=\alpha\cdot\left\lfloor\frac{\mathbf{W}-\beta}{\alpha}\right\rceil^{\top}\mathbf{x}+\beta\mathbf{x}\)</span> . The quantization brings two-fold benefits, namely, the storage of <span class="arithmatex">\(\mathbf{W}\)</span> is reduced ( e.g. , from FP16 to INT4 ) and the computation of <span class="arithmatex">\(\mathbf{W}^{\top}\mathbf{x}\)</span> becomes faster. The cost is that <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> is an approximation of <span class="arithmatex">\(\mathbf{W}\)</span> , which may harm the accuracy of language understanding.</p>
+<p>To reduce the quantization loss between <span class="arithmatex">\(\mathbf{W}\)</span> and <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> , an effective strategy is to perform an individual quantization for each column of <span class="arithmatex">\(\mathbf{W}\)</span> . Let <span class="arithmatex">\(\mathbf{W}=[w_{i,j}]_{D_{\mathrm{in}}\times D_{\mathrm{out}}}\)</span> , where <span class="arithmatex">\(i\in\{1,\ldots,D_{\mathrm{in}}\}\)</span> and <span class="arithmatex">\(j\in\{1,\ldots,D_{\mathrm{out}}\}\)</span> are iterative variables. Let <span class="arithmatex">\(\alpha_{j}\)</span> and <span class="arithmatex">\(\beta_{j}\)</span> be the scaling and zero factors computed on the <span class="arithmatex">\(j\)</span> -th column, <span class="arithmatex">\(\mathbf{w}_{j}\)</span> . Hence, Equation 1 is updated as <span class="arithmatex">\(\tilde{\mathbf{W}}=[\tilde{\mathbf{w}}_{j}]_{D_{\mathrm{out}}}=\left[\alpha_{j}\cdot\left\lfloor\frac{\mathbf{w}_{j}-\beta_{j}}{\alpha_{j}}\right\rceil+\beta_{j}\right]_{D_{\mathrm{out}}}\)</span> , and the computation is rewritten as <span class="arithmatex">\(\mathbf{y}=\tilde{\mathbf{W}}^{\top}\mathbf{x}=\left[\alpha_{j}\cdot\left\lfloor\frac{\mathbf{w}_{j}-\beta_{j}}{\alpha_{j}}\right\rceil^{\top}\mathbf{x}+\beta_{j}\mathbf{x}\right]_{D_{\mathrm{out}}}\)</span> . Compared to the original (holistic) quantization, the computational cost is unchanged while the storage cost of the scaling and zero factors increases from <span class="arithmatex">\(2\)</span> to <span class="arithmatex">\(2D_{\mathrm{out}}\)</span> floating point numbers. This is negligible compared to the reduced cost of storing the full-precision <span class="arithmatex">\(\mathbf{W}\)</span> .</p>
+<p><img alt="Figure S3.F2" src="../figs/S3-F2-01.png" /></p>
+<p>Figure 2: An illustration of the goal of QA-LoRA. Compared to prior adaptation methods, LoRA and QLoRA, our approach is computationally efficient in both the fine-tuning and inference stages. More importantly, it does not suffer an accuracy loss because post-training quantization is not required. We display INT4 quantization in the figure, but QA-LoRA is generalized to INT3 and INT2 .</p>
+<h3 id="objective-efficient-adaptation-and-deployment">Objective: Efficient Adaptation and Deployment<a class="headerlink" href="#objective-efficient-adaptation-and-deployment" title="Permanent link">&para;</a></h3>
+<p>As shown in Figure 2 , we aim to achieve two goals. First, during the fine-tuning stage, the pre-trained weights <span class="arithmatex">\(\mathbf{W}\)</span> are quantized into low-bit representation so that LLMs can be fine-tuned on as few GPUs as possible. Second, after the fine-tuning stage, the fine-tuned and merged weights <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> are still in a quantized form so that LLMs can be deployed with computational efficiency.</p>
+<p>We note that QLoRA ( Dettmers et al., 2023a ) , a recently proposed variant of LoRA, achieved the first goal. The idea is to quantize <span class="arithmatex">\(\mathbf{W}\)</span> from FP16 to NF4 (a highly squeezed type of floating point numbers) during the fine-tuning stage. We learn from QLoRA that joint optimization of quantization and adaptation is tractable because the accuracy loss between <span class="arithmatex">\(\mathbf{W}\)</span> and <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> is compensated by the low-rank weights, <span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span> . After fine-tuning, the side weights <span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span> must be added back to <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> , making the final weights <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> in FP16 again. Indeed, one can perform post-training quantization (PTQ) upon <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> , but this strategy can cause a significant loss in accuracy especially when the bit width is low. Please refer to the experiments for details. Additionally, there is no operator-level optimization for NF4 yet, making it difficult to accelerate the fine-tuning and inference stages. In brief, the only benefit brought by QLoRA is the reduced memory cost for fine-tuning.</p>
+<h3 id="solution-group-wise-quantization-with-low-rank-adaptation">Solution: Group-wise Quantization with Low-rank Adaptation<a class="headerlink" href="#solution-group-wise-quantization-with-low-rank-adaptation" title="Permanent link">&para;</a></h3>
+<p>From the above analysis, the key to achieving the second goal lies in that <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> ( i.e. , the quantized <span class="arithmatex">\(\mathbf{W}\)</span> ) and <span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span> can be merged without using high-precision numbers ( e.g. , FP16 ). We first note that this is impossible in the original setting, i.e. , <span class="arithmatex">\(\mathbf{W}\)</span> is quantized into <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> in a column-wise manner while both <span class="arithmatex">\(\mathbf{A}\)</span> and <span class="arithmatex">\(\mathbf{B}\)</span> are unconstrained.</p>
+<p>We write down the condition using the mathematical language. Since <span class="arithmatex">\(\mathbf{W}^{\prime}=\tilde{\mathbf{W}}+s\cdot\mathbf{A}\mathbf{B}\)</span> , we have <span class="arithmatex">\(w_{i,j}^{\prime}=\tilde{w}_{i,j}+s\cdot\sum_{k}a_{i,k}b_{k,j}\)</span> for all <span class="arithmatex">\((i,j)\)</span> . Here, for any <span class="arithmatex">\(j\)</span> , all <span class="arithmatex">\(\tilde{w}_{i,j}\)</span> are represented using the same set of scaling and zero factors, i.e. , there exist <span class="arithmatex">\(\alpha_{j}\)</span> and <span class="arithmatex">\(\beta_{j}\)</span> so that <span class="arithmatex">\(\tilde{w}_{i,j}=\alpha_{j}\times\hat{w}_{i,j}+\beta_{j}\)</span> , <span class="arithmatex">\(\hat{w}_{i,j}\in\{0,1,\ldots,2^{N}-1\}\)</span> . After each <span class="arithmatex">\(\tilde{w}_{i,j}\)</span> is added by <span class="arithmatex">\(s\cdot\sum_{k}a_{i,k}b_{k,j}\)</span> (abbreviated as <span class="arithmatex">\(c_{i,j}\)</span> ), if we want to keep the property for quantization, we must guarantee that for any <span class="arithmatex">\(j\)</span> , all possible values of <span class="arithmatex">\(c_{i,j}\)</span> form an arithmetic set with the common difference being <span class="arithmatex">\(\alpha_{j}\)</span> <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup> . This is intractable in continuous and gradient-based optimization unless we ask that <span class="arithmatex">\(c_{i,j}\)</span> is a constant, i.e. , <span class="arithmatex">\(c_{1,j}=\ldots=c_{i,j}=\ldots,c_{D_{\mathrm{in}},j}\)</span> for any <span class="arithmatex">\(j\)</span> . This is equivalent to set all row vectors of <span class="arithmatex">\(\mathbf{A}\)</span> to be same, i.e. , <span class="arithmatex">\(\mathbf{a}_{1}\equiv\ldots\equiv\mathbf{a}_{i}\equiv\ldots\equiv\mathbf{a}_{D_{\mathrm{in}}}\)</span> , where <span class="arithmatex">\(\equiv\)</span> denotes element-wise equivalence between two vectors.</p>
+<p>The above strategy, while tractable, leads to a significant accuracy drop in practice. In particular, with all rows of <span class="arithmatex">\(\mathbf{A}\)</span> being the same vector, we have <span class="arithmatex">\(\mathrm{rank}(\mathbf{A})=1\)</span> and thus <span class="arithmatex">\(\mathrm{rank}(\mathbf{A}\mathbf{B})=1\)</span> , whereas the rank of <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> is correlated to the ability of fine-tuning <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> in new data ( Hu et al., 2021 ; Valipour et al., 2022 ; Dettmers et al., 2023a ) . To address this issue, a straightforward idea is to relax the constraints for both quantization and adaptation.</p>
+<p>We partition each column of <span class="arithmatex">\(\mathbf{W}\)</span> into <span class="arithmatex">\(L\)</span> groups where, for ease of implementation, we set <span class="arithmatex">\(L\)</span> to be a divisor of <span class="arithmatex">\(D_{\mathrm{in}}\)</span> . Instead of quantizing each column of <span class="arithmatex">\(\mathbf{W}\)</span> entirely, we use an individual pair of scaling and zero factors for quantization, i.e. , the <span class="arithmatex">\(l\)</span> -th group of factors, <span class="arithmatex">\(\alpha_{l,j}\)</span> and <span class="arithmatex">\(\beta_{l,j}\)</span> , are computed for <span class="arithmatex">\(D_{\mathrm{in}}/L\)</span> elements in the <span class="arithmatex">\(j\)</span> -th column. Correspondingly, we only require the row vectors of <span class="arithmatex">\(\mathbf{A}\)</span> within the same group to have the same value. In our implementation, this is achieved by doing summation within each group of the input vector, <span class="arithmatex">\(\mathbf{x}\)</span> . This parameter-free operation reduces the dimension of <span class="arithmatex">\(\mathbf{x}\)</span> from <span class="arithmatex">\(D_{\mathrm{in}}\)</span> to <span class="arithmatex">\(L\)</span> , hence we can set <span class="arithmatex">\(\mathbf{A}\)</span> to be a <span class="arithmatex">\(L\times D_{\mathrm{int}}\)</span> matrix without further constraints.</p>
+<p>⬇</p>
+<h1 id="_1"><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>D_in,</p>
+<p>D_out,</p>
+<p>D_int:</p>
+<p>the</p>
+<p>input,</p>
+<p>output,</p>
+<p>and</p>
+<p>low-rank</p>
+<p>adaptation</p>
+<p>dimensions</p>
+<h1 id="_2"><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h1>
+<p>L:</p>
+<p>the</p>
+<p>quantization</p>
+<p>group</p>
+<p>numbers</p>
+<p>of</p>
+<p>weights</p>
+<p>W</p>
+<p>(D_in</p>
+<p>//</p>
+<p>L</p>
+<p>is</p>
+<p>the</p>
+<p>group</p>
+<p>size)</p>
+<h1 id="_3"><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h1>
+<p>s:</p>
+<p>the</p>
+<p>coefficient</p>
+<p>for</p>
+<p>adaptation;</p>
+<p>N:</p>
+<p>the</p>
+<p>bit</p>
+<p>width</p>
+<p>of</p>
+<p>quantization</p>
+<p>QA = nn.AvgPool1d(D_in//L)</p>
+<p>lora_A</p>
+<p>=</p>
+<p>nn</p>
+<p>.</p>
+<p>Parameter</p>
+<p>(</p>
+<p>torch</p>
+<p>.</p>
+<p>empty</p>
+<p>((</p>
+<p>D_int</p>
+<p>,</p>
+<p>L</p>
+<p>)))</p>
+<p>lora_B</p>
+<p>=</p>
+<p>nn</p>
+<p>.</p>
+<p>Parameter</p>
+<p>(</p>
+<p>torch</p>
+<p>.</p>
+<p>empty</p>
+<p>((</p>
+<p>D_out</p>
+<p>,</p>
+<p>D_int</p>
+<p>)))</p>
+<p>def</p>
+<p>qalora_forward</p>
+<p>(</p>
+<p>x</p>
+<p>,</p>
+<p>W</p>
+<p>,</p>
+<p>lora_A</p>
+<p>,</p>
+<p>lora_B</p>
+<p>):</p>
+<p>W_tilde</p>
+<p>=</p>
+<p>pre_quantization</p>
+<p>(</p>
+<p>W</p>
+<p>,</p>
+<p>alpha</p>
+<p>,</p>
+<p>beta</p>
+<p>)</p>
+<p>result</p>
+<p>=</p>
+<p>x</p>
+<p>@</p>
+<p>W_tilde</p>
+<p>result</p>
+<p>+=</p>
+<p>(</p>
+<p>QA(x)*(D_in//L)</p>
+<p>)</p>
+<p>@</p>
+<p>lora_A</p>
+<p>.</p>
+<p>transpose</p>
+<p>(0,1)</p>
+<p>@</p>
+<p>lora_B</p>
+<p>.</p>
+<p>transpose</p>
+<p>(0,1)</p>
+<p>*</p>
+<p>s</p>
+<p>return</p>
+<p>result</p>
+<p>def</p>
+<p>pre_quantization</p>
+<p>(</p>
+<p>W</p>
+<p>,</p>
+<p>alpha</p>
+<p>,</p>
+<p>beta</p>
+<p>):</p>
+<p>W_hat</p>
+<p>=</p>
+<p>torch</p>
+<p>.</p>
+<p>round</p>
+<p>(</p>
+<p>W</p>
+<p>/</p>
+<p>alpha</p>
+<p>)</p>
+<p>+</p>
+<p>beta</p>
+<p>return</p>
+<p>alpha</p>
+<p>*</p>
+<p>(</p>
+<p>W_hat</p>
+<p>-</p>
+<p>beta</p>
+<p>)</p>
+<p>def</p>
+<p>merge_with_quantization</p>
+<p>(</p>
+<p>beta</p>
+<p>,</p>
+<p>lora_A</p>
+<p>,</p>
+<p>lora_B</p>
+<p>):</p>
+<p>beta_new</p>
+<p>=</p>
+<p>beta</p>
+<p>-</p>
+<p>s</p>
+<p>*</p>
+<p>(</p>
+<p>lora_B</p>
+<p>@</p>
+<p>lora_A</p>
+<p>).</p>
+<p>transpose</p>
+<p>(0,1)</p>
+<p>/</p>
+<p>alpha</p>
+<p>return</p>
+<p>beta_new</p>
+<p>Algorithm 1 QA-LoRA Pseudocode in the PyTorch-like style</p>
+<p>The proposed approach is named quantization-aware low-rank adaptation ( QA-LoRA ). Compared to the baselines, LoRA and QLoRA, it is implemented by inserting/modifying a few lines of code, as shown in Algorithm 1 . Compared to LoRA, QA-LoRA enjoys advantages in time and memory consumption. Compared to QLoRA, QA-LoRA requires extra storage for <span class="arithmatex">\(L\times D_{\mathrm{out}}\)</span> pairs of scaling and zero factors but reduces the number of parameters of <span class="arithmatex">\(\mathbf{A}\)</span> from <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}\)</span> to <span class="arithmatex">\(L\times D_{\mathrm{int}}\)</span> – since we often set <span class="arithmatex">\(L\ll D_{\mathrm{in}}\)</span> , the above change is negligible. The major advantage of QA-LoRA, compared to QLoRA, lies in the inference stage where it is faster and more accurate. We compare the computational costs of LoRA, QLoRA and QA-LoRA in Table 2 .</p>
+<p>The insight of QA-LoRA: balance. QA-LoRA is very similar to a variant of QLoRA in which NF4 quantization is replaced by INT4 <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> ). In this version, the number of parameters of quantization ( <span class="arithmatex">\(D_{\mathrm{out}}\)</span> pairs of scaling and zero factors) is much smaller than that of adaptation ( <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> parameters). This results in a significant imbalance between the degrees of freedom of quantization and adaptation. We introduce group-wise operations, increasing the number of parameters of quantization from <span class="arithmatex">\(D_{\mathrm{out}}\)</span> to <span class="arithmatex">\(L\times D_{\mathrm{out}}\)</span> , meanwhile decreasing that of adaptation from <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> to <span class="arithmatex">\(L\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> . As we shall see in experiments, a moderate <span class="arithmatex">\(L\)</span> can achieve satisfying accuracy of language understanding meanwhile preserving computational efficiency.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Method</td>
+<td>Dataset</td>
+<td>#Bits</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+</tr>
+<tr>
+<td>Method</td>
+<td>Dataset</td>
+<td></td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>–</td>
+<td>16</td>
+<td>32.4</td>
+<td>26.6</td>
+<td>31.4</td>
+<td>37.2</td>
+<td>32.1</td>
+<td>33.3</td>
+<td>29.8</td>
+<td>37.8</td>
+<td>38.0</td>
+<td>34.6</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>Alpaca</td>
+<td>4+16</td>
+<td>38.1</td>
+<td>31.1</td>
+<td>41.6</td>
+<td>46.9</td>
+<td>39.4</td>
+<td>36.1</td>
+<td>31.9</td>
+<td>42.0</td>
+<td>44.5</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>35.7</td>
+<td>30.9</td>
+<td>38.0</td>
+<td>44.0</td>
+<td>37.1</td>
+<td>33.8</td>
+<td>31.3</td>
+<td>37.4</td>
+<td>42.2</td>
+<td>36.0</td>
+</tr>
+<tr>
+<td>PEQA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>34.9</td>
+<td>28.9</td>
+<td>37.5</td>
+<td>40.1</td>
+<td>34.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>36.9</td>
+<td>31.4</td>
+<td>40.3</td>
+<td>44.9</td>
+<td>38.3</td>
+<td>36.6</td>
+<td>32.4</td>
+<td>44.8</td>
+<td>44.9</td>
+<td>39.4</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>31.5</td>
+<td>28.9</td>
+<td>31.8</td>
+<td>36.8</td>
+<td>32.2</td>
+<td>31.6</td>
+<td>30.1</td>
+<td>35.6</td>
+<td>39.8</td>
+<td>34.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>36.0</td>
+<td>34.1</td>
+<td>42.0</td>
+<td>42.3</td>
+<td>38.3</td>
+<td>35.6</td>
+<td>30.5</td>
+<td>41.5</td>
+<td>42.7</td>
+<td>37.4</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>24.1</td>
+<td>22.1</td>
+<td>22.5</td>
+<td>23.7</td>
+<td>23.2</td>
+<td>23.4</td>
+<td>26.2</td>
+<td>26.4</td>
+<td>28.4</td>
+<td>25.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>26.4</td>
+<td>25.5</td>
+<td>25.6</td>
+<td>28.7</td>
+<td>26.5</td>
+<td>27.3</td>
+<td>26.1</td>
+<td>26.1</td>
+<td>30.3</td>
+<td>27.5</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>FLAN v2</td>
+<td>4+16</td>
+<td>40.9</td>
+<td>32.5</td>
+<td>47.8</td>
+<td>49.5</td>
+<td>42.6</td>
+<td>41.4</td>
+<td>35.0</td>
+<td>49.8</td>
+<td>52.0</td>
+<td>44.3</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>39.7</td>
+<td>32.5</td>
+<td>46.4</td>
+<td>48.1</td>
+<td>41.6</td>
+<td>36.5</td>
+<td>33.7</td>
+<td>46.9</td>
+<td>50.3</td>
+<td>41.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>44.0</td>
+<td>35.3</td>
+<td>52.3</td>
+<td>52.6</td>
+<td>45.9</td>
+<td>43.9</td>
+<td>38.0</td>
+<td>54.3</td>
+<td>53.0</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>36.7</td>
+<td>30.2</td>
+<td>38.4</td>
+<td>40.1</td>
+<td>36.5</td>
+<td>32.2</td>
+<td>31.7</td>
+<td>42.7</td>
+<td>42.8</td>
+<td>36.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>41.4</td>
+<td>35.1</td>
+<td>52.0</td>
+<td>50.2</td>
+<td>44.4</td>
+<td>41.3</td>
+<td>36.0</td>
+<td>52.8</td>
+<td>50.2</td>
+<td>44.7</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>24.1</td>
+<td>22.5</td>
+<td>22.3</td>
+<td>23.8</td>
+<td>23.3</td>
+<td>23.9</td>
+<td>25.3</td>
+<td>26.2</td>
+<td>25.3</td>
+<td>25.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>34.1</td>
+<td>30.0</td>
+<td>37.2</td>
+<td>39.8</td>
+<td>35.2</td>
+<td>31.8</td>
+<td>38.1</td>
+<td>34.5</td>
+<td>38.5</td>
+<td>33.2</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>–</td>
+<td>16</td>
+<td>40.6</td>
+<td>36.7</td>
+<td>48.9</td>
+<td>48.0</td>
+<td>43.3</td>
+<td>44.0</td>
+<td>35.9</td>
+<td>53.2</td>
+<td>52.9</td>
+<td>46.3</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>Alpaca</td>
+<td>4+16</td>
+<td>45.2</td>
+<td>38.3</td>
+<td>55.0</td>
+<td>54.6</td>
+<td>48.1</td>
+<td>46.0</td>
+<td>37.3</td>
+<td>55.8</td>
+<td>55.1</td>
+<td>48.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>44.7</td>
+<td>38.0</td>
+<td>54.4</td>
+<td>54.0</td>
+<td>47.6</td>
+<td>45.4</td>
+<td>37.4</td>
+<td>55.7</td>
+<td>54.3</td>
+<td>48.0</td>
+</tr>
+<tr>
+<td>PEQA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>43.0</td>
+<td>37.7</td>
+<td>53.6</td>
+<td>49.0</td>
+<td>45.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>44.3</td>
+<td>38.0</td>
+<td>55.1</td>
+<td>55.5</td>
+<td>47.9</td>
+<td>48.4</td>
+<td>38.3</td>
+<td>54.9</td>
+<td>55.2</td>
+<td>49.2</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>43.5</td>
+<td>36.2</td>
+<td>52.3</td>
+<td>52.6</td>
+<td>45.9</td>
+<td>43.6</td>
+<td>36.1</td>
+<td>53.0</td>
+<td>52.7</td>
+<td>46.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>43.9</td>
+<td>37.3</td>
+<td>53.1</td>
+<td>54.3</td>
+<td>46.9</td>
+<td>44.3</td>
+<td>38.8</td>
+<td>53.4</td>
+<td>53.8</td>
+<td>47.3</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>27.7</td>
+<td>27.6</td>
+<td>31.8</td>
+<td>29.7</td>
+<td>29.0</td>
+<td>29.0</td>
+<td>27.1</td>
+<td>33.4</td>
+<td>34.8</td>
+<td>30.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>35.7</td>
+<td>33.3</td>
+<td>40.9</td>
+<td>42.0</td>
+<td>37.8</td>
+<td>35.6</td>
+<td>30.6</td>
+<td>39.9</td>
+<td>41.7</td>
+<td>36.9</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>FLAN v2</td>
+<td>4+16</td>
+<td>48.0</td>
+<td>39.2</td>
+<td>58.2</td>
+<td>56.7</td>
+<td>50.3</td>
+<td>49.9</td>
+<td>40.1</td>
+<td>60.2</td>
+<td>57.9</td>
+<td>51.9</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>47.6</td>
+<td>39.6</td>
+<td>57.6</td>
+<td>56.0</td>
+<td>50.0</td>
+<td>49.4</td>
+<td>40.9</td>
+<td>59.7</td>
+<td>57.6</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>47.7</td>
+<td>41.4</td>
+<td>59.6</td>
+<td>57.2</td>
+<td>51.1</td>
+<td>50.0</td>
+<td>41.5</td>
+<td>60.5</td>
+<td>58.4</td>
+<td>52.4</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>46.6</td>
+<td>37.9</td>
+<td>55.9</td>
+<td>55.7</td>
+<td>48.9</td>
+<td>46.5</td>
+<td>38.2</td>
+<td>57.2</td>
+<td>56.1</td>
+<td>49.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>47.4</td>
+<td>39.4</td>
+<td>57.7</td>
+<td>56.0</td>
+<td>49.9</td>
+<td>49.3</td>
+<td>40.0</td>
+<td>60.0</td>
+<td>57.5</td>
+<td>51.5</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>36.2</td>
+<td>30.3</td>
+<td>40.8</td>
+<td>44.1</td>
+<td>37.8</td>
+<td>36.6</td>
+<td>32.0</td>
+<td>43.8</td>
+<td>44.2</td>
+<td>38.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>40.8</td>
+<td>36.4</td>
+<td>39.3</td>
+<td>50.1</td>
+<td>43.9</td>
+<td>40.9</td>
+<td>36.1</td>
+<td>50.7</td>
+<td>46.7</td>
+<td>44.1</td>
+</tr>
+<tr>
+<td>LLaMA-33B</td>
+<td>–</td>
+<td>16</td>
+<td>51.0</td>
+<td>42.7</td>
+<td>63.3</td>
+<td>60.4</td>
+<td>54.1</td>
+<td>56.2</td>
+<td>45.9</td>
+<td>67.1</td>
+<td>63.9</td>
+<td>58.2</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>Alpaca</td>
+<td>4+16</td>
+<td>52.2</td>
+<td>44.9</td>
+<td>64.3</td>
+<td>61.8</td>
+<td>55.5</td>
+<td>55.4</td>
+<td>46.0</td>
+<td>66.4</td>
+<td>63.6</td>
+<td>57.7</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>51.7</td>
+<td>44.7</td>
+<td>63.4</td>
+<td>61.0</td>
+<td>54.9</td>
+<td>53.9</td>
+<td>46.6</td>
+<td>66.3</td>
+<td>62.9</td>
+<td>57.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>51.6</td>
+<td>44.9</td>
+<td>65.0</td>
+<td>61.8</td>
+<td>55.4</td>
+<td>55.8</td>
+<td>46.4</td>
+<td>67.0</td>
+<td>64.0</td>
+<td>58.1</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>49.5</td>
+<td>43.3</td>
+<td>63.1</td>
+<td>61.0</td>
+<td>53.8</td>
+<td>53.3</td>
+<td>45.0</td>
+<td>64.1</td>
+<td>61.4</td>
+<td>55.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>50.6</td>
+<td>44.6</td>
+<td>64.0</td>
+<td>61.2</td>
+<td>54.7</td>
+<td>54.3</td>
+<td>45.8</td>
+<td>65.2</td>
+<td>62.6</td>
+<td>56.8</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>32.0</td>
+<td>31.6</td>
+<td>35.8</td>
+<td>32.8</td>
+<td>32.9</td>
+<td>37.5</td>
+<td>34.9</td>
+<td>45.3</td>
+<td>44.9</td>
+<td>40.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>38.4</td>
+<td>38.2</td>
+<td>50.7</td>
+<td>49.7</td>
+<td>43.6</td>
+<td>44.2</td>
+<td>38.8</td>
+<td>53.9</td>
+<td>52.3</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>FLAN v2</td>
+<td>4+16</td>
+<td>56.3</td>
+<td>46.5</td>
+<td>68.6</td>
+<td>64.6</td>
+<td>58.8</td>
+<td>57.2</td>
+<td>48.6</td>
+<td>69.8</td>
+<td>65.2</td>
+<td>60.0</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>54.9</td>
+<td>46.4</td>
+<td>68.2</td>
+<td>63.6</td>
+<td>58.0</td>
+<td>57.4</td>
+<td>48.6</td>
+<td>69.2</td>
+<td>64.9</td>
+<td>59.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>54.2</td>
+<td>47.0</td>
+<td>69.7</td>
+<td>65.5</td>
+<td>58.7</td>
+<td>57.9</td>
+<td>48.8</td>
+<td>71.0</td>
+<td>65.5</td>
+<td>60.6</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>54.0</td>
+<td>44.3</td>
+<td>65.8</td>
+<td>62.7</td>
+<td>56.5</td>
+<td>55.7</td>
+<td>47.4</td>
+<td>67.9</td>
+<td>64.0</td>
+<td>58.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>53.1</td>
+<td>45.0</td>
+<td>66.9</td>
+<td>63.0</td>
+<td>56.7</td>
+<td>56.8</td>
+<td>46.9</td>
+<td>68.9</td>
+<td>63.7</td>
+<td>58.9</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>37.9</td>
+<td>35.0</td>
+<td>47.6</td>
+<td>42.9</td>
+<td>40.6</td>
+<td>42.8</td>
+<td>37.0</td>
+<td>54.3</td>
+<td>51.5</td>
+<td>46.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>49.4</td>
+<td>40.4</td>
+<td>59.8</td>
+<td>56.5</td>
+<td>51.4</td>
+<td>49.6</td>
+<td>42.7</td>
+<td>60.7</td>
+<td>57.8</td>
+<td>52.4</td>
+</tr>
+<tr>
+<td>LLaMA-65B</td>
+<td>–</td>
+<td>16</td>
+<td>56.4</td>
+<td>45.2</td>
+<td>68.0</td>
+<td>64.1</td>
+<td>58.3</td>
+<td>61.4</td>
+<td>51.9</td>
+<td>73.6</td>
+<td>67.6</td>
+<td>63.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>Alpaca</td>
+<td>4+16</td>
+<td>55.5</td>
+<td>49.3</td>
+<td>70.4</td>
+<td>66.9</td>
+<td>60.1</td>
+<td>60.3</td>
+<td>52.7</td>
+<td>72.9</td>
+<td>67.4</td>
+<td>63.1</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>54.8</td>
+<td>48.9</td>
+<td>69.8</td>
+<td>66.1</td>
+<td>59.4</td>
+<td>60.4</td>
+<td>52.5</td>
+<td>73.0</td>
+<td>67.2</td>
+<td>63.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>57.1</td>
+<td>48.2</td>
+<td>70.7</td>
+<td>64.9</td>
+<td>60.0</td>
+<td>60.8</td>
+<td>50.5</td>
+<td>72.5</td>
+<td>66.7</td>
+<td>62.5</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>57.4</td>
+<td>47.9</td>
+<td>67.2</td>
+<td>65.1</td>
+<td>59.3</td>
+<td>59.6</td>
+<td>50.0</td>
+<td>70.6</td>
+<td>66.1</td>
+<td>61.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>3</td>
+<td>57.6</td>
+<td>48.4</td>
+<td>69.3</td>
+<td>65.4</td>
+<td>60.0</td>
+<td>59.3</td>
+<td>49.6</td>
+<td>71.9</td>
+<td>66.0</td>
+<td>61.5</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>43.9</td>
+<td>38.0</td>
+<td>42.6</td>
+<td>51.1</td>
+<td>46.2</td>
+<td>47.3</td>
+<td>40.8</td>
+<td>58.9</td>
+<td>57.0</td>
+<td>50.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>2</td>
+<td>48.6</td>
+<td>42.5</td>
+<td>60.7</td>
+<td>58.6</td>
+<td>52.2</td>
+<td>51.3</td>
+<td>43.4</td>
+<td>63.4</td>
+<td>60.7</td>
+<td>54.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA</td>
+<td>FLAN v2</td>
+<td>4+16</td>
+<td>58.8</td>
+<td>52.5</td>
+<td>74.0</td>
+<td>67.4</td>
+<td>62.8</td>
+<td>59.8</td>
+<td>52.9</td>
+<td>75.0</td>
+<td>69.6</td>
+<td>63.9</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>57.8</td>
+<td>51.9</td>
+<td>73.5</td>
+<td>67.8</td>
+<td>62.3</td>
+<td>59.2</td>
+<td>52.5</td>
+<td>75.0</td>
+<td>69.3</td>
+<td>63.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>64.1</td>
+<td>52.6</td>
+<td>74.8</td>
+<td>69.1</td>
+<td>65.1</td>
+<td>57.6</td>
+<td>51.1</td>
+<td>73.9</td>
+<td>67.4</td>
+<td>62.1</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>58.5</td>
+<td>50.2</td>
+<td>71.5</td>
+<td>66.9</td>
+<td>61.5</td>
+<td>59.9</td>
+<td>51.7</td>
+<td>73.4</td>
+<td>67.9</td>
+<td>63.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>3</td>
+<td>57.5</td>
+<td>49.5</td>
+<td>72.4</td>
+<td>66.9</td>
+<td>61.2</td>
+<td>61.7</td>
+<td>51.1</td>
+<td>73.8</td>
+<td>68.4</td>
+<td>63.6</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>47.9</td>
+<td>43.1</td>
+<td>60.1</td>
+<td>56.0</td>
+<td>51.4</td>
+<td>52.6</td>
+<td>43.8</td>
+<td>62.8</td>
+<td>58.5</td>
+<td>54.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>2</td>
+<td>55.9</td>
+<td>44.6</td>
+<td>65.6</td>
+<td>63.4</td>
+<td>57.1</td>
+<td>55.5</td>
+<td>46.8</td>
+<td>67.3</td>
+<td>63.2</td>
+<td>58.0</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1: <span class="arithmatex">\(0\)</span> -shot and <span class="arithmatex">\(5\)</span> -shot accuracy (%) on the Massive Multitask Language Understanding (MMLU) dataset ( Hendrycks et al., 2021 ) . Each block is based on the same foundation model specified at the first row. We organize all results using the fine-tuning dataset (Alpaca or Flan-v2) and the bit width of quantization. The bit width of ‘ <span class="arithmatex">\(4+16\)</span> ’ refers to the original QLoRA where the final version for inference is in FP16 .</p>
+<h2 id="experiments">Experiments<a class="headerlink" href="#experiments" title="Permanent link">&para;</a></h2>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<p>Foundation models. We establish QA-LoRA upon the LLaMA ( Touvron et al., 2023a ) and LLaMa2 ( Touvron et al., 2023b ) families. In particular, we fine-tune the 7B, 13B, 33B, and 65B models of LLaMA and the 7B and 13B models of LLaMA2.</p>
+<p>Evaluation metrics. Following QLoRA ( Dettmers et al., 2023a ) , we evaluate both the zero-shot and few-shot performance of the LLMs on Massively Multitask Language Understanding (MMLU) benchmark ( Hendrycks et al., 2021 ) . It consists of 57 language tasks including humanities, STEM, social science, etc. We use the official MMLU evaluation script and prompts <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> . We further assess the zero-shot common sense reasoning ability on tasks covering HellaSwag ( Zellers et al., 2019 ) , PIQA ( Bisk et al., 2020 ) , WinoGrande ( Sakaguchi et al., 2019 ) , ARC ( Clark et al., 2018 ) , BoolQ ( Clark et al., 2019 ) , and OpenBookQA ( Mihaylov et al., 2018 ) . We adopt lm-eval-harness ( Gao et al., 2021 ) to produce the Common Sense QA results.</p>
+<p>Quantization. We adopt GPTQ ( Frantar et al., 2023 ) in the quantization step, and our approach is open to other PTQ methods such as ( Lin et al., 2023 ; Dettmers et al., 2023b ) . We use the same settings to quantize the QLoRA fine-tuned models and pre-trained LLaMA models. In the main experiments, we conduct a group-wise asymmetric quantization (with a group size of <span class="arithmatex">\(32\)</span> ). We set the act-order variable to be false and the true-sequential variable to be true .</p>
+<p>Datasets and training details. We choose Alpaca ( Taori et al., 2023 ) and FLAN v2 ( Longpre et al., 2023 ) as our fine-tuning datasets. Alpaca contains 52K instruction-following data generated from text-davinci-003 (GPT 3.5) ( Wang et al., 2022 ) . FLAN v2 is a collection of <span class="arithmatex">\(1\rm{,}836\)</span> tasks combining the mixture with CoT, Muffin, T0-SF, and NIV2. To save the tuning cost, we randomly sample a 320K subset from the FLAN v2 collection. Following QLoRA ( Dettmers et al., 2023a ) , we use a paged AdamW optimizer, a maximum gradient norm of <span class="arithmatex">\(0.3\)</span> , and a batch size of <span class="arithmatex">\(16\)</span> in the tuning period. We choose the constant learning rate schedule and set the learning rate to be <span class="arithmatex">\(2\times 10^{-5}\)</span> for the 7B and 13B models and <span class="arithmatex">\(1\times 10^{-5}\)</span> for the 33B and 65B models. The number of fine-tuning steps is 10K for Alpaca and 20K for FLAN v2. All experiments are conducted on Tesla V100 GPUs. We use one GPU for the 7B, 13B, and 33B models and two GPUs for the 65B models.</p>
+<h3 id="main-results-and-efficiency">Main Results and Efficiency<a class="headerlink" href="#main-results-and-efficiency" title="Permanent link">&para;</a></h3>
+<p>Comparison against recent competitors on LLaMA for MMLU. We first apply QA-LoRA to fine-tune the LLaMA models for MMLU. Table 1 summarizes the results with respect to different model sizes, fine-tuning datasets, and bit widths. Besides the base LLaMA models, we also compare QA-LoRA against QLoRA ( Dettmers et al., 2023a ) , the most related work, and PEQA ( Kim et al., 2023 ) , a recent quantization method that does not use LoRA. We report both the original QLoRA (the inference stage involves FP16 computation) and the variant after GPTQ (for fair comparison). QA-LoRA consistently outperforms both competitors (QLoRA w/ GPTQ and PEQA) in either <span class="arithmatex">\(0\)</span> -shot and <span class="arithmatex">\(5\)</span> -shot accuracy. The advantage is more significant when the model size is small ( e.g. , 7B and 13B) or the bit width is small ( e.g. , INT3 or even INT2 is used), demonstrating that QA-LoRA is a strong solution in the scenarios that require computational efficiency. In some cases, the INT4 version of QA-LoRA performs even better than the original version of QLoRA meanwhile the inference speed is much faster (see the next paragraph). We further demonstrate some examples of QA-LoRA in Appendix A , where one can see the qualitative comparison and QA-LoRA beyond QLoRA w/ GPTQ. QA-LoRA mainly benefits from the quantization-aware adaptation; otherwise, the post-training quantization will not be compensated, resulting in unstable results.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>LLaMA-7B</th>
+<th>LLaMA-7B</th>
+<th>LLaMA-13B</th>
+<th>LLaMA-13B</th>
+<th>LLaMA-33B</th>
+<th>LLaMA-33B</th>
+<th>LLaMA-65B</th>
+<th>LLaMA-65B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Method</td>
+<td>#Params</td>
+<td>Time <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#Params</td>
+<td>Time <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#Params</td>
+<td>Time <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#Params</td>
+<td>Time <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+</tr>
+<tr>
+<td>QLoRA</td>
+<td>160M</td>
+<td>40.0</td>
+<td>250M</td>
+<td>73.1</td>
+<td>488M</td>
+<td>148.6</td>
+<td>800M</td>
+<td>284.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>89M</td>
+<td>21.5</td>
+<td>140M</td>
+<td>29.5</td>
+<td>272M</td>
+<td>51.2</td>
+<td>447M</td>
+<td>100.5</td>
+</tr>
+</tbody>
+</table>
+<p>Table 2: The numbers of learnable parameters and time costs of QLoRA and QA-LoRA during the fine-tuning stage. All results are reported on Alpaca with one Tesla-V100 GPU (the 65B model uses two chips). The number of fine-tuning steps is 10K.</p>
+<p>The efficiency of QA-LoRA. A clear advantage of QA-LoRA lies in its computational efficiency. Table 2 compares QA-LoRA to QLoRA in terms of the learnable parameters and training time during the fine-tuning stage. The significant advantage of QA-LoRA in training time mainly comes from the use of INT4 quantization. Compared to NF4 quantization used by QLoRA, INT4 operators have been optimized by CUDA and are much faster in execution. Additionally, during the inference stage, QA-LoRA is also more than <span class="arithmatex">\(50\%\)</span> faster than QLoRA because the fine-tuned model (after weight integration) is still in INT4 , unlike QLoRA that converts it back to FP16 .</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>#Bits</th>
+<th>HellaSwag</th>
+<th>PIQA</th>
+<th>WinoGrande</th>
+<th>ARC-e</th>
+<th>ARC-c</th>
+<th>BoolQ</th>
+<th>OBQA</th>
+<th>Avg.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLaMA-7B</td>
+<td>16</td>
+<td>56.3</td>
+<td>78.2</td>
+<td>67.1</td>
+<td>67.3</td>
+<td>38.2</td>
+<td>72.9</td>
+<td>28.4</td>
+<td>58.3</td>
+</tr>
+<tr>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>61.8</td>
+<td>78.1</td>
+<td>68.4</td>
+<td>75.8</td>
+<td>43.6</td>
+<td>73.7</td>
+<td>32.8</td>
+<td>62.0</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] LLaMA-7B + GPTQ</td>
+<td>4</td>
+<td>54.5</td>
+<td>76.5</td>
+<td>66.9</td>
+<td>66.1</td>
+<td>36.9</td>
+<td>70.9</td>
+<td>27.4</td>
+<td>57.0</td>
+</tr>
+<tr>
+<td>QLoRA w/ GPTQ</td>
+<td>4</td>
+<td>57.4</td>
+<td>77.6</td>
+<td>66.2</td>
+<td>70.9</td>
+<td>41.8</td>
+<td>73.5</td>
+<td>31.2</td>
+<td>59.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>58.6</td>
+<td>78.0</td>
+<td>66.9</td>
+<td>71.2</td>
+<td>43.9</td>
+<td>79.9</td>
+<td>34.0</td>
+<td>61.8</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>3</td>
+<td>52.2</td>
+<td>75.2</td>
+<td>64.1</td>
+<td>65.8</td>
+<td>37.2</td>
+<td>70.4</td>
+<td>27.2</td>
+<td>56.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>3</td>
+<td>57.6</td>
+<td>76.2</td>
+<td>66.5</td>
+<td>70.2</td>
+<td>43.1</td>
+<td>76.3</td>
+<td>30.6</td>
+<td>60.1</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA w/ GPTQ</td>
+<td>2</td>
+<td>31.9</td>
+<td>58.2</td>
+<td>52.4</td>
+<td>32.3</td>
+<td>20.7</td>
+<td>60.6</td>
+<td>14.6</td>
+<td>38.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>2</td>
+<td>49.8</td>
+<td>70.2</td>
+<td>58.5</td>
+<td>55.4</td>
+<td>33.9</td>
+<td>73.7</td>
+<td>32.8</td>
+<td>53.7</td>
+</tr>
+</tbody>
+</table>
+<p>Table 3: <span class="arithmatex">\(0\)</span> -shot commonsense QA accuracy (%) with respect to different quantization bit widths.</p>
+<p>Commonsense QA results. We also evaluate QA-LoRA for <span class="arithmatex">\(0\)</span> -shot commonsense QA based on LLaMA-7B. Results are summarized in Table 3 . Similar to the MMLU results, the <span class="arithmatex">\(4\)</span> -bit QA-LoRA is comparable with the mixed-precision QLoRA and outperforms the post-quantized QLoRA by an average of <span class="arithmatex">\(2.0\%\)</span> . The advantage becomes more significant in low-bit scenarios, e.g. , the <span class="arithmatex">\(2\)</span> -bit QA-LoRA reports a remarkable accuracy gain of <span class="arithmatex">\(15.0\%\)</span> over the <span class="arithmatex">\(2\)</span> -bit post-quantized QLoRA.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+</tr>
+<tr>
+<td>Method</td>
+<td>Data</td>
+<td>#Bits</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+</tr>
+<tr>
+<td>#Bits</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>LLaMA2-7B</td>
+<td>–</td>
+<td>16</td>
+<td>38.9</td>
+<td>32.9</td>
+<td>46.6</td>
+<td>44.9</td>
+<td>40.7</td>
+<td>43.0</td>
+<td>36.4</td>
+<td>51.4</td>
+<td>52.2</td>
+<td>45.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>41.1</td>
+<td>35.4</td>
+<td>50.2</td>
+<td>50.1</td>
+<td>43.9</td>
+<td>42.1</td>
+<td>34.4</td>
+<td>49.1</td>
+<td>50.3</td>
+<td>43.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>47.4</td>
+<td>39.5</td>
+<td>58.9</td>
+<td>57.3</td>
+<td>50.5</td>
+<td>48.4</td>
+<td>41.4</td>
+<td>59.4</td>
+<td>58.6</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>LLaMA2-13B</td>
+<td>–</td>
+<td>16</td>
+<td>48.1</td>
+<td>42.7</td>
+<td>60.5</td>
+<td>59.5</td>
+<td>52.3</td>
+<td>53.3</td>
+<td>44.1</td>
+<td>63.3</td>
+<td>61.0</td>
+<td>55.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>Alpaca</td>
+<td>4</td>
+<td>48.2</td>
+<td>41.7</td>
+<td>60.4</td>
+<td>58.7</td>
+<td>51.9</td>
+<td>48.0</td>
+<td>43.0</td>
+<td>59.7</td>
+<td>57.4</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>FLAN v2</td>
+<td>4</td>
+<td>50.7</td>
+<td>44.1</td>
+<td>63.8</td>
+<td>62.0</td>
+<td>54.8</td>
+<td>52.9</td>
+<td>44.8</td>
+<td>65.9</td>
+<td>64.0</td>
+<td>56.6</td>
+</tr>
+</tbody>
+</table>
+<p>Table 4: <span class="arithmatex">\(0\)</span> -shot and <span class="arithmatex">\(5\)</span> -shot MMLU accuracy (%) based on the LLaMA2 model family.</p>
+<p>On LLaMA2 models. We further validate the effectiveness of our method on LLaMA2 ( Touvron et al., 2023b ) . As shown in Table 4 , we fine-tune the 7B and 13B models of LLaMA2 and test them on MMLU. Compared to the original FP16 models, the INT4 models fine-tuned with FLAN v2 are consistently better, while those with Alpaca report slightly lower accuracy. These experiments validate that QA-LoRA is generalized to other pre-trained model families.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(0\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+<td>MMLU ( <span class="arithmatex">\(5\)</span> -shot)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+<td>Hums.</td>
+<td>STEM</td>
+<td>Social</td>
+<td>Other</td>
+<td>Avg.</td>
+</tr>
+<tr>
+<td>Base Model</td>
+<td>Group Size</td>
+<td>#Bits</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+</tr>
+<tr>
+<td>#Bits</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>128</td>
+<td>4</td>
+<td>37.3</td>
+<td>31.8</td>
+<td>39.3</td>
+<td>43.7</td>
+<td>38.0</td>
+<td>36.5</td>
+<td>32.1</td>
+<td>41.7</td>
+<td>44.0</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>64</td>
+<td>4</td>
+<td>37.5</td>
+<td>30.6</td>
+<td>41.3</td>
+<td>45.4</td>
+<td>38.6</td>
+<td>36.5</td>
+<td>32.6</td>
+<td>43.4</td>
+<td>45.0</td>
+<td>39.1</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>32</td>
+<td>4</td>
+<td>38.1</td>
+<td>31.1</td>
+<td>41.6</td>
+<td>46.9</td>
+<td>39.4</td>
+<td>36.1</td>
+<td>31.9</td>
+<td>42.0</td>
+<td>44.5</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt]</td>
+<td>128</td>
+<td>2</td>
+<td>24.0</td>
+<td>26.7</td>
+<td>24.8</td>
+<td>25.2</td>
+<td>25.0</td>
+<td>25.0</td>
+<td>29.0</td>
+<td>27.9</td>
+<td>26.1</td>
+<td>26.7</td>
+</tr>
+<tr>
+<td></td>
+<td>64</td>
+<td>2</td>
+<td>25.1</td>
+<td>26.9</td>
+<td>24.7</td>
+<td>27.0</td>
+<td>25.8</td>
+<td>25.0</td>
+<td>27.2</td>
+<td>25.2</td>
+<td>27.3</td>
+<td>26.0</td>
+</tr>
+<tr>
+<td></td>
+<td>32</td>
+<td>2</td>
+<td>26.4</td>
+<td>25.5</td>
+<td>25.6</td>
+<td>28.7</td>
+<td>26.5</td>
+<td>27.3</td>
+<td>26.1</td>
+<td>26.1</td>
+<td>30.3</td>
+<td>27.5</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>128</td>
+<td>4</td>
+<td>43.4</td>
+<td>39.6</td>
+<td>55.5</td>
+<td>53.9</td>
+<td>47.6</td>
+<td>46.5</td>
+<td>38.0</td>
+<td>55.8</td>
+<td>54.5</td>
+<td>48.6</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>64</td>
+<td>4</td>
+<td>43.4</td>
+<td>39.3</td>
+<td>55.8</td>
+<td>53.6</td>
+<td>47.6</td>
+<td>47.8</td>
+<td>39.3</td>
+<td>55.7</td>
+<td>54.8</td>
+<td>49.3</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>32</td>
+<td>4</td>
+<td>44.3</td>
+<td>38.0</td>
+<td>55.1</td>
+<td>55.5</td>
+<td>47.9</td>
+<td>48.4</td>
+<td>38.3</td>
+<td>54.9</td>
+<td>55.2</td>
+<td>49.2</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt]</td>
+<td>128</td>
+<td>2</td>
+<td>28.5</td>
+<td>28.4</td>
+<td>30.6</td>
+<td>29.8</td>
+<td>29.2</td>
+<td>29.2</td>
+<td>30.6</td>
+<td>32.8</td>
+<td>32.4</td>
+<td>31.0</td>
+</tr>
+<tr>
+<td></td>
+<td>64</td>
+<td>2</td>
+<td>30.7</td>
+<td>31.5</td>
+<td>38.1</td>
+<td>36.0</td>
+<td>33.7</td>
+<td>32.3</td>
+<td>30.3</td>
+<td>37.0</td>
+<td>38.3</td>
+<td>34.3</td>
+</tr>
+<tr>
+<td></td>
+<td>32</td>
+<td>2</td>
+<td>35.7</td>
+<td>33.3</td>
+<td>40.9</td>
+<td>42.0</td>
+<td>37.8</td>
+<td>35.6</td>
+<td>30.6</td>
+<td>39.9</td>
+<td>41.7</td>
+<td>36.9</td>
+</tr>
+</tbody>
+</table>
+<p>Table 5: <span class="arithmatex">\(0\)</span> -shot and <span class="arithmatex">\(5\)</span> -shot MMLU accuracy (%) on with respect to different group settings.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Base Model</td>
+<td>Method</td>
+<td>#Bits</td>
+<td>Self-instruct</td>
+<td>Self-instruct</td>
+<td>Longform</td>
+<td>Longform</td>
+<td>Chip2</td>
+<td>Chip2</td>
+<td>Alpaca</td>
+<td>Alpaca</td>
+<td>Flan v2</td>
+<td>Flan v2</td>
+</tr>
+<tr>
+<td>Base Model</td>
+<td>Method</td>
+<td></td>
+<td><span class="arithmatex">\(0\)</span> -shot</td>
+<td><span class="arithmatex">\(5\)</span> -shot</td>
+<td><span class="arithmatex">\(0\)</span> -shot</td>
+<td><span class="arithmatex">\(5\)</span> -shot</td>
+<td><span class="arithmatex">\(0\)</span> -shot</td>
+<td><span class="arithmatex">\(5\)</span> -shot</td>
+<td><span class="arithmatex">\(0\)</span> -shot</td>
+<td><span class="arithmatex">\(5\)</span> -shot</td>
+<td><span class="arithmatex">\(0\)</span> -shot</td>
+<td><span class="arithmatex">\(5\)</span> -shot</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>–</td>
+<td>36.4</td>
+<td>–</td>
+<td>32.1</td>
+<td>–</td>
+<td>34.5</td>
+<td>–</td>
+<td>38.8</td>
+<td>–</td>
+<td>44.5</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>QLoRA w/ GPTQ</td>
+<td>4</td>
+<td>–</td>
+<td>35.4</td>
+<td>–</td>
+<td>29.3</td>
+<td>–</td>
+<td>33.6</td>
+<td>–</td>
+<td>36.0</td>
+<td>–</td>
+<td>41.4</td>
+</tr>
+<tr>
+<td>LLaMA-7B</td>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>32.5</td>
+<td>34.4</td>
+<td>29.3</td>
+<td>33.6</td>
+<td>30.4</td>
+<td>32.2</td>
+<td>38.3</td>
+<td>39.4</td>
+<td>45.9</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>–</td>
+<td>39.0</td>
+<td>–</td>
+<td>43.2</td>
+<td>–</td>
+<td>41.6</td>
+<td>–</td>
+<td>48.4</td>
+<td>–</td>
+<td>51.9</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>QLoRA w/ GPTQ</td>
+<td>4</td>
+<td>–</td>
+<td>38.4</td>
+<td>–</td>
+<td>42.8</td>
+<td>–</td>
+<td>41.3</td>
+<td>–</td>
+<td>48.0</td>
+<td>–</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>44.4</td>
+<td>46.1</td>
+<td>39.9</td>
+<td>43.3</td>
+<td>42.4</td>
+<td>45.8</td>
+<td>47.9</td>
+<td>49.2</td>
+<td>51.1</td>
+<td>52.4</td>
+</tr>
+</tbody>
+</table>
+<p>Table 6: <span class="arithmatex">\(0\)</span> -shot and <span class="arithmatex">\(5\)</span> -shot MMLU accuracy (%) on different fine-tuning datasets.</p>
+<h3 id="ablative-studies">Ablative Studies<a class="headerlink" href="#ablative-studies" title="Permanent link">&para;</a></h3>
+<p>Impact of the quantization group size. We investigate different settings of <span class="arithmatex">\(L\)</span> , the hyper-parameter that controls the degrees of freedom for both quantization and low-rank adaptation. Results are reported in Table 5 , where group size ( i.e. , <span class="arithmatex">\(D_{\mathrm{in}}/L\)</span> is displayed instead of <span class="arithmatex">\(L\)</span> ). Recall that a larger <span class="arithmatex">\(L\)</span> (corresponding to a smaller group size) implies a larger degree of freedom, i.e. , a smaller quantization loss, and a larger number of adaptation parameters. Meanwhile, it also requires a larger number of storage and computation, though negligible as long as <span class="arithmatex">\(L\gg 1\)</span> . One can observe that a larger <span class="arithmatex">\(L\)</span> ( e.g. , group size is <span class="arithmatex">\(32\)</span> ) often leads to higher accuracy, and the advantage becomes more significant when the quantization bit width is small, implying that a larger quantization loss needs to be compensated by a larger degree of freedom.</p>
+<p><img alt="Figure S4.F3" src="../figs/S4-F3-01.png" /></p>
+<p>Figure 3: <span class="arithmatex">\(5\)</span> -shot MMLU accuracy (%) of QA-LoRA when the LLaMA-7B model is fine-tuned on subsets of FLAN v2 with different sizes.</p>
+<p>Impact of fine-tuning datasets. We also evaluate QA-LoRA on more datasets such as Self-instruct ( Wang et al., 2022 ) , Longform ( Köksal et al., 2023 ) , and Chip2 ( LAION, 2023 ) . Results are summarized in Table 6 . Compared to Alpaca and FLAN v2, these datasets are relatively small, and thus the fine-tuned models report a bit weaker accuracy on MMLU. Note that, with LLaMA-13B as the foundation model, QA-LoRA consistently outperforms QLoRA with mixed precision, meanwhile being much faster in the inference stage.</p>
+<p>Impact of the size of fine-tuning datasets. Lastly, we evaluate QA-LoRA on different subsets of FLAN v2. The dataset size varies from 160K, 240K, 320K, 400K, and 480K. LLaMA-7B is used as the foundation model. As shown in Figure 3 , low-bit quantization asks for more data, yet 320K is sufficient for both the INT2 and INT4 variants of QA-LoRA.</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>In this paper, we propose QA-LoRA as an efficient method that introduces quantization-awareness into the low-rank adaptation of LLMs. At the core of QA-LoRA lies the group-wise operations for both quantization and low-rank adaptation, and the key insight comes from balancing the degrees of freedom of both sides. QA-LoRA is easily implemented, generalized across various foundation models and language understanding tasks, and computationally efficient in both fine-tuning and inference stages. Extensive experiments on the LLaMA model families validate the effectiveness of QA-LoRA.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Bisk et al. (2020) Yonatan Bisk, Rowan Zellers, Ronan Le Bras, Jianfeng Gao, and Yejin Choi. Piqa: Reasoning about physical commonsense in natural language. In Thirty-Fourth AAAI Conference on Artificial Intelligence , 2020.</p>
+</li>
+<li>
+<p>Brown et al. (2020) Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Language models are few-shot learners. Advances in neural information processing systems , 33:1877–1901, 2020.</p>
+</li>
+<li>
+<p>Bubeck et al. (2023) Sébastien Bubeck, Varun Chandrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz, Ece Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li, Scott Lundberg, Harsha Nori, Hamid Palangi, Marco Tulio Ribeiro, and Yi Zhang. Sparks of artificial general intelligence: Early experiments with gpt-4. arXiv preprint arXiv:2303.12712 , 2023.</p>
+</li>
+<li>
+<p>Chang et al. (2023) Yupeng Chang, Xu Wang, Jindong Wang, Yuan Wu, Kaijie Zhu, Hao Chen, Linyi Yang, Xiaoyuan Yi, Cunxiang Wang, Yidong Wang, et al. A survey on evaluation of large language models. arXiv preprint arXiv:2307.03109 , 2023.</p>
+</li>
+<li>
+<p>Chowdhery et al. (2022) Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, et al. Palm: Scaling language modeling with pathways. arXiv preprint arXiv:2204.02311 , 2022.</p>
+</li>
+<li>
+<p>Clark et al. (2019) Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina Toutanova. BoolQ: Exploring the surprising difficulty of natural yes/no questions. arXiv preprint arXiv:1905.10044 , 2019.</p>
+</li>
+<li>
+<p>Clark et al. (2018) Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, and Oyvind Tafjord. Think you have solved question answering? try arc, the ai2 reasoning challenge. arXiv preprint arXiv:1803.05457 , 2018.</p>
+</li>
+<li>
+<p>Dettmers et al. (2022) Tim Dettmers, Mike Lewis, Younes Belkada, and Luke Zettlemoyer. LLM.int8(): 8-bit matrix multiplication for transformers at scale. In Advances in Neural Information Processing Systems , 2022.</p>
+</li>
+<li>
+<p>Dettmers et al. (2023a) Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. Qlora: Efficient finetuning of quantized llms. arXiv preprint arXiv:2305.14314 , 2023a.</p>
+</li>
+<li>
+<p>Dettmers et al. (2023b) Tim Dettmers, Ruslan Svirschevski, Vage Egiazarian, Denis Kuznedelev, Elias Frantar, Saleh Ashkboos, Alexander Borzunov, Torsten Hoefler, and Dan Alistarh. Spqr: A sparse-quantized representation for near-lossless llm weight compression. arXiv preprint arXiv:2306.03078 , 2023b.</p>
+</li>
+<li>
+<p>Devlin et al. (2019) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. Bert: Pre-training of deep bidirectional transformers for language understanding. In North American Chapter of the Association for Computational Linguistics , 2019. URL https://api.semanticscholar.org/CorpusID:52967399 .</p>
+</li>
+<li>
+<p>Esser et al. (2019) Steven K Esser, Jeffrey L McKinstry, Deepika Bablani, Rathinakumar Appuswamy, and Dharmendra S Modha. Learned step size quantization. arXiv preprint arXiv:1902.08153 , 2019.</p>
+</li>
+<li>
+<p>Frantar &amp; Alistarh (2023) Elias Frantar and Dan Alistarh. Sparsegpt: Massive language models can be accurately pruned in one-shot. International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Frantar et al. (2023) Elias Frantar, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. GPTQ: Accurate post-training compression for generative pretrained transformers. In International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Gao et al. (2021) Leo Gao, Jonathan Tow, Stella Biderman, Sid Black, Anthony DiPofi, Charles Foster, Laurence Golding, Jeffrey Hsu, Kyle McDonell, Niklas Muennighoff, et al. A framework for few-shot language model evaluation. Version v0. 0.1. Sept , 2021.</p>
+</li>
+<li>
+<p>Hadi et al. (2023) Muhammad Usman Hadi, Rizwan Qureshi, Abbas Shah, Muhammad Irfan, Anas Zafar, Muhammad Bilal Shaikh, Naveed Akhtar, Jia Wu, Seyedali Mirjalili, et al. Large language models: A comprehensive survey of its applications, challenges, limitations, and future prospects. TechRxiv , 2023.</p>
+</li>
+<li>
+<p>He et al. (2022) Junxian He, Chunting Zhou, Xuezhe Ma, Taylor Berg-Kirkpatrick, and Graham Neubig. Towards a unified view of parameter-efficient transfer learning. In International Conference on Learning Representations , 2022.</p>
+</li>
+<li>
+<p>Hendrycks et al. (2021) Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. Measuring massive multitask language understanding. In International Conference on Learning Representations , 2021.</p>
+</li>
+<li>
+<p>Houlsby et al. (2019) Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. Parameter-efficient transfer learning for nlp. In International Conference on Machine Learning , pp. 2790–2799. PMLR, 2019.</p>
+</li>
+<li>
+<p>Hu et al. (2021) Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. LoRA: Low-rank adaptation of large language models. In International Conference on Learning Representations , 2021.</p>
+</li>
+<li>
+<p>Hu et al. (2023) Zhiqiang Hu, Yihuai Lan, Lei Wang, Wanyu Xu, Ee-Peng Lim, Roy Ka-Wei Lee, Lidong Bing, and Soujanya Poria. Llm-adapters: An adapter family for parameter-efficient fine-tuning of large language models. arXiv preprint arXiv:2304.01933 , 2023.</p>
+</li>
+<li>
+<p>Kim et al. (2023) Jeonghoon Kim, Jung Hyun Lee, Sungdong Kim, Joonsuk Park, Kang Min Yoo, Se Jung Kwon, and Dongsoo Lee. Memory-efficient fine-tuning of compressed large language models via sub-4-bit integer quantization. arXiv preprint arXiv:2305.14152 , 2023.</p>
+</li>
+<li>
+<p>Köksal et al. (2023) Abdullatif Köksal, Timo Schick, Anna Korhonen, and Hinrich Schütze. Longform: Optimizing instruction tuning for long text generation with corpus extraction. arXiv preprint arXiv:2304.08460 , 2023.</p>
+</li>
+<li>
+<p>LAION (2023) LAION. Open-instruction-generalist dataset. https://github.com/LAION-AI/Open-Instruction-Generalist , 2023.</p>
+</li>
+<li>
+<p>Li &amp; Liang (2021) Xiang Lisa Li and Percy Liang. Prefix-tuning: Optimizing continuous prompts for generation. arXiv preprint arXiv:2101.00190 , 2021.</p>
+</li>
+<li>
+<p>Lin et al. (2023) Ji Lin, Jiaming Tang, Haotian Tang, Shang Yang, Xingyu Dang, and Song Han. Awq: Activation-aware weight quantization for llm compression and acceleration. arXiv preprint arXiv:2306.00978 , 2023.</p>
+</li>
+<li>
+<p>Liu et al. (2021) Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. Gpt understands, too. arXiv preprint arXiv:2103.10385 , 2021.</p>
+</li>
+<li>
+<p>Liu et al. (2023) Zechun Liu, Barlas Oguz, Changsheng Zhao, Ernie Chang, Pierre Stock, Yashar Mehdad, Yangyang Shi, Raghuraman Krishnamoorthi, and Vikas Chandra. Llm-qat: Data-free quantization aware training for large language models. arXiv preprint arXiv:2305.17888 , 2023.</p>
+</li>
+<li>
+<p>Longpre et al. (2023) Shayne Longpre, Le Hou, Tu Vu, Albert Webson, Hyung Won Chung, Yi Tay, Denny Zhou, Quoc V Le, Barret Zoph, Jason Wei, et al. The flan collection: Designing data and methods for effective instruction tuning. arXiv preprint arXiv:2301.13688 , 2023.</p>
+</li>
+<li>
+<p>Ma et al. (2023) Xinyin Ma, Gongfan Fang, and Xinchao Wang. Llm-pruner: On the structural pruning of large language models. arXiv preprint arXiv:2305.11627 , 2023.</p>
+</li>
+<li>
+<p>Mangrulkar et al. (2022) Sourab Mangrulkar, Sylvain Gugger, Lysandre Debut, Younes Belkada, and Sayak Paul. Peft: State-of-the-art parameter-efficient fine-tuning methods. https://github.com/huggingface/peft , 2022.</p>
+</li>
+<li>
+<p>Mihaylov et al. (2018) Todor Mihaylov, Peter Clark, Tushar Khot, and Ashish Sabharwal. Can a suit of armor conduct electricity? a new dataset for open book question answering. In EMNLP , 2018.</p>
+</li>
+<li>
+<p>OpenAI (2023) OpenAI. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 , 2023.</p>
+</li>
+<li>
+<p>Park et al. (2022) Gunho Park, Baeseong Park, Se Jung Kwon, Byeongwook Kim, Youngjoo Lee, and Dongsoo Lee. nuqmm: Quantized matmul for efficient inference of large-scale generative language models. arXiv preprint arXiv:2206.09557 , 2022.</p>
+</li>
+<li>
+<p>Sakaguchi et al. (2019) Keisuke Sakaguchi, Ronan Le Bras, Chandra Bhagavatula, and Yejin Choi. Winogrande: An adversarial winograd schema challenge at scale. arXiv preprint arXiv:1907.10641 , 2019.</p>
+</li>
+<li>
+<p>Scao et al. (2022) Teven Le Scao, Angela Fan, Christopher Akiki, Ellie Pavlick, Suzana Ilić, Daniel Hesslow, Roman Castagné, Alexandra Sasha Luccioni, François Yvon, Matthias Gallé, et al. Bloom: A 176b-parameter open-access multilingual language model. arXiv preprint arXiv:2211.05100 , 2022.</p>
+</li>
+<li>
+<p>Shen et al. (2020) Sheng Shen, Zhen Dong, Jiayu Ye, Linjian Ma, Zhewei Yao, Amir Gholami, Michael W Mahoney, and Kurt Keutzer. Q-bert: Hessian based ultra low precision quantization of bert. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 34, pp. 8815–8821, 2020.</p>
+</li>
+<li>
+<p>Sun et al. (2023) Mingjie Sun, Zhuang Liu, Anna Bair, and J Zico Kolter. A simple and effective pruning approach for large language models. arXiv preprint arXiv:2306.11695 , 2023.</p>
+</li>
+<li>
+<p>Taori et al. (2023) Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori B. Hashimoto. Stanford alpaca: An instruction-following llama model. https://github.com/tatsu-lab/stanford_alpaca , 2023.</p>
+</li>
+<li>
+<p>Touvron et al. (2023a) Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. Llama: Open and efficient foundation language models. arXiv preprint arXiv:2302.13971 , 2023a.</p>
+</li>
+<li>
+<p>Touvron et al. (2023b) Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, et al. Llama 2: Open foundation and fine-tuned chat models. arXiv preprint arXiv:2307.09288 , 2023b.</p>
+</li>
+<li>
+<p>Valipour et al. (2022) Mojtaba Valipour, Mehdi Rezagholizadeh, Ivan Kobyzev, and Ali Ghodsi. Dylora: Parameter efficient tuning of pre-trained models using dynamic search-free low-rank adaptation. arXiv preprint arXiv:2210.07558 , 2022.</p>
+</li>
+<li>
+<p>Wang et al. (2022) Yizhong Wang, Yeganeh Kordi, Swaroop Mishra, Alisa Liu, Noah A Smith, Daniel Khashabi, and Hannaneh Hajishirzi. Self-instruct: Aligning language model with self generated instructions. arXiv preprint arXiv:2212.10560 , 2022.</p>
+</li>
+<li>
+<p>Wei et al. (2022a) Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, Ed H. Chi, Tatsunori Hashimoto, Oriol Vinyals, Percy Liang, Jeff Dean, and William Fedus. Emergent abilities of large language models. In Transactions on Machine Learning Research , 2022a.</p>
+</li>
+<li>
+<p>Wei et al. (2022b) Xiuying Wei, Yunchen Zhang, Xiangguo Zhang, Ruihao Gong, Shanghang Zhang, Qi Zhang, Fengwei Yu, and Xianglong Liu. Outlier suppression: Pushing the limit of low-bit transformer language models. In Advances in Neural Information Processing Systems , 2022b.</p>
+</li>
+<li>
+<p>Weng (2023) Lilian Weng. Large transformer model inference optimization. Lil’Log , Jan 2023. URL https://lilianweng.github.io/posts/2023-01-10-inference-optimization/ .</p>
+</li>
+<li>
+<p>Wortsman et al. (2023) Mitchell Wortsman, Tim Dettmers, Luke Zettlemoyer, Ari Morcos, Ali Farhadi, and Ludwig Schmidt. Stable and low-precision training for large-scale vision-language models. arXiv preprint arXiv:2304.13013 , 2023.</p>
+</li>
+<li>
+<p>Wu et al. (2023) Xiaoxia Wu, Zhewei Yao, and Yuxiong He. Zeroquant-fp: A leap forward in llms post-training w4a8 quantization using floating-point formats. arXiv preprint arXiv:2307.09782 , 2023.</p>
+</li>
+<li>
+<p>Xiao et al. (2023) Guangxuan Xiao, Ji Lin, Mickael Seznec, Hao Wu, Julien Demouth, and Song Han. Smoothquant: Accurate and efficient post-training quantization for large language models. In International Conference on Machine Learning , 2023.</p>
+</li>
+<li>
+<p>Yao et al. (2022) Zhewei Yao, Reza Yazdani Aminabadi, Minjia Zhang, Xiaoxia Wu, Conglong Li, and Yuxiong He. Zeroquant: Efficient and affordable post-training quantization for large-scale transformers. In Advances in Neural Information Processing Systems , 2022.</p>
+</li>
+<li>
+<p>Zellers et al. (2019) Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi. Hellaswag: Can a machine really finish your sentence? CoRR , abs/1905.07830, 2019. URL http://arxiv.org/abs/1905.07830 .</p>
+</li>
+<li>
+<p>Zeng et al. (2023) Aohan Zeng, Xiao Liu, Zhengxiao Du, Zihan Wang, Hanyu Lai, Ming Ding, Zhuoyi Yang, Yifan Xu, Wendi Zheng, Xiao Xia, et al. Glm-130b: An open bilingual pre-trained model. International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Zhang et al. (2022) Susan Zhang, Stephen Roller, Naman Goyal, Mikel Artetxe, Moya Chen, Shuohui Chen, Christopher Dewan, Mona Diab, Xian Li, Xi Victoria Lin, Todor Mihaylov, Myle Ott, Sam Shleifer, Kurt Shuster, Daniel Simig, Punit Singh Koura, Anjali Sridhar, Tianlu Wang, and Luke Zettlemoyer. Opt: Open pre-trained transformer language models, 2022. URL https://arxiv.org/abs/2205.01068 .</p>
+</li>
+<li>
+<p>Zhao et al. (2023a) Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, Yifan Du, Chen Yang, Yushuo Chen, Zhipeng Chen, Jinhao Jiang, Ruiyang Ren, Yifan Li, Xinyu Tang, Zikang Liu, Peiyu Liu, Jian-Yun Nie, and Ji-Rong Wen. A survey of large language models. arXiv preprint arXiv:2303.18223 , 2023a. URL http://arxiv.org/abs/2303.18223 .</p>
+</li>
+<li>
+<p>Zhao et al. (2023b) Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, et al. A survey of large language models. arXiv preprint arXiv:2303.18223 , 2023b.</p>
+</li>
+<li>
+<p>Zhou et al. (2023) Aojun Zhou, Ke Wang, Zimu Lu, Weikang Shi, Sichun Luo, Zipeng Qin, Shaoqing Lu, Anya Jia, Linqi Song, Mingjie Zhan, et al. Solving challenging math word problems using gpt-4 code interpreter with code-based self-verification. arXiv preprint arXiv:2308.07921 , 2023.</p>
+</li>
+<li>
+<p>Zhu et al. (2023) Xunyu Zhu, Jian Li, Yong Liu, Can Ma, and Weiping Wang. A survey on model compression for large language models. arXiv preprint arXiv:2308.07633 , 2023.</p>
+</li>
+</ul>
+<h2 id="qualitative-studies">Qualitative Studies<a class="headerlink" href="#qualitative-studies" title="Permanent link">&para;</a></h2>
+<p>In this section, we show a few examples of dialog. We compare our method, QA-LoRA, to the direct competitor, QLoRA, under different quantization bit widths. All QLoRA models are post-processed with GPTQ as described in the main text. We highlight inaccurate answers in blue and totally unacceptable answers in red .</p>
+<p>Overall, QLoRA with GPTQ shows unstable behaviors across different cases. For example, in the second case, it crashes in <span class="arithmatex">\(4\)</span> -bit and <span class="arithmatex">\(2\)</span> -bit quantization but works well in <span class="arithmatex">\(3\)</span> -bit quantization. This mainly owes to the uncontrollable quantization loss in post-processing and such loss cannot be amended by any of the subsequent stages.</p>
+<p>Instruction : Suggest five ways to budget your expenses. QLoRA ( <span class="arithmatex">\(4\)</span> -bit) : 1. Write down all of your current expenses. 2. Estimate your future expenses. 3. Cut down on non-essential spending. 4. Rate your expenses according to their importance. 5. Categorize your expenses to make it easier to. Ours ( <span class="arithmatex">\(4\)</span> -bit) : 1. Plan a monthly budget and stick to it. 2. Track your spending. 3. Narrow down your wants and priorities. 4. Cut expenses by shopping around. 5. Eat at home as much as possible. ———— QLoRA ( <span class="arithmatex">\(3\)</span> -bit) : 1. Gather and document your financial information (income, expenses, and assets) 2. Estimate your cash flow (income, expenses, and assets) 3. Allocate your cash flow to the needed/wanted category. 4. Monitor your spending Ours ( <span class="arithmatex">\(3\)</span> -bit) : To budget expenses, one should: (1) keep track of spending; (2) have a spending plan; (3) set weekly goals; (4) only use cash; and (5) try to overspend one area to cover another. ———— QLoRA ( <span class="arithmatex">\(2\)</span> -bit) : the maximum number of times 2026 #03289-012-052112. 03289-0222500032815-0451 2291-253222. Ours ( <span class="arithmatex">\(2\)</span> -bit) : 1. Plan a monthly budget and stick to it. 2. Track your spending. 3. Narrow down your wants and priorities. 4. Cut expenses by shopping around. 5. Eat at home as much as possible.</p>
+<p>Instruction : How do you respond to a negative comment on social media? QLoRA ( <span class="arithmatex">\(4\)</span> -bit) : I’m sorry you feel that way. Ours ( <span class="arithmatex">\(4\)</span> -bit) : Negative comments on social media can be hard to respond to, but I would first try to understand where the person is coming from and why they are saying what they are saying. I would then strive to reply in a way that does not further escalate the discussion, but instead responds with a mature. ———— QLoRA ( <span class="arithmatex">\(3\)</span> -bit) : I would first thank the person for taking the time to share their thoughts. I would then say that I value their opinion and that I am here to listen and learn. I would then go on to explain why I feel the way I do and invite them to an open discussion. Ours ( <span class="arithmatex">\(3\)</span> -bit) : I response to a negative comment on social media by thanking the person for their feedback, clarifying if they are basing their comment off of a bad experience, and inviting them to contact me directly so we can work through any issues or concerns they may have. ———— QLoRA ( <span class="arithmatex">\(2\)</span> -bit) : Demostimeta for the Parts of the Their work of for the parts of Their work of For the parts of3.4.2004 G Mach Rack 2002-2004 G 2. Ours ( <span class="arithmatex">\(2\)</span> -bit) : Negative comments on social media can be hard to respond to, but I would first try to understand where the person is coming from and why they are saying what they are saying. I would then strive to reply in a way that does not further escalate the discussion, but instead responds with a mature.</p>
+<p>Instruction : Categorize the following fruits according to color. Input: Apple, Banana, Avocado, Peach. QLoRA ( <span class="arithmatex">\(4\)</span> -bit) : of the same color: Red (Apple, Banana), Green (Avocado, Peach) Other: Yellow (Peach). Ours ( <span class="arithmatex">\(4\)</span> -bit) : Apple - Red. Banana - Yellow. Avocado - Green. Peach - Pink. ———— QLoRA ( <span class="arithmatex">\(3\)</span> -bit) : is yellow is green is black is white. Ours ( <span class="arithmatex">\(3\)</span> -bit) : - Apple (Red)- Banana (Yellow)- Avocado (Green)- Peach (Pink). ———— QLoRA ( <span class="arithmatex">\(2\)</span> -bit) : Apple, mash up, and avocado. Ours ( <span class="arithmatex">\(2\)</span> -bit) : Apple - Red. Banana - Yellow. Avocado - Green. Peach - Pink.</p>
+<p>Instruction : Generate an HTML page that contains the text \”Welcome to my page\”. QLoRA ( <span class="arithmatex">\(4\)</span> -bit) : \n\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> head <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> title <span class="arithmatex">\(&gt;\)</span> Welcome to my page <span class="arithmatex">\(&lt;\)</span> /title <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /head <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> h1 <span class="arithmatex">\(&gt;\)</span> Welcome to my page <span class="arithmatex">\(&lt;\)</span> /h1 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n. Ours ( <span class="arithmatex">\(4\)</span> -bit) : Welcome to my page.\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> Welcome to my page. <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n. ———— QLoRA ( <span class="arithmatex">\(3\)</span> -bit) : <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> head <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> title <span class="arithmatex">\(&gt;\)</span> My Page <span class="arithmatex">\(&lt;\)</span> /title <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /head <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> Welcome to my page! <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n package org.michael. Ours ( <span class="arithmatex">\(3\)</span> -bit) : <span class="arithmatex">\(&lt;\)</span> HTML <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> P <span class="arithmatex">\(&gt;\)</span> Welcome to my page <span class="arithmatex">\(&lt;\)</span> /P <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> P <span class="arithmatex">\(&gt;\)</span> Lorem Ipsum is simply placeholder text. <span class="arithmatex">\(&lt;\)</span> /P <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /HTML <span class="arithmatex">\(&gt;\)</span> \n\n Note that this response may also contain other elements such as stylesheets and script, if they were defined in the task. ———— QLoRA ( <span class="arithmatex">\(2\)</span> -bit) : The page has the text \”Welcome to my page\” as it.\n\n28. A reint: a 28!313473-020-520. The\n313473-020/2 Ours ( <span class="arithmatex">\(2\)</span> -bit) : Welcome to my page.\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> Welcome to my page. <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n.</p>
+<p>Instruction : Create a dialogue between two people having a conversation about going to the beach. QLoRA ( <span class="arithmatex">\(4\)</span> -bit) : of course, I’m in! what time were you thinking of meeting up? I was thinking of going around noon. sounds good, I’ll see you then! Ours ( <span class="arithmatex">\(4\)</span> -bit) : …. (beach conversations A and B)\n…. B: Going to the beach sounds like a blast! A: It does, isn’t it? B: Yep! A: so what are we doing? B: Planning a full itinerary. ———— QLoRA ( <span class="arithmatex">\(3\)</span> -bit) : ”Person 1: ”I’m so excited to go to the beach! The sun, sand, and water are all so soothing. I can’t wait to get there and dive in!” Person 2: ”Me too! I can’t wait to experience that feeling of being”. Ours ( <span class="arithmatex">\(3\)</span> -bit) : ”So which beach should we go to, Fiji or Bora Bora?”\n, ”Fiji has more coral reefs, Bora Bora has more beaches, right?”\n, ”Yeah, Bora Bora also has the world’s most” ———— QLoRA ( <span class="arithmatex">\(2\)</span> -bit) : Such as a user 31 is 4 0-5 Gigs Sector 4 (22.12.2018) - [P] / f / Beyond there is a lot of and. Ours ( <span class="arithmatex">\(2\)</span> -bit) : …. (beach conversations A and B)\n…. B: Going to the beach sounds like a blast! A: It does, isn’t it? B: Yep! A: so what are we doing? B: Planning a full itinerary.</p>
+<h2 id="simple-proof">Simple Proof<a class="headerlink" href="#simple-proof" title="Permanent link">&para;</a></h2>
+<p>In this section, we give a simple proof to explain that why the proposed approach QA-LoRA can be merged with quantized base models. Some of the letters used in this section are conflicted with that in the main script.</p>
+<h3 id="b1-quantization">B.1 Quantization<a class="headerlink" href="#b1-quantization" title="Permanent link">&para;</a></h3>
+<p>The pre-trained LLMs weights are quantized by the state-of-the-art PTQ methods ( e.g. GPTQ). Each column of weights <span class="arithmatex">\(\mathbf{W}\)</span> is divided with groups with group size <span class="arithmatex">\(\mathbf{g}\)</span> . The de-quantization process is:</p>
+<div class="arithmatex">\[
+\tilde{\mathbf{W}}=\mathbf{A}\odot(\hat{\mathbf{W}}-\mathbf{B})
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{A}\)</span> is the scaling matrix and <span class="arithmatex">\(\mathbf{B}\)</span> is the zero matrix. <span class="arithmatex">\(\mathbf{A}_{i,j}=\alpha_{\lfloor\frac{i}{g}\rfloor,j}\)</span> and <span class="arithmatex">\(\mathbf{B}_{i,j}=\beta_{\lfloor\frac{i}{g}\rfloor,j}\)</span> .</p>
+<h3 id="b2-qa-lora-training">B.2 QA-LoRA Training<a class="headerlink" href="#b2-qa-lora-training" title="Permanent link">&para;</a></h3>
+<p>We introduce an aggregation operation before the input is fed into the LoRA adapters.</p>
+<div class="arithmatex">\[
+\mathbf{H}_{I}^{a}=\mathcal{A}(\mathbf{H}_{I})=[h_{i,k}^{a}]=[\sum_{r=1}^{g}h_{i,(k-1)g+r}],
+\]</div>
+<p>where <span class="arithmatex">\(g\)</span> is the aggregation window size which equals to the quantization group-size, <span class="arithmatex">\(\mathbf{H}_{I}\in\mathcal{R}^{b\times h}\)</span> , aggregated input <span class="arithmatex">\(\mathbf{H}_{I}^{a}\in\mathcal{R}^{b\times(h/g)}\)</span> . The latent features in each aggregation window are added and there is no overlap between windows. As shown in Equ. 4 , the aggregated input passes through the low-rank adapters and augments on the output of the quantized weight.</p>
+<div class="arithmatex">\[
+\mathbf{H}_{O}=\mathbf{H}_{I}\tilde{\mathbf{W}}+s\mathcal{A}(\mathbf{H}_{I})\mathbf{L_{1}}\mathbf{L_{2}},
+\]</div>
+<p>As the input feature dimension is changed <span class="arithmatex">\((h\rightarrow h/l)\)</span> , the dimension of <span class="arithmatex">\(\mathbf{L_{1}}\)</span> is changed, accordingly.</p>
+<h3 id="b3-merge-for-inference">B.3 Merge For Inference<a class="headerlink" href="#b3-merge-for-inference" title="Permanent link">&para;</a></h3>
+<p>In this section, we discuss the feasibility of merging the learned LoRA adapters with the quantized weights with the quantization characteristic kept. In this way, the merged weights can be deployed with low-bit inference directly.</p>
+<p>The left term of Equ. 4 can be calculated as:</p>
+<div class="arithmatex">\[
+\displaystyle\mathbf{H}_{I}\tilde{\mathbf{W}}=\mathbf{H}_{I}(\mathbf{A}\odot(\hat{\mathbf{W}}-\mathbf{B}))=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j})],
+\]</div>
+<p>Considering the right term of Equ. 4 , for simplicity, we use <span class="arithmatex">\(\mathbf{P}=[p_{i,j}]\)</span> to substitute <span class="arithmatex">\(\mathbf{L_{1}}\mathbf{L_{2}}\)</span> and <span class="arithmatex">\(\mathbf{P}\in\mathcal{R}^{(d/l)\times o}\)</span> :</p>
+<div class="arithmatex">\[
+\displaystyle s\mathcal{A}(\mathbf{H}_{I})\mathbf{L}
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=s\mathbf{H}_{I}^{a}\mathbf{L}=s[\sum_{k=1}^{d/g}h_{i,k}^{a}p_{k,j}]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=s[\sum_{k=1}^{d/g}\sum_{r=1}^{g}h_{i,(k-1)g+r}p_{k,j}]=s[\sum_{m=1}^{d}h_{i,m}p_{\lfloor\frac{m}{g}\rfloor,j}]
+\]</div>
+<p>Substitute Equ. 5 and Equ. 6 into Equ. 4 :</p>
+<div class="arithmatex">\[
+\displaystyle\mathbf{H}_{O}
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j})]-s[\sum_{m=1}^{d}h_{i,m}p_{\lfloor\frac{m}{g}\rfloor,j}]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j}-sp_{\lfloor\frac{m}{g}\rfloor,j})]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-\mathbf{H}_{I}[\alpha_{\lfloor\frac{m}{g}\rfloor,j}(\beta_{\lfloor\frac{m}{g}\rfloor,j}-s\frac{p_{\lfloor\frac{m}{g}\rfloor,j}}{\alpha_{\lfloor\frac{m}{g}\rfloor,j}})]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-\mathbf{H}_{I}(\mathbf{A}\odot(\mathbf{B}-s\mathbf{L_{1}}\mathbf{L2}\oslash\mathbf{A})),
+\]</div>
+<p>where <span class="arithmatex">\(\oslash\)</span> is the element-wise divide operation. From Equ. 7 , we can conclude that the adapter weights of QA-LoRA can be perfectly merged into the quantized weights by merely updating the zero-point matrix <span class="arithmatex">\(\mathbf{B}\)</span> into <span class="arithmatex">\(\mathbf{B}-s\mathbf{L_{1}}\mathbf{L2}\oslash\mathbf{A}\)</span> .</p>
+<h2 id="footnotes">Footnotes<a class="headerlink" href="#footnotes" title="Permanent link">&para;</a></h2>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p>The exact conditions are two-fold. For any <span class="arithmatex">\(j\)</span> , there exists a new zero factor <span class="arithmatex">\(\beta_{j}^{\prime}\)</span> and a set of integers <span class="arithmatex">\(c_{i,j}\)</span> so that <span class="arithmatex">\(c_{i,j}=\alpha_{j}\times\hat{c}_{i,j}+\beta_{j}^{\prime}\)</span> . Additionally, the difference between the minimum and maximum of <span class="arithmatex">\(\hat{w}_{i,j}+\hat{c}_{i,j}\)</span> is not greater than <span class="arithmatex">\(2^{B}-1\)</span> so that the summed weights can still be quantized into <span class="arithmatex">\(B\)</span> -bit integers.&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p>We implemented this version of QLoRA, and it reports very similar ( <span class="arithmatex">\(\pm 0.5\%\)</span> ) accuracy compared to the original QLoRA in the few-shot experiments for MMLU.&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p>https://github.com/hendrycks/test&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--prev" aria-label="上一页: QA-LoRA 论文研读：分组适配与量化模型的等价合并">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                QA-LoRA 论文研读：分组适配与量化模型的等价合并
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../zh/" class="md-footer__link md-footer__link--next" aria-label="下一页: QA-LoRA · 中英对照">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                QA-LoRA · 中英对照
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

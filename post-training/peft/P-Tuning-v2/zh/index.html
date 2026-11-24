@@ -1,0 +1,3540 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/P-Tuning-v2/zh/">
+      
+      
+        <link rel="prev" href="../en/">
+      
+      
+        <link rel="next" href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>P-Tuning-v2 · 中英对照 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-tuning-v2提示微调在不同规模和任务上可比全量微调" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-Tuning-v2 · 中英对照
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_11" id="__nav_4_4_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    P-Tuning-v2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning v2：把深层提示适配到理解与序列标注
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2 · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#预赛" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预赛
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p-调整-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-调整 v2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="P-调整 v2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#缺乏普遍性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        缺乏普遍性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#深度提示调整" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        深度提示调整
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化与实施" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        优化与实施
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning-v2跨尺度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-tuning v2：跨尺度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning-v2跨任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-tuning v2：跨任务
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消融研究
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#序列标记问题的表述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        序列标记问题的表述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#更多消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        更多消融研究
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#预赛" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预赛
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p-调整-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-调整 v2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="P-调整 v2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#缺乏普遍性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        缺乏普遍性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#深度提示调整" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        深度提示调整
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化与实施" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        优化与实施
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning-v2跨尺度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-tuning v2：跨尺度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning-v2跨任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-tuning v2：跨任务
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消融研究
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#序列标记问题的表述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        序列标记问题的表述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#更多消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        更多消融研究
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-tuning-v2提示微调在不同规模和任务上可比全量微调">P-Tuning v2：提示微调在不同规模和任务上可比全量微调<a class="headerlink" href="#p-tuning-v2提示微调在不同规模和任务上可比全量微调" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>原文：<a href="https://arxiv.org/html/2110.07602v3">arXiv:2110.07602v3</a>，作者及机构信息见下。
+中文全译稿：以机器初译为底稿，统一技术术语，并校订摘要和关键方法段落；覆盖主文、附录、表格、图注和脚注。参考文献保留原始书目，原图内部文字保留英文。英文转写见 <a href="../en/">en.md</a>，方法分析另见 <a href="../P-Tuning-v2%E8%AF%A6%E8%A7%A3/">P-Tuning-v2详解.md</a>。</p>
+</blockquote>
+<h2 id="作者与机构">作者与机构<a class="headerlink" href="#作者与机构" title="Permanent link">&para;</a></h2>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Xiao Liu Affiliation: Tsinghua University, KEG Email: liuxiao21@mails.tsinghua.edu.cn Kaixuan Ji Email: jkx19@mails.tsinghua.edu.cn Yicheng Fu Email: fyc19@mails.tsinghua.edu.cn Weng Lam Tam Affiliation: Tsinghua University, KEG Zhengxiao Du Affiliation: Tsinghua University, KEG Affiliation: Beijing Academy of Artificial Intelligence (BAAI) Zhilin Yang, Jie Tang Affiliation: Tsinghua University, KEG Affiliation: Shanghai Qi Zhi Institute</p>
+<h2 id="摘要">摘要<a class="headerlink" href="#摘要" title="Permanent link">&para;</a></h2>
+<p>提示微调只学习连续提示并冻结语言模型，能大幅降低训练显存及每个任务的存储成本。然而，已有工作显示，在自然语言理解中，这种方法在常见规模的预训练模型上表现不佳。我们还发现，已有提示微调方法难以处理复杂的序列标注任务，表明其缺乏普适性。本文提出一项新的实证发现：恰当优化后的提示微调，可在广泛的模型规模和 NLU 任务上有效使用，仅训练 0.1%–3% 的参数便能达到与全量微调相当的表现。我们的方法 P-Tuning v2 是将深层提示微调（Li 和 Liang，2021；Qin 和 Eisner，2021）针对 NLU 进行优化与适配的实现。鉴于其普适性和简单性，我们认为它能作为全量微调的替代方案，并成为未来研究的强基线。 <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup></p>
+<h2 id="简介">简介<a class="headerlink" href="#简介" title="Permanent link">&para;</a></h2>
+<p>预训练语言模型 Radford 等人。 (2019);德夫林等人。 (2018);杨等人。 (2019);拉斐尔等人。 (2019) 提高了各种自然语言理解 (NLU) 任务的性能。微调是一种广泛使用的方法，它更新目标任务的整套模型参数。虽然微调可以获得良好的性能，但在训练过程中会消耗内存，因为必须存储所有参数的梯度和优化器状态。此外，在推理过程中为每个任务保留模型参数的副本很不方便，因为预训练的模型通常很大。</p>
+<p>另一方面，提示会冻结预训练模型的所有参数，并使用自然语言提示来查询语言模型 Brown 等人。 （2020）。例如，对于情感分析，我们可以将一个样本（例如“很棒的电影！”）与提示“这部电影是[MASK]”连接起来，并要求预训练的语言模型预测屏蔽标记“好”和“坏”的概率来决定样本的标签。提示根本不需要任何训练，并且存储一份模型参数的副本。然而，离散提示 Shin 等人。 (2020);高等人。与微调相比，（2020）在许多情况下可能会导致性能不佳。</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>图 1：SuperGLUE 开发人员在 RTE、BoolQ 和 CB 上的平均得分。通过 0.1% 的特定任务参数，P-tuning v2 可以匹配大范围预训练模型的微调，而 Lester 等人。 (2021) &amp; P-tuning 可以有条件地使其达到 10B 规模。</p>
+<p>提示调整 <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> 是一种仅调整连续提示的想法。具体来说，刘等人。 (2021);莱斯特等人。 (2021) 提出将可训练的连续嵌入（也称为连续提示）添加到输入词嵌入的原始序列中。训练期间仅更新连续提示。虽然提示调整改进了许多任务的提示，但 Liu 等人。 (2021);莱斯特等人。 (2021);钟等人。 (2021)，当模型规模不大时，特别是小于 100 亿个参数时，它仍然表现不佳 Lester 等人。 （2021）。此外，如我们的实验所示，在一些困难的序列标注任务（例如抽取式问答）上，与微调相比，即时调整的表现较差（参见第 4.2 节）。</p>
+<p>我们在本文中的主要贡献是一个新颖的实证发现，即适当优化的提示调整可以与跨各种模型规模和 NLU 任务的普遍微调相媲美。与之前工作中的观察结果相比，我们的发现揭示了 NLU 即时调整的普遍性和潜力。</p>
+<p>从技术上讲，我们的方法 P-tuning v2 在概念上并不新颖。它可以被视为 Deep Prompt Tuning Li 和 Yang (2021) 的优化和改编实现； Qing 和 Eisner (2021) 专为生成和知识探索而设计。最显着的改进源于对预训练模型的每一层应用连续提示，而不仅仅是输入层。深度提示调整增加了连续提示的能力，并缩小了跨各种设置进行微调的差距，特别是对于小型模型和困难任务。此外，我们提出了一系列优化和实施的关键细节，以确保微调可比的性能。</p>
+<p>实验结果表明，P-tuning v2 与从 300M 到 10B 参数的不同模型规模以及抽取式问答和命名实体识别等各种困难的序列标注任务上的微调性能相匹配。与微调相比，P-tuning v2 每个任务的可训练参数为 0.1% 到 3%，这大大降低了训练时间内存成本和每个任务的存储成本。</p>
+<h2 id="预赛">预赛<a class="headerlink" href="#预赛" title="Permanent link">&para;</a></h2>
+<p>自然语言理解任务。在这项工作中，我们将 NLU 挑战分为两类：简单分类任务和困难的序列标注任务。 <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> 简单的分类任务涉及标签空间上的分类。大多数数据集来自 GLUE Wang 等人。 (2018) 和 SuperGLUE Wang 等人。 （2019）属于这一类。困难的序列标注任务涉及对标记序列进行分类，例如命名实体识别和抽取式问答。</p>
+<p>及时调整。令 <span class="arithmatex">\(\mathcal{V}\)</span> 为语言模型 <span class="arithmatex">\(\mathcal{M}\)</span> 的词汇表，并令 <span class="arithmatex">\(\mathbf{e}\)</span> 为 <span class="arithmatex">\(\mathcal{M}\)</span> 的嵌入层。在离散提示 Schick 和 Schütze (2020) 的情况下，提示标记 {"It", "is", "[MASK]"} <span class="arithmatex">\(\subset\mathcal{V}\)</span> 可用于对电影评论进行分类。例如，给定输入文本 <span class="arithmatex">\(\mathbf{x}=\)</span> “Amazing movie!”，输入嵌入序列被表述为 <span class="arithmatex">\([\mathbf{e}(\mathbf{x}),\mathbf{e}(\text{"It"}),\mathbf{e}(\text{"is"}),\mathbf{e}(\text{"[MASK]"})]\)</span> 。</p>
+<p>莱斯特等人。 （2021）和刘等人。 (2021) 引入可训练的连续提示作为 NLU 自然语言提示的替代品，并冻结预训练语言模型的参数。给定可训练的连续嵌入 <span class="arithmatex">\([h_{0},...,h_{i}]\)</span> ，输入嵌入序列可写为 <span class="arithmatex">\([\mathbf{e}(\mathbf{x}),h_{0},...,h_{i},\mathbf{e}(\text{"[MASK]"})]\)</span> ，如图 2 所示。 Lester 等人已证明，快速调整可与简单分类任务上的 100 亿参数模型的微调相媲美。 (2021);金等人。 (2021);刘等人。 （2021）。</p>
+<p><img alt="Figure S2.F2" src="../figs/S2-F2-01.png" /></p>
+<p>图 2：来自 Lester 等人。 (2021) &amp; P-tuning 到 P-tuning v2。橙色块（即 <span class="arithmatex">\(h_{0},...,h_{i}\)</span> ）指的是可训练的提示嵌入；蓝色块是由冻结的预训练语言模型存储或计算的嵌入。</p>
+<h2 id="p-调整-v2">P-调整 v2<a class="headerlink" href="#p-调整-v2" title="Permanent link">&para;</a></h2>
+<h3 id="缺乏普遍性">缺乏普遍性<a class="headerlink" href="#缺乏普遍性" title="Permanent link">&para;</a></h3>
+<p>莱斯特等人。 (2021);刘等人。 Wang 等人（2021）在许多 NLP 应用中被证明非常有效。 (2021a);王等人。 （2021b）；陈等人。 (2021);郑等人。 (2021);敏等人。 (2021)，但由于缺乏通用性，仍然无法取代微调，如下所述。</p>
+<p>缺乏跨尺度的普遍性。莱斯特等人。 (2021) 表明，当模型扩展到超过 100 亿个参数时，即时调整可以与微调相媲美。然而，对于广泛使用的中型模型（从100M到1B），即时调优的效果比微调要差得多。</p>
+<p>跨任务缺乏通用性。尽管莱斯特等人。 (2021);刘等人。 （2021）在一些 NLU 基准上表现出了优越性，但对困难的序列标注任务的提示调整的有效性尚未得到验证。序列标记预测每个输入标记的标签序列，这可能更难并且与语言描述器 Schick 和 Schütze (2020) 不兼容。在我们的实验中（参见第 4.2 节和表 3），我们表明 Lester 等人。 (2021);刘等人。与微调相比，（2021）在典型的序列标记任务上表现不佳。</p>
+<p>考虑到这些挑战，我们提出了 P-tuning v2，它采用了深度提示微调 Li and Liang (2021)； Qin 和 Eisner (2021) 作为跨尺度和 NLU 任务的通用解决方案。</p>
+<h3 id="深度提示调整">深度提示调整<a class="headerlink" href="#深度提示调整" title="Permanent link">&para;</a></h3>
+<p>Lester 等（2021）和 Liu 等（2021）仅在输入嵌入序列中插入连续提示，见图 2(a)。这带来两个挑战：一是受序列长度约束，可训练参数数量有限；二是输入嵌入对最终模型预测的影响相对间接。</p>
+<p>为了应对这些挑战，P-tuning v2 采用了深度提示微调的思想 Li and Liang (2021)；秦和艾斯纳（2021）。如图2所示，不同层的提示被添加为前缀标记。一方面，P-tuning v2 具有更多可调整的特定于任务的参数（从 0.01% 到 0.1%-3%），以允许更多的每任务容量，同时保持参数高效；另一方面，添加到更深层次的提示对模型预测有更直接的影响（参见附录B中的分析）。</p>
+<h3 id="优化与实施">优化与实施<a class="headerlink" href="#优化与实施" title="Permanent link">&para;</a></h3>
+<p>为了实现最佳性能，有一些有用的优化和实施细节。</p>
+<p>重参数化。先前的工作通常利用重参数化编码器，例如 MLP Li 和 Liang (2021)；刘等人。 （2021）改变可训练的嵌入。然而，对于 NLU，我们发现它的有用性取决于任务和数据集。对于某些数据集（例如RTE和CoNLL04），MLP带来了一致的改进；对于其他模型，MLP 对结果的影响很小甚至是负面影响（例如 BoolQ 和 CoNLL12）。更多分析请参见附录 B。</p>
+<p>提示长度。提示长度在 P-Tuning v2 中起着至关重要的作用。我们发现不同的 NLU 任务通常使用不同的提示长度来达到最佳性能（参见附录 B）。一般来说，简单的分类任务更喜欢较短的提示（少于20条）；困难的序列标注任务更喜欢较长的序列（大约 100）。</p>
+<p>多任务学习。多任务学习在对单个任务进行微调之前，通过共享的连续提示联合优化多个任务。多任务对于 P-Tuning v2 来说是可选的，但可以通过提供更好的初始化来进一步提升性能 Gu 等人。 （2021）。</p>
+<p>分类头。使用语言建模头来预测标签词映射 Schick 和 Schütze (2020) 一直是及时调整 Liu 等人的核心。 (2021)，但我们发现它在完整数据设置中是不必要的，并且与序列标记不兼容。相反，P-tuning v2 在 token 之上应用随机初始化的分类头，如 BERT Devlin 等人所述。 (2018)（参见图2）。</p>
+<p>为了阐明 P-tuning v2 的主要贡献，我们在表 1 中对现有的提示调整方法进行了概念比较。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>任务</th>
+<th>重新参数。</th>
+<th>深度PT</th>
+<th>多任务</th>
+<th>没有动词。</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P-调谐刘等人。 (2021)</td>
+<td>KP自然语言单元</td>
+<td>长短期记忆网络</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>PromptTuning Lester 等人。 (2021)</td>
+<td>自然语言单元</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>前缀调李梁 (2021)</td>
+<td>NLG</td>
+<td>多层线性规划</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>软提示秦和艾斯纳 (2021)</td>
+<td>凯普</td>
+<td>-</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>P-tuning v2（我们的）</td>
+<td>NLU 序列标签</td>
+<td>（视情况而定）</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p>表 1：P-tuning v2 和现有 Prompt Tuning 方法之间的概念比较（KP：知识探测；SeqTag：序列标记；Re-param.：重参数化；No verb.：无标签词映射）。</p>
+<h2 id="实验">实验<a class="headerlink" href="#实验" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#尺寸</th>
+<th>布尔Q</th>
+<th>布尔Q</th>
+<th>布尔Q</th>
+<th>CB</th>
+<th>CB</th>
+<th>CB</th>
+<th>科帕</th>
+<th>科帕</th>
+<th>科帕</th>
+<th>多功能遥控 (F1a)</th>
+<th>多功能遥控 (F1a)</th>
+<th>多功能遥控 (F1a)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>#尺寸</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+</tr>
+<tr>
+<td>BERT 大号</td>
+<td>335M</td>
+<td>77.7</td>
+<td>67.2</td>
+<td>75.8</td>
+<td>94.6</td>
+<td>80.4</td>
+<td>94.6</td>
+<td>69.0</td>
+<td>55.0</td>
+<td>73.0</td>
+<td>70.5</td>
+<td>59.6</td>
+<td>70.6</td>
+</tr>
+<tr>
+<td>罗伯特·大</td>
+<td>355M</td>
+<td>86.9</td>
+<td>62.3</td>
+<td>84.8</td>
+<td>98.2</td>
+<td>71.4</td>
+<td>100</td>
+<td>94.0</td>
+<td>63.0</td>
+<td>93.0</td>
+<td>85.7</td>
+<td>59.9</td>
+<td>82.5</td>
+</tr>
+<tr>
+<td>GLM 超大</td>
+<td>2B</td>
+<td>88.3</td>
+<td>79.7</td>
+<td>87.0</td>
+<td>96.4</td>
+<td>76.4</td>
+<td>96.4</td>
+<td>93.0</td>
+<td>92.0</td>
+<td>91.0</td>
+<td>84.1</td>
+<td>77.5</td>
+<td>84.4</td>
+</tr>
+<tr>
+<td>GLM xxlarge</td>
+<td>10B</td>
+<td>88.7</td>
+<td>88.8</td>
+<td>88.8</td>
+<td>98.7</td>
+<td>98.2</td>
+<td>96.4</td>
+<td>98.0</td>
+<td>98.0</td>
+<td>98.0</td>
+<td>88.1</td>
+<td>86.1</td>
+<td>88.1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#尺寸</th>
+<th>记录 (F1)</th>
+<th>记录 (F1)</th>
+<th>记录 (F1)</th>
+<th>即时通讯</th>
+<th>即时通讯</th>
+<th>即时通讯</th>
+<th>无线通信</th>
+<th>无线通信</th>
+<th>无线通信</th>
+<th>世界科学委员会</th>
+<th>世界科学委员会</th>
+<th>世界科学委员会</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>#尺寸</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+</tr>
+<tr>
+<td>BERT 大号</td>
+<td>335M</td>
+<td>70.6</td>
+<td>44.2</td>
+<td>72.8</td>
+<td>70.4</td>
+<td>53.5</td>
+<td>78.3</td>
+<td>74.9</td>
+<td>63.0</td>
+<td>75.1</td>
+<td>68.3</td>
+<td>64.4</td>
+<td>68.3</td>
+</tr>
+<tr>
+<td>罗伯特·大</td>
+<td>355M</td>
+<td>89.0</td>
+<td>46.3</td>
+<td>89.3</td>
+<td>86.6</td>
+<td>58.8</td>
+<td>89.5</td>
+<td>75.6</td>
+<td>56.9</td>
+<td>73.4</td>
+<td>63.5</td>
+<td>64.4</td>
+<td>63.5</td>
+</tr>
+<tr>
+<td>GLM 超大</td>
+<td>2B</td>
+<td>91.8</td>
+<td>82.7</td>
+<td>91.9</td>
+<td>90.3</td>
+<td>85.6</td>
+<td>90.3</td>
+<td>74.1</td>
+<td>71.0</td>
+<td>72.0</td>
+<td>95.2</td>
+<td>87.5</td>
+<td>92.3</td>
+</tr>
+<tr>
+<td>GLM xxlarge</td>
+<td>10B</td>
+<td>94.4</td>
+<td>87.8</td>
+<td>92.5</td>
+<td>93.1</td>
+<td>89.9</td>
+<td>93.1</td>
+<td>75.7</td>
+<td>71.8</td>
+<td>74.0</td>
+<td>95.2</td>
+<td>94.2</td>
+<td>93.3</td>
+</tr>
+</tbody>
+</table>
+<p>表 2：SuperGLUE 开发集的结果。 P-tuning v2 超越了 P-tuning 和 Lester 等人。 (2021) 在小于 10B 的模型上，匹配不同模型尺度的微调性能。 （FT：微调；PT：Lester et al. (2021) &amp; P-tuning；PT-2：P-tuning v2；粗体：最好；下划线：第二好）。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#尺寸</th>
+<th>CoNLL03</th>
+<th>CoNLL03</th>
+<th>CoNLL03</th>
+<th>CoNLL03</th>
+<th>OntoNotes 5.0</th>
+<th>OntoNotes 5.0</th>
+<th>OntoNotes 5.0</th>
+<th>OntoNotes 5.0</th>
+<th>CoNLL04</th>
+<th>CoNLL04</th>
+<th>CoNLL04</th>
+<th>CoNLL04</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>#尺寸</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+</tr>
+<tr>
+<td>BERT 大号</td>
+<td>335M</td>
+<td>92.8</td>
+<td>81.9</td>
+<td>90.2</td>
+<td>91.0</td>
+<td>89.2</td>
+<td>74.6</td>
+<td>86.4</td>
+<td>86.3</td>
+<td>85.6</td>
+<td>73.6</td>
+<td>84.5</td>
+<td>86.6</td>
+</tr>
+<tr>
+<td>罗伯特·大</td>
+<td>355M</td>
+<td>92.6</td>
+<td>86.1</td>
+<td>92.8</td>
+<td>92.8</td>
+<td>89.8</td>
+<td>80.8</td>
+<td>89.8</td>
+<td>89.8</td>
+<td>88.8</td>
+<td>76.2</td>
+<td>88.4</td>
+<td>90.6</td>
+</tr>
+<tr>
+<td>德伯塔 xlarge</td>
+<td>750M</td>
+<td>93.1</td>
+<td>90.2</td>
+<td>93.1</td>
+<td>93.1</td>
+<td>90.4</td>
+<td>85.1</td>
+<td>90.4</td>
+<td>90.5</td>
+<td>89.1</td>
+<td>82.4</td>
+<td>86.5</td>
+<td>90.1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#尺寸</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 1.1 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+<th>SQuAD 2.0 开发（EM / F1）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>#尺寸</td>
+<td>金融时报</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>MPT-2</td>
+<td>金融时报</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>MPT-2</td>
+</tr>
+<tr>
+<td>BERT 大号</td>
+<td>335M</td>
+<td>84.2</td>
+<td>91.1</td>
+<td>1.0</td>
+<td>8.5</td>
+<td>77.8</td>
+<td>86.0</td>
+<td>82.3</td>
+<td>89.6</td>
+<td>78.7</td>
+<td>81.9</td>
+<td>50.2</td>
+<td>50.2</td>
+<td>69.7</td>
+<td>73.5</td>
+<td>72.7</td>
+<td>75.9</td>
+</tr>
+<tr>
+<td>罗伯特·大</td>
+<td>355M</td>
+<td>88.9</td>
+<td>94.6</td>
+<td>1.2</td>
+<td>12.0</td>
+<td>88.5</td>
+<td>94.4</td>
+<td>88.0</td>
+<td>94.1</td>
+<td>86.5</td>
+<td>89.4</td>
+<td>50.2</td>
+<td>50.2</td>
+<td>82.1</td>
+<td>85.5</td>
+<td>83.4</td>
+<td>86.7</td>
+</tr>
+<tr>
+<td>德伯塔 xlarge</td>
+<td>750M</td>
+<td>90.1</td>
+<td>95.5</td>
+<td>2.4</td>
+<td>19.0</td>
+<td>90.4</td>
+<td>95.7</td>
+<td>89.6</td>
+<td>95.4</td>
+<td>88.3</td>
+<td>91.1</td>
+<td>50.2</td>
+<td>50.2</td>
+<td>88.4</td>
+<td>91.1</td>
+<td>88.1</td>
+<td>90.8</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#尺寸</th>
+<th>辅酶NLL12</th>
+<th>辅酶NLL12</th>
+<th>辅酶NLL12</th>
+<th>辅酶NLL12</th>
+<th>CoNLL05 华尔街日报</th>
+<th>CoNLL05 华尔街日报</th>
+<th>CoNLL05 华尔街日报</th>
+<th>CoNLL05 华尔街日报</th>
+<th>CoNLL05 棕色</th>
+<th>CoNLL05 棕色</th>
+<th>CoNLL05 棕色</th>
+<th>CoNLL05 棕色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>#尺寸</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+<td>金融时报</td>
+<td>PT</td>
+<td>PT-2</td>
+<td>MPT-2</td>
+</tr>
+<tr>
+<td>BERT 大号</td>
+<td>335M</td>
+<td>84.9</td>
+<td>64.5.</td>
+<td>83.2</td>
+<td>85.1</td>
+<td>88.5</td>
+<td>76.0</td>
+<td>86.3</td>
+<td>88.5</td>
+<td>82.7</td>
+<td>70.0</td>
+<td>80.7</td>
+<td>83.1</td>
+</tr>
+<tr>
+<td>罗伯特·大</td>
+<td>355M</td>
+<td>86.5</td>
+<td>67.2</td>
+<td>84.6</td>
+<td>86.2</td>
+<td>90.2</td>
+<td>76.8</td>
+<td>89.2</td>
+<td>90.0</td>
+<td>85.6</td>
+<td>70.7</td>
+<td>84.3</td>
+<td>85.7</td>
+</tr>
+<tr>
+<td>德伯塔 xlarge</td>
+<td>750M</td>
+<td>86.5</td>
+<td>74.1</td>
+<td>85.7</td>
+<td>87.1</td>
+<td>91.2</td>
+<td>82.3</td>
+<td>90.6</td>
+<td>91.2</td>
+<td>86.9</td>
+<td>77.7</td>
+<td>86.3</td>
+<td>87.0</td>
+</tr>
+</tbody>
+</table>
+<p>表 3：命名实体识别 (NER)、问答（提取 QA）和语义角色标记 (SRL) 的结果。 NER 和 SRL 中的所有指标均为 micro-f1 分数。 （FT：微调；PT：P-tuning &amp; Lester et al. (2021)；PT-2：P-tuning v2；MPT-2：多任务 P-tuning v2；粗体：最好；下划线：第二好）。</p>
+<p>我们对不同常用的预训练模型和 NLU 任务进行了广泛的实验，以验证 P-tuning v2 的有效性。在这项工作中，除了微调之外的所有方法都是使用冻结的语言模型主干进行的，这符合 Lester 等人的观点。 (2021) 的设置但与 Liu 等人不同。 （2021）的调整设置。任务特定参数的比率（例如 0.1%）是通过将连续提示的参数与Transformer的参数进行比较得出的。另一件需要注意的事情是，我们的实验都是在全监督的环境中进行的，而不是在少数情况下进行的。</p>
+<p>自然语言理解任务。首先，我们包含来自 SuperGLUE Wang 等人的数据集。 (2019) 测试 P-tuning v2 的通用 NLU 能力。此外，我们引入了一套序列标记任务，包括命名实体识别 Sang 和 De Meulder (2003)；韦舍德尔等人。 (2013); Carreras 和 Màrquez (2004)，抽取式问答 Rajpurkar 等人。 (2016) 以及语义角色标签 Carreras 和 Màrquez (2005) ；普拉丹等人。 （2012））。</p>
+<p>预训练模型。我们包括 BERT-large Devlin 等人。 (2018)，RoBERTa-large Liu 等人。 (2019)，DeBERTa-xlarge He 等人。 (2020)，GLM-xlarge/xxlarge Du 等人。 （2021）进行评估。它们都是专为 NLU 任务设计的双向模型，涵盖从 300M 左右到 10B 左右的广泛尺寸。</p>
+<p>多任务学习。对于多任务设置，我们组合每个任务类型中数据集的训练集（例如，组合语义角色标记的所有训练集）。我们对每个数据集使用单独的线性分类器，同时共享连续提示（参见附录 A）。</p>
+<h3 id="p-tuning-v2跨尺度">P-tuning v2：跨尺度<a class="headerlink" href="#p-tuning-v2跨尺度" title="Permanent link">&para;</a></h3>
+<p>表 2 给出 P-Tuning v2 在不同模型规模上的表现。SuperGLUE 中，Lester 等（2021）的方法及 P-Tuning 在较小规模上可能表现很差。相比之下，P-Tuning v2 在较小规模的所有所测任务上都达到与全量微调可比的表现，在 RTE 上甚至明显超过全量微调。</p>
+<p>在更大的尺度（2B 到 10B）方面，GLM Du 等人。 （2021），莱斯特等人之间的差距。 (2021);刘等人。 （2021年），微调范围逐步缩小。在 10B 尺度上，我们有与 Lester 等人类似的观察结果。 (2021) 报告称，即时调整与微调相比具有竞争力。也就是说，P-tuning v2 始终与所有规模的微调相当，但与微调相比，只需要 0.1% 的特定于任务的参数。</p>
+<h3 id="p-tuning-v2跨任务">P-tuning v2：跨任务<a class="headerlink" href="#p-tuning-v2跨任务" title="Permanent link">&para;</a></h3>
+<p>从表 3 中，我们观察到 P-tuning v2 通常可以与所有任务的微调相媲美。 P-tuning 和 Lester 等人。 （2021）的表现要差得多，尤其是在质量保证方面，这可能是三项任务中最具挑战性的。我们还注意到Lester等人的结果存在一些异常。 (2021) 和 SQuAD 2.0 的 P-Tuning。这可能是因为SQuAD 2.0包含无法回答的问题，这给单层提示调整带来了优化挑战。相对于除 QA 之外的大多数任务，多任务学习通常会给 P-Tuning v2 带来显着改进。</p>
+<h3 id="消融研究">消融研究<a class="headerlink" href="#消融研究" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>SST-2</th>
+<th>即时通讯</th>
+<th>布尔Q</th>
+<th>CB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLS &amp; 线性头</td>
+<td>96.3</td>
+<td>88.4</td>
+<td>84.8</td>
+<td>96.4</td>
+</tr>
+<tr>
+<td>标签词映射和 LM 头</td>
+<td>95.8</td>
+<td>86.6</td>
+<td>84.6</td>
+<td>94.6</td>
+</tr>
+</tbody>
+</table>
+<p>表 4：RoBERTa-large 上带线性头的 [CLS] 标签与带 LM 头的标签词映射之间的比较。</p>
+<p>语言建模头与标签词映射，还是 [CLS] 标签与线性头。用语言建模头预测标签词，一直是此前提示微调的重要组成部分。然而，全监督条件下，P-Tuning v2 完全可以负担一个仅含数千参数的线性头。表 4 保持其他超参数不变，仅把 [CLS] 加线性头替换为语言建模头加标签词映射。为简便起见，SST-2、RTE 和 BoolQ 使用 true/false，CB 使用 true/false/neutral。结果表明，标签词映射与 [CLS] 两种方式的表现没有显著差异。</p>
+<p><img alt="Figure S4.F3" src="../figs/S4-F3-01.png" /></p>
+<p><img alt="Figure S4.F3" src="../figs/S4-F3-02.png" /></p>
+<p>图 3：使用 BERT-large 对提示深度的消融研究。 “[x-y]”指的是我们添加连续提示的层间隔（例如，“21-24”表示我们向从 21 到 24 的 Transformer 层添加提示）。添加到更深的转换器层（即更靠近输出层）的相同数量的连续提示可以比添加到开始层的连续提示产生更好的性能。</p>
+<p>提示深度。莱斯特等人之间的主要区别。 (2021);刘等人。 (2021)而P-tuning v2是多层连续提示。为了验证其确切的影响，给定一定数量的<span class="arithmatex">\(k\)</span>层来添加提示，我们按照升序和降序的顺序选择它们来添加提示；对于其余层，我们保持不变。如图3所示，在参数数量相同（即添加提示的Transformer层数）的情况下，按降序添加总是比按升序添加要好。在 RTE 情况下，仅向第 17-24 层添加提示即可产生与所有层非常接近的性能。</p>
+<h2 id="结论">结论<a class="headerlink" href="#结论" title="Permanent link">&para;</a></h2>
+<p>我们提出了 P-tuning v2，一种即时调整方法。尽管其技术新颖性相对有限，但它促成了一项新颖的发现，即即时调整可以与跨尺度（从 330M 到 10B 参数）和任务的普遍微调相媲美。凭借高精度和参数效率，P-Tuning v2 可以成为微调的潜在替代方案，并为未来工作提供强有力的基线。</p>
+<h2 id="致谢">致谢<a class="headerlink" href="#致谢" title="Permanent link">&para;</a></h2>
+<p>我们要感谢匿名审稿人的建议和意见。唐杰获得国家自然科学基金杰出青年基金（61825602）和国家自然科学基金委员会（61836013）的资助。季凯旋得到了清华大学自主科学研究计划和DCST学生学术培训计划的支持。</p>
+<h2 id="参考文献">参考文献<a class="headerlink" href="#参考文献" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Brown et al. (2020) Tom B Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. arXiv preprint arXiv:2005.14165 .</p>
+</li>
+<li>
+<p>Carreras and Màrquez (2004) Xavier Carreras and Lluís Màrquez. 2004. Introduction to the CoNLL-2004 shared task: Semantic role labeling. In Proceedings of the Eighth Conference on Computational Natural Language Learning (CoNLL-2004) at HLT-NAACL 2004 , pages 89–97, Boston, Massachusetts, USA. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Carreras and Màrquez (2005) Xavier Carreras and Lluís Màrquez. 2005. Introduction to the CoNLL-2005 shared task: Semantic role labeling. In Proceedings of the Ninth Conference on Computational Natural Language Learning (CoNLL-2005) , pages 152–164, Ann Arbor, Michigan. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Chen et al. (2021) Xiang Chen, Xin Xie, Ningyu Zhang, Jiahuan Yan, Shumin Deng, Chuanqi Tan, Fei Huang, Luo Si, and Huajun Chen. 2021. Adaprompt: Adaptive prompt-based finetuning for relation extraction. arXiv preprint arXiv:2104.07650 .</p>
+</li>
+<li>
+<p>Devlin et al. (2018) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2018. Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805 .</p>
+</li>
+<li>
+<p>Devlin et al. (2018) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2018. Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv e-prints .</p>
+</li>
+<li>
+<p>Du et al. (2021) Zhengxiao Du, Yujie Qian, Xiao Liu, Ming Ding, Jiezhong Qiu, Zhilin Yang, and Jie Tang. 2021. All nlp tasks are generation tasks: A general pretraining framework. arXiv preprint arXiv:2103.10360 .</p>
+</li>
+<li>
+<p>Gao et al. (2020) Tianyu Gao, Adam Fisch, and Danqi Chen. 2020. Making pre-trained language models better few-shot learners. arXiv preprint arXiv:2012.15723 .</p>
+</li>
+<li>
+<p>Gu et al. (2021) Yuxian Gu, Xu Han, Zhiyuan Liu, and Minlie Huang. 2021. Ppt: Pre-trained prompt tuning for few-shot learning. arXiv preprint arXiv:2109.04332 .</p>
+</li>
+<li>
+<p>He et al. (2020) Pengcheng He, Xiaodong Liu, Jianfeng Gao, and Weizhu Chen. 2020. Deberta: Decoding-enhanced bert with disentangled attention.</p>
+</li>
+<li>
+<p>Kim et al. (2021) Boseop Kim, HyoungSeok Kim, Sang-Woo Lee, Gichang Lee, Donghyun Kwak, Dong Hyeon Jeon, Sunghyun Park, Sungju Kim, Seonhoon Kim, Dongpil Seo, et al. 2021. What changes can large-scale language models bring? intensive study on hyperclova: Billions-scale korean generative pretrained transformers. arXiv preprint arXiv:2109.04650 .</p>
+</li>
+<li>
+<p>Lester et al. (2021) Brian Lester, Rami Al-Rfou, and Noah Constant. 2021. The power of scale for parameter-efficient prompt tuning. arXiv preprint arXiv:2104.08691 .</p>
+</li>
+<li>
+<p>Li and Liang (2021) Xiang Lisa Li and Percy Liang. 2021. Prefix-tuning: Optimizing continuous prompts for generation. arXiv preprint arXiv:2101.00190 .</p>
+</li>
+<li>
+<p>Liu et al. (2021) Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. 2021. Gpt understands, too. arXiv:2103.10385 .</p>
+</li>
+<li>
+<p>Liu et al. (2019) Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. RoBERTa: A Robustly Optimized BERT Pretraining Approach. arXiv e-prints .</p>
+</li>
+<li>
+<p>Min et al. (2021) Sewon Min, Mike Lewis, Hannaneh Hajishirzi, and Luke Zettlemoyer. 2021. Noisy channel language model prompting for few-shot text classification. arXiv preprint arXiv:2108.04106 .</p>
+</li>
+<li>
+<p>Pradhan et al. (2012) Sameer Pradhan, Alessandro Moschitti, Nianwen Xue, Olga Uryupina, and Yuchen Zhang. 2012. CoNLL-2012 shared task: Modeling multilingual unrestricted coreference in OntoNotes. In Joint Conference on EMNLP and CoNLL - Shared Task , pages 1–40, Jeju Island, Korea. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Qin and Eisner (2021) Guanghui Qin and Jason Eisner. 2021. Learning how to ask: Querying lms with mixtures of soft prompts. arXiv preprint arXiv:2104.06599 .</p>
+</li>
+<li>
+<p>Radford et al. (2019) Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners. OpenAI blog , 1(8):9.</p>
+</li>
+<li>
+<p>Raffel et al. (2019) Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. 2019. Exploring the limits of transfer learning with a unified text-to-text transformer. arXiv preprint arXiv:1910.10683 .</p>
+</li>
+<li>
+<p>Rajpurkar et al. (2016) Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. Squad: 100,000+ questions for machine comprehension of text.</p>
+</li>
+<li>
+<p>Sang and De Meulder (2003) Erik F Sang and Fien De Meulder. 2003. Introduction to the conll-2003 shared task: Language-independent named entity recognition. arXiv preprint cs/0306050 .</p>
+</li>
+<li>
+<p>Schick and Schütze (2020) Timo Schick and Hinrich Schütze. 2020. It’s not just size that matters: Small language models are also few-shot learners. arXiv preprint arXiv:2009.07118 .</p>
+</li>
+<li>
+<p>Shin et al. (2020) Taylor Shin, Yasaman Razeghi, Robert L Logan IV, Eric Wallace, and Sameer Singh. 2020. Autoprompt: Eliciting knowledge from language models with automatically generated prompts. arXiv preprint arXiv:2010.15980 .</p>
+</li>
+<li>
+<p>Wang et al. (2019) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2019. SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. In NeurIPS 2019 , pages 3261–3275.</p>
+</li>
+<li>
+<p>Wang et al. (2019) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2019. Superglue: A stickier benchmark for general-purpose language understanding systems. arXiv e-prints .</p>
+</li>
+<li>
+<p>Wang et al. (2018) Alex Wang, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2018. Glue: A multi-task benchmark and analysis platform for natural language understanding. arXiv e-prints .</p>
+</li>
+<li>
+<p>Wang et al. (2021a) Hongru Wang, Mingyu Cui, Zimo Zhou, Gabriel Pui Cheong Fung, and Kam-Fai Wong. 2021a. Topicrefine: Joint topic prediction and dialogue response generation for multi-turn end-to-end dialogue system. arXiv preprint arXiv:2109.05187 .</p>
+</li>
+<li>
+<p>Wang et al. (2021b) Shuo Wang, Zhaopeng Tu, Zhixing Tan, Wenxuan Wang, Maosong Sun, and Yang Liu. 2021b. Language models are good translators. arXiv preprint arXiv:2106.13627 .</p>
+</li>
+<li>
+<p>Weischedel et al. (2013) Ralph Weischedel, Martha Palmer, Mitchell Marcus, Eduard Hovy, Sameer Pradhan, Lance Ramshaw, Nianwen Xue, Ann Taylor, Jeff Kaufman, Michelle Franchini, et al. 2013. Ontonotes release 5.0 ldc2013t19. Linguistic Data Consortium, Philadelphia, PA , 23.</p>
+</li>
+<li>
+<p>Xu et al. (2021) Lu Xu, Zhanming Jie, Wei Lu, and Lidong Bing. 2021. Better feature integration for named entity recognition. arXiv preprint arXiv:2104.05316 .</p>
+</li>
+<li>
+<p>Yang et al. (2019) Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, and Quoc V Le. 2019. Xlnet: Generalized autoregressive pretraining for language understanding. arXiv preprint arXiv:1906.08237 .</p>
+</li>
+<li>
+<p>Zheng et al. (2021) Yanan Zheng, Jing Zhou, Yujie Qian, Ming Ding, Jian Li, Ruslan Salakhutdinov, Jie Tang, Sebastian Ruder, and Zhilin Yang. 2021. Fewnlu: Benchmarking state-of-the-art methods for few-shot natural language understanding. arXiv preprint arXiv:2109.12742 .</p>
+</li>
+<li>
+<p>Zhong et al. (2021) Zexuan Zhong, Dan Friedman, and Danqi Chen. 2021. Factual probing is [mask]: Learning vs. learning to recall. arXiv preprint arXiv:2104.05240 .</p>
+</li>
+</ul>
+<p><img alt="Figure A0.F4" src="../figs/A0-F4-01.png" /></p>
+<p><img alt="Figure A0.F4" src="../figs/A0-F4-02.png" /></p>
+<p><img alt="Figure A0.F4" src="../figs/A0-F4-03.png" /></p>
+<p><img alt="Figure A0.F4" src="../figs/A0-F4-04.png" /></p>
+<p>图 4：使用 RoBERTa-large 对提示长度和重参数化进行的消融研究。给定某些 NLU 任务和数据集，结论可能会大不相同。 （MQA：多项选择质量检查）</p>
+<h2 id="序列标记问题的表述">序列标记问题的表述<a class="headerlink" href="#序列标记问题的表述" title="Permanent link">&para;</a></h2>
+<p>名称实体识别（NER）。 NER 旨在预测用句子表示某些给定实体类别的所有单词跨度。我们采用了 CoNLL03 Sang 和 De Meulder (2003)、OntoNotes 5.0 Weischedel 等人。 (2013) 和 CoNLL04 卡雷拉斯和马尔克斯 (2004)。对于 CoNLL03 和 CoNLL04，我们在标准的训练-开发-测试分割上训练了我们的模型。对于 OntoNotes 5.0，我们使用与 Xu 等人相同的训练、开发、测试拆分。 （2021）。所有数据集均以 IOB2 格式标记。我们使用序列标记来解决 NER 任务，方法是分配标记实体开始和某些类别内部的标签。语言模型为每个标记生成一个表示，我们使用线性分类器来预测标签。我们使用官方脚本来评估结果。对于多任务设置，我们结合三个数据集的训练集进行预训练。我们对每个数据集使用不同的线性分类器，同时共享连续提示。</p>
+<p>（提取）问答（QA）。提取式 QA 旨在从给定上下文和问题的上下文中提取答案。我们使用 SQuAD Rajpurkar 等人。 (2016) 1.1 和 2.0，其中每个答案都在上下文的连续范围内。按照传统，我们通过为每个标记分配两个标签之一：“开始”或“结束”，将问题表述为序列标记，最后选择最置信的开始-结束对的范围作为提取的答案。如果最有信心的一对的概率低于阈值，模型将假设该问题无法回答。对于多任务设置，我们的预训练训练集结合了SQuAD 1.1和2.0的训练集。在预训练时，我们假设所有问题，无论其来源如何，都可能无法回答。</p>
+<p>语义角色标签（SRL）。 SRL 为句子中的单词或短语分配标签，指示它们在句子中的语义角色。我们在 CoNLL05 Carreras 和 Màrquez (2005) 以及 CoNLL12 Pradhan 等人上评估 P-tuning v2。 （2012）。由于一个句子可以有多个动词，因此我们将目标动词标记添加到每个句子的末尾，以帮助识别哪个动词用于预测。我们根据相应的语义角色表示使用线性分类器对每个单词进行分类。对于多任务设置，预训练训练集是 CoNLL05 Carreras 和 Màrquez (2005)、CoNLL12 Pradhan 等人的训练集的组合。 (2012) 和 propbank-release（用于训练 SRL 的通用扩展数据）。多任务训练策略与NER类似。</p>
+<h2 id="更多消融研究">更多消融研究<a class="headerlink" href="#更多消融研究" title="Permanent link">&para;</a></h2>
+<p>由于页面限制，我们在本节中介绍有关重参数化和提示长度的超参数和架构设计消融。</p>
+<p>嵌入与嵌入MLP 重参数化。在前缀微调 Li 和 Liang (2021) 和 P 调音 Liu 等人中。 (2021)，作者发现重参数化对于提高训练速度、鲁棒性和性能很有用。然而，我们进行的实验表明，不同 NLU 任务和数据集的重参数化效果不一致。</p>
+<p>如图 4 所示，在 RTE 和 CoNLL04 中，MLP 重参数化通常表明几乎所有提示长度都比嵌入具有更好的性能。然而，在BoolQ中，MLP和embedding的结果是有竞争力的；在 CoNLL12 中，嵌入始终优于 MLP。</p>
+<p>提示长度。提示长度是 P-tuning v2 的另一个有影响力的超参数，其最佳值因任务而异。从图 4 中我们观察到，对于简单的 NLU 任务，通常较短的提示足以获得最佳性能；对于困难序列任务，通常，超过 100 的提示会有所帮助。</p>
+<p>我们还发现重参数化与最佳提示长度有着密切的联系。例如，在 RTE、CoNLL04 和 BoolQ 中，MLP 重参数化比嵌入更早达到最佳结果。这个结论或许可以为 P-tuning 的优化特性提供一些思考。</p>
+<h2 id="脚注">脚注<a class="headerlink" href="#脚注" title="Permanent link">&para;</a></h2>
+<p>通讯作者：杨志林（zhiliny@tsinghua.edu.cn）、唐杰（jietang@tsinghua.edu.cn）</p>
+<p>表示同等贡献。</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p>我们的代码和数据发布于 https://github.com/THUDM/P-tuning-v2 。&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p>我们使用“即时调整”来指代一类方法而不是特定的方法。&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p>请注意，“简单”和“困难”的概念特定于提示调整，因为我们发现序列标记任务对于提示调整更具挑战性。&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../en/" class="md-footer__link md-footer__link--prev" aria-label="上一页: P-Tuning-v2 · 英文原文">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                P-Tuning-v2 · 英文原文
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--next" aria-label="下一页: Prefix-Tuning：用逐层连续前缀控制生成">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                Prefix-Tuning：用逐层连续前缀控制生成
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

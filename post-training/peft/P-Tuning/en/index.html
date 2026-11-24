@@ -1,0 +1,3866 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/P-Tuning/en/">
+      
+      
+        <link rel="prev" href="../P-Tuning%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="next" href="../zh/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>P-Tuning · 英文原文 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#gpt-understands-too" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-Tuning · 英文原文
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_10" id="__nav_4_4_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    P-Tuning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning：连续模板如何帮助 GPT 理解任务
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issues-with-discrete-prompts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issues with Discrete Prompts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-Tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Encoder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experiments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#knowledge-probing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge Probing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge Probing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fully-supervised-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fully-supervised Learning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fully-supervised Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#few-shot-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Few-Shot Learning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Few-Shot Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ablation-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparison-with-discrete-prompt-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison with Discrete Prompt Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stabilizing-language-model-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stabilizing Language Model Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issues-with-discrete-prompts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issues with Discrete Prompts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-Tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Encoder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experiments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#knowledge-probing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge Probing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge Probing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fully-supervised-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fully-supervised Learning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fully-supervised Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#few-shot-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Few-Shot Learning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Few-Shot Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-results_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ablation-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparison-with-discrete-prompt-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison with Discrete Prompt Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stabilizing-language-model-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stabilizing Language Model Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="gpt-understands-too">GPT Understands, Too<a class="headerlink" href="#gpt-understands-too" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Source: <a href="https://arxiv.org/html/2103.10385v2">arXiv:2103.10385v2</a> · Original authors are credited below.
+Complete English transcription of the paper body, appendices, tables, captions, footnotes and references; layout is normalized from the original HTML.</p>
+</blockquote>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Xiao Liu Yanan Zheng Zhengxiao Du Affiliation: Tsinghua University Ming Ding Affiliation: Tsinghua University Yujie Qian Affiliation: Massachusetts Institute of Technology Zhilin Yang Jie Tang</p>
+<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<p>Prompting a pretrained language model with natural language patterns has been proved effective for natural language understanding (NLU). However, our preliminary study reveals that manual discrete prompts often lead to unstable performance—e.g., changing a single word in the prompt might result in substantial performance drop. We propose a novel method P-Tuning that employs trainable continuous prompt embeddings in concatenation with discrete prompts. Empirically, P-Tuning not only stabilizes training by minimizing the gap between various discrete prompts, but also improves performance by a sizeable margin on a wide range of NLU tasks including LAMA and SuperGLUE. P-Tuning is generally effective for both frozen and tuned language models, under both the fully-supervised and few-shot settings.</p>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>Pretrained language models ( Brown et al., 2020 , PLMs;) have significantly advanced the performance of natural language understanding (NLU). PLMs are trained with different pretraining objectives, such as masked language modeling Devlin et al. (2018) , autoregressive language modeling Radford et al. (2019) , seq2seq Raffel et al. (2019) , and permutation language modeling Yang et al. (2019) . PLMs can be further enhanced with prompting Brown et al. (2020) ; Schick and Schütze (2020) , which employs manually written prompt patterns as additional input to a language model. With prompting while PLMs are either finetuned on a small labeled dataset or frozen for direct inference on downstream tasks. Prompting has significantly improved the performance of many NLU tasks Brown et al. (2020) ; Schick and Schütze (2020) .</p>
+<p>However, we observe that manual discrete prompts suffer from a large degree of instability. As shown in Table 1 , with a frozen language model, changing a single word in the prompt might result in substantial performance drop. As we will show in Section 3 , when the language model is tuned, the instability problem is alleviated but the performance difference between different prompts is still sizeable, especially in the few-shot setting. Such an instability issue of discrete prompts poses a critical challenge in practice. Recent approaches of automatic prompting have attempted to search for a better-performing prompt given a task Shin et al. (2020) ; Gao et al. (2020) ; Jiang et al. (2020b) , but these methods do not change the unstable nature of discrete prompts.</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>Figure 1: Average scores on 7 dev datasets of SuperGLUE using P-Tuning.</p>
+<table>
+<thead>
+<tr>
+<th>Prompt</th>
+<th>P@1 w/o PT</th>
+<th>P@1 w/ PT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[X] is located in [Y]. (original)</td>
+<td>31.3</td>
+<td>57.8</td>
+</tr>
+<tr>
+<td>[X] is located in which country or state? [Y].</td>
+<td>19.8</td>
+<td>57.8</td>
+</tr>
+<tr>
+<td>[X] is located in which country? [Y].</td>
+<td>31.4</td>
+<td>58.1</td>
+</tr>
+<tr>
+<td>[X] is located in which country? In [Y].</td>
+<td>51.1</td>
+<td>58.1</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1: Discrete prompts suffer from instability (high variance), while P-Tuning stabilizes and improves performance. Results are precision@1 on LAMA-TREx P17 with BERT-base-cased. “PT” refers to P-Tuning, which trains additional continuous prompts in concatenation with discrete prompts.</p>
+<p>To reduce the instability of discrete prompts, we propose a novel method P-Tuning that employs trainable continuous prompt embeddings in concatenation with discrete prompts. Specifically, given a discrete prompt as the input, P-Tuning concatenates continuous prompt embeddings with the discrete prompt tokens and feeds them as the input to the language model. The continuous prompts are updated by backpropagation to optimize the task objective. The intuition is that continuous prompts incorporate a certain degree of learnability into the input, which may learn to offset the effects of minor changes in discrete prompts to improve training stability. To further improve performance, we employ a prompt encoder using LSTMs or MLPs to model the dependency between continuous prompt embeddings.</p>
+<p>We experiment with two NLU benchmarks: the LAMA Petroni et al. (2019) knowledge probing and SuperGLUE Wang et al. (2019a) . On LAMA, with the language model frozen, P-Tuning outperforms manual discrete prompts and searched prompts by 20+ points and 9 points respectively with the same pretrained models. On SuperGLUE, with the language model finetuned, P-Tuning outperforms PET Schick and Schütze (2020) with the best discrete prompts under both the fully-supervised and few-shot settings. In addition to improving performance, our results show that across a wide range of tasks and settings, P-Tuning substantially reduces the performance gap between different discrete prompts, which results in improved stability for language model adaptation.</p>
+<h2 id="method">Method<a class="headerlink" href="#method" title="Permanent link">&para;</a></h2>
+<h3 id="issues-with-discrete-prompts">Issues with Discrete Prompts<a class="headerlink" href="#issues-with-discrete-prompts" title="Permanent link">&para;</a></h3>
+<p>Prompting employs natural language patterns as additional inputs to pretrained language models for adaptation to downstream tasks Brown et al. (2020) ; Schick and Schütze (2020) . Prior work Zheng et al. (2021) has pointed out that prompting has achieved consistent and substantial improvements on a number of NLP tasks. However, it still remains a challenging problem of how to write high-performing discrete prompts.</p>
+<p>We performed preliminary experiments using different manual prompts on the LAMA knowledge probing task Petroni et al. (2019) , which aims to extract triplet knowledge from a language model by predicting the tail entities. Results in Table 1 show that manual discrete prompts lead to unstable performance. For example, if we compare the last two prompts in the table, changing a single word in prompt causes a drastic decrease of 20 points in performance.</p>
+<p>In light of the challenge, recent works propose to automate the search procedure of discrete prompts by mining the training corpus Jiang et al. (2020b) , gradient-based searching Shin et al. (2020) , and using pretrained generative models Gao et al. (2020) . However, these works aim at searching for better-performing prompts but do not change the nature of instability for discrete prompts. In addition to the instability issue, searching in the discrete space might not be able to fully leverage the gradients from backpropagation, which will potentially result in suboptimal solutions. To this end, we explore the possibility of training continuous prompts to stabilize and improve the performance of language model adaptation.</p>
+<p><img alt="Figure S2.F2" src="../figs/S2-F2-01.png" /></p>
+<p>Figure 2: An example of prompt search for “The capital of Britain is [MASK]”. Given the context (blue zone, “Britain”) and target (red zone, “[MASK]”), the orange zone refer to the prompt. In (a), the prompt generator only receives discrete rewards; on the contrary, in (b) the continuous prompt embeddings and prompt encoder can be optimized in a differentiable way.</p>
+<h3 id="p-tuning">P-Tuning<a class="headerlink" href="#p-tuning" title="Permanent link">&para;</a></h3>
+<p>Formally, let <span class="arithmatex">\(\mathcal{M}\)</span> be a pretrained language model with a hidden size of <span class="arithmatex">\(h\)</span> and a vocabulary size of <span class="arithmatex">\(|\mathcal{V}|\)</span> . Let <span class="arithmatex">\(\{(\mathbf{x}_{i},\mathbf{y}_{i}))\}_{i}\)</span> be a labeled dataset for an NLU task, where <span class="arithmatex">\(\mathbf{x}_{0:n}=\{x_{0},x_{1},...,x_{n}\}\)</span> is an input consisting of a sequence of discrete tokens, and <span class="arithmatex">\(\mathbf{y}\in\mathcal{Y}\)</span> is a label. Our goal is to estimate the conditional probability for classification <span class="arithmatex">\(f_{\mathcal{M}}(x)=\hat{p}(y|x)\)</span> with parameters of <span class="arithmatex">\(\mathcal{M}\)</span> either finetuned or frozen.</p>
+<p>Prompting was proposed in the format of discrete tokens Schick and Schütze (2020) . Let <span class="arithmatex">\([\mathrm{D}_{i}]\)</span> be a discrete prompt token. Each prompt can be described as a template <span class="arithmatex">\(T=\{[\mathrm{D}_{0:i}],\mathbf{x},[\mathrm{D}_{(i+1):j}],\mathbf{y},[\mathrm{D}_{(j+1):k}]\}\)</span> , which could organize the labeled data (including the inputs <span class="arithmatex">\(\mathbf{x}\)</span> and the label <span class="arithmatex">\(\mathbf{y}\)</span> ) into a sequence of text tokens, such that the task could be reformulated as filling in the blanks of the input text. For example, for the task of predicting a country’s capital (LAMA-TREx P36), a prompt could be “The capital of [INPUT] is [LABEL].” With a piece of labeled data “(Britain, London)”, the reformulated text would be “The capital of Britain is [MASK].”, where “[MASK]" should predict the given label “London”. Both discrete prompts and discrete data are together mapped into input embeddings:</p>
+<div class="arithmatex">\[
+\{\mathbf{e}(D_{0})...\mathbf{e}(D_{i}),\mathbf{e}(x_{0}),...,\mathbf{e}(x_{n}),...,\mathbf{e}(D_{k})\}
+\]</div>
+<p>through the pretrained embedding layer, where <span class="arithmatex">\(\mathbf{e}\in\mathbb{R}^{|\mathcal{V}|\times d}\)</span> .</p>
+<p>However, as is discussed in Section 2.1 , such discrete prompts tend to be extremely unstable and might not be optimal with back-propagation. Therefore, we propose P-Tuning that uses continuous prompt embeddings to improve and stabilize prompting. Let [ <span class="arithmatex">\(\mathrm{P}_{i}\)</span> ] be the <span class="arithmatex">\(i^{\mathrm{th}}\)</span> continuous prompt embedding. The prompt template for P-Tuning is as follows:</p>
+<div class="arithmatex">\[
+T=\{[\mathrm{P}_{0:i}],\mathbf{x},[\mathrm{P}_{(i+1):j}],\mathbf{y},[\mathrm{P}_{(j+1):k}]\}
+\]</div>
+<p>P-Tuning leverages an extra embedding function <span class="arithmatex">\(f:[\mathrm{P}_{i}]\to h_{i}\)</span> to map the template to</p>
+<div class="arithmatex">\[
+\{h_{0},...,h_{i},\mathbf{e}(\mathbf{x}),h_{i+1},...,h_{j},\mathbf{e}(\mathbf{y}),h_{j+1},...,h_{k}\}
+\]</div>
+<p>Finally, we update the embeddings <span class="arithmatex">\(\{P_{i}\}_{i=1}^{k}\)</span> to optimize a task loss function.</p>
+<p>It is noteworthy that we can also concatenate discrete prompts with continuous prompts, which performs better and is adopted throughout our experiments. P-Tuning is applicable to both frozen and finetuned language models.</p>
+<h3 id="prompt-encoder">Prompt Encoder<a class="headerlink" href="#prompt-encoder" title="Permanent link">&para;</a></h3>
+<p>In the aforementioned framework, we employ a mapping function <span class="arithmatex">\(f\)</span> to map trainable embeddings <span class="arithmatex">\(\{P_{i}\}\)</span> to model inputs <span class="arithmatex">\(\{h_{i}\}\)</span> . The intuition is that by using a mapping function, it is more convenient to model the dependency between different prompt embeddings, compared to using independent learnable embeddings. In our implementation, we use a lightweight neural network to formulate the function <span class="arithmatex">\(f\)</span> . Specifically, we experiment with using long short-term memory (LSTM) networks, multi-layer perceptrons (MLPs), and the identity mapping function in Section 3 .</p>
+<h2 id="experiments">Experiments<a class="headerlink" href="#experiments" title="Permanent link">&para;</a></h2>
+<p>We include two NLU benchmarks: LAMA Petroni et al. (2019) for knowledge probing (§ 3.1 ) and SuperGLUE Wang et al. (2019a) for general natural language understanding. On SuperGLUE, we consider both the fully-supervised learning (§ 3.2 ) and few-shot learning (§ 3.3 ) settings.</p>
+<p>On LAMA, following Shin et al. (2020) ; Jiang et al. (2020b) , language models are frozen and only the discrete or continious prompts are tuned. For SuperGLUE, following Schick and Schütze (2020) ; Zheng et al. (2021) , language models are tuned. In our setting, we jointly optimize the language model parameters and the continuous prompts. This setup not only follows the common, standard settings in prior work, but also allows evaluating P-Tuning with both tuned and frozen language models.</p>
+<p>The overall task setup and a summary of results are shown in Table 2 .</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>LAMA</th>
+<th>Full SG</th>
+<th>Few SG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>frozen</td>
+<td>tuned</td>
+<td>tuned</td>
+</tr>
+<tr>
+<td>Improved</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Stabilized</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p>Table 2: Task settings and summary of results in our experiments. P-tuning shows improvement over baselines on all task settings, and can stabilize performance on LAMA and Few SG. For Full SG, the gap between discrete prompts is not large and training is stable even without P-Tuning. (Full SG: fully-supervised learning on SuperGLUE; Few SG: few-shot SuperGLUE; Improved: overall performance improved; Stabilized: training stabilized by minimizing difference between discrete prompts).</p>
+<table>
+<thead>
+<tr>
+<th>Prompt type</th>
+<th>Model</th>
+<th>P@1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Original (MP)</td>
+<td>BERT-base</td>
+<td>31.1</td>
+</tr>
+<tr>
+<td>Original (MP)</td>
+<td>BERT-large</td>
+<td>32.3</td>
+</tr>
+<tr>
+<td>Original (MP)</td>
+<td>E-BERT</td>
+<td>36.2</td>
+</tr>
+<tr>
+<td>Discrete</td>
+<td>LPAQA (BERT-base)</td>
+<td>34.1</td>
+</tr>
+<tr>
+<td>Discrete</td>
+<td>LPAQA (BERT-large)</td>
+<td>39.4</td>
+</tr>
+<tr>
+<td>Discrete</td>
+<td>AutoPrompt (BERT-base)</td>
+<td>43.3</td>
+</tr>
+<tr>
+<td>P-tuning</td>
+<td>BERT-base</td>
+<td>48.3</td>
+</tr>
+<tr>
+<td>P-tuning</td>
+<td>BERT-large</td>
+<td>50.6</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>MP</th>
+<th>P-tuning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BERT-base (109M)</td>
+<td>31.7</td>
+<td>52.3 (+20.6)</td>
+</tr>
+<tr>
+<td>-AutoPrompt Shin et al. (2020)</td>
+<td>-</td>
+<td>45.2</td>
+</tr>
+<tr>
+<td>BERT-large (335M)</td>
+<td>33.5</td>
+<td>54.6 (+21.1)</td>
+</tr>
+<tr>
+<td>RoBERTa-base (125M)</td>
+<td>18.4</td>
+<td>49.3 (+30.9)</td>
+</tr>
+<tr>
+<td>-AutoPrompt Shin et al. (2020)</td>
+<td>-</td>
+<td>40.0</td>
+</tr>
+<tr>
+<td>RoBERTa-large (355M)</td>
+<td>22.1</td>
+<td>53.5 (+31.4)</td>
+</tr>
+<tr>
+<td>GPT2-medium (345M)</td>
+<td>20.3</td>
+<td>46.5 (+26.2)</td>
+</tr>
+<tr>
+<td>GPT2-xl (1.5B)</td>
+<td>22.8</td>
+<td>54.4 (+31.6)</td>
+</tr>
+<tr>
+<td>MegatronLM (11B)</td>
+<td>23.1</td>
+<td>64.2 (+41.1)</td>
+</tr>
+</tbody>
+</table>
+<p>Table 3: Knowledge probing Precision@1 on LAMA-34k (left) and LAMA-29k (right). P-tuning outperforms all the discrete prompt searching baselines. (MP: Manual prompt; PT: P-tuning).</p>
+<h3 id="knowledge-probing">Knowledge Probing<a class="headerlink" href="#knowledge-probing" title="Permanent link">&para;</a></h3>
+<h4 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h4>
+<p>Knowledge probing, or referred to as fact retrieval, evaluates how much real-world knowledge has language models gained from pre-training. The LAMA Petroni et al. (2019) dataset evaluates it with cloze tests created from triples selected in the knowledge bases.</p>
+<p>Datasets and vocabulary. LAMA enforces all answers in single-token format. We first adopt the original LAMA-TREx dataset, consisting of 41 Wikidata relations and altogether 34,039 testing triples (namely LAMA-34k, which covers all BERT vocabularies). Since different pretrained models share distinct vocabularies, to allow direct comparison, we follow previous work Shin et al. (2020) to adopt a subset that covers the intersection of GPT’s and BERT’s vocabularies. This is caled LAMA-29k. We again follow Shin et al. (2020) to construct the training, development, and test data to allow for fair comparison.</p>
+<p>Setup. LAMA has provided a handcraft prompt for each relation, as shown in Table 1 , which are effective but likely sub-optimal. For bidirectional masked language models, we only need to replace “[X]” with the subject entity and “[Y]” with the [MASK] token; for unidirectional language models such as GPT, following LAMA’s original setting on Transformer-XL Dai et al. (2019) , we use the network output just before the target position.</p>
+<p>The number of prompt tokens and positions are selected based on the development sets, and for simplicity we choose the (3, sub, org_prompt, 3, obj, 3) template for bidirectional models and (3, sub, org_prompt, 3, obj) for unidirectional models as this configuration performs well for most relations (where the number indicates the number of continuous prompt tokens). Continuous prompts are concatenated with original discrete prompts. During the prompt training, we set the learning rate to 1e-5 and use the Adam optimizer.</p>
+<h4 id="main-results">Main results<a class="headerlink" href="#main-results" title="Permanent link">&para;</a></h4>
+<p>The results are presented in Table 3 . P-tuning significantly improves the best results of knowledge probing from 43.3% to 50.6% on LAMA-34k and from 45.2% to 64.2% on LAMA-29k. Moreover, P-tuning outperforms previous discrete prompt searching approaches such as AutoPrompt Shin et al. (2020) and LPAQA Jiang et al. (2020b) on the same-size models. This confirms our intuition in Section 2 that discrete prompts might not be optimal.</p>
+<h3 id="fully-supervised-learning">Fully-supervised Learning<a class="headerlink" href="#fully-supervised-learning" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Method</th>
+<th>BoolQ</th>
+<th>CB</th>
+<th>CB</th>
+<th>WiC</th>
+<th>RTE</th>
+<th>MultiRC</th>
+<th>MultiRC</th>
+<th>WSC</th>
+<th>COPA</th>
+<th>Avg.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Method</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>(F1)</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>(EM)</td>
+<td>(F1a)</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>Avg.</td>
+</tr>
+<tr>
+<td>BERT-Base (109M)</td>
+<td>CLS-FT</td>
+<td>72.9</td>
+<td>85.1</td>
+<td>73.9</td>
+<td>71.1</td>
+<td>68.4</td>
+<td>16.2</td>
+<td>66.3</td>
+<td>63.5</td>
+<td>67.0</td>
+<td>66.2</td>
+</tr>
+<tr>
+<td>BERT-Base (109M)</td>
+<td>PET-FT</td>
+<td>73.7</td>
+<td>87.5</td>
+<td>90.8</td>
+<td>67.9</td>
+<td>70.4</td>
+<td>13.7</td>
+<td>62.5</td>
+<td>60.6</td>
+<td>70.0</td>
+<td>67.1</td>
+</tr>
+<tr>
+<td>BERT-Base (109M)</td>
+<td>P-tuning</td>
+<td>73.9</td>
+<td>89.2</td>
+<td>92.1</td>
+<td>68.8</td>
+<td>71.1</td>
+<td>14.8</td>
+<td>63.3</td>
+<td>63.5</td>
+<td>72.0</td>
+<td>68.4</td>
+</tr>
+<tr>
+<td>GPT2-Base (117M)</td>
+<td>CLS-FT</td>
+<td>71.2</td>
+<td>78.6</td>
+<td>55.8</td>
+<td>65.5</td>
+<td>67.8</td>
+<td>17.4</td>
+<td>65.8</td>
+<td>63.0</td>
+<td>64.4</td>
+<td>63.0</td>
+</tr>
+<tr>
+<td>GPT2-Base (117M)</td>
+<td>PET-FT</td>
+<td>74.8</td>
+<td>87.5</td>
+<td>88.1</td>
+<td>68.0</td>
+<td>70.0</td>
+<td>23.5</td>
+<td>69.7</td>
+<td>66.3</td>
+<td>78.0</td>
+<td>70.2</td>
+</tr>
+<tr>
+<td>GPT2-Base (117M)</td>
+<td>P-tuning</td>
+<td>75.0</td>
+<td>91.1</td>
+<td>93.2</td>
+<td>68.3</td>
+<td>70.8</td>
+<td>23.5</td>
+<td>69.8</td>
+<td>63.5</td>
+<td>76.0</td>
+<td>70.4</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Method</th>
+<th>BoolQ</th>
+<th>CB</th>
+<th>CB</th>
+<th>WiC</th>
+<th>RTE</th>
+<th>MultiRC</th>
+<th>MultiRC</th>
+<th>WSC</th>
+<th>COPA</th>
+<th>Avg.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Method</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>(F1)</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>(EM)</td>
+<td>(F1a)</td>
+<td>(Acc.)</td>
+<td>(Acc.)</td>
+<td>Avg.</td>
+</tr>
+<tr>
+<td>BERT-Large (335M)</td>
+<td>CLS-FT 1</td>
+<td>77.7</td>
+<td>94.6</td>
+<td>93.7</td>
+<td>74.9</td>
+<td>75.8</td>
+<td>24.7</td>
+<td>70.5</td>
+<td>68.3</td>
+<td>69.0</td>
+<td>72.5</td>
+</tr>
+<tr>
+<td>BERT-Large (335M)</td>
+<td>PET-FT</td>
+<td>77.2</td>
+<td>91.1</td>
+<td>93.5</td>
+<td>70.5</td>
+<td>73.6</td>
+<td>17.7</td>
+<td>67.0</td>
+<td>80.8</td>
+<td>75.0</td>
+<td>73.1</td>
+</tr>
+<tr>
+<td>BERT-Large (335M)</td>
+<td>P-tuning</td>
+<td>77.8</td>
+<td>96.4</td>
+<td>97.4</td>
+<td>72.7</td>
+<td>75.5</td>
+<td>17.1</td>
+<td>65.6</td>
+<td>81.7</td>
+<td>76.0</td>
+<td>74.6</td>
+</tr>
+<tr>
+<td>GPT2-Med. (345M)</td>
+<td>CLS-FT</td>
+<td>71.0</td>
+<td>73.2</td>
+<td>51.2</td>
+<td>65.2</td>
+<td>72.2</td>
+<td>19.2</td>
+<td>65.8</td>
+<td>62.5</td>
+<td>66.0</td>
+<td>63.1</td>
+</tr>
+<tr>
+<td>GPT2-Med. (345M)</td>
+<td>PET-FT</td>
+<td>78.3</td>
+<td>96.4</td>
+<td>97.4</td>
+<td>70.4</td>
+<td>72.6</td>
+<td>32.1</td>
+<td>74.4</td>
+<td>73.0</td>
+<td>80.0</td>
+<td>74.9</td>
+</tr>
+<tr>
+<td>GPT2-Med. (345M)</td>
+<td>P-tuning</td>
+<td>78.9</td>
+<td>98.2</td>
+<td>98.7</td>
+<td>69.4</td>
+<td>75.5</td>
+<td>29.3</td>
+<td>74.2</td>
+<td>74.0</td>
+<td>81.0</td>
+<td>75.6</td>
+</tr>
+</tbody>
+</table>
+<p>Table 4: Fully-supervised performance on SuperGLUE development set.</p>
+<h4 id="setup_1">Setup<a class="headerlink" href="#setup_1" title="Permanent link">&para;</a></h4>
+<p>Dataset. To evaluate P-tuning on fully-supervised learning tasks, we adopt the SuperGLUE benchmark Wang et al. (2019b) , consisting of 8 challenging natural language understanding (NLU) tasks. We focus on 7 of them since the ReCoRD Zhang et al. (2018) task adopts no discrete prompts, thus P-tuning is not directly applicable. The tasks include question answering (BoolQ Clark et al. (2019a) &amp; MultiRC Khashabi et al. (2018) ), textual entailment (CB De Marneffe et al. (2019) &amp; RTE Dagan et al. (2005) ), co-reference resolution (WiC Pilehvar and Camacho-Collados (2018) ), causal reasoning (COPA Roemmele et al. (2011) ), and word sense disambiguation (WSC Levesque et al. (2012) ).</p>
+<p>Comparison methods. We experiment with P-tuning on both unidirectional and bidirectional pretrained models, i.e., GPT and BERT. We include four variants BERT-Base, BERT-Large, GPT2-Base, and GPT-medium. For each model, we compare standard classification finetuning, PET Schick and Schütze (2020) (a typical finetuning method based on manual discrete prompts) and our P-tuning.</p>
+<p>Configuration. We use the same metrics as in Wang et al. (2019b) . For fully-supervised learning, we use a large training set to finetune pretrained models and use a development set for hyper-parameter and model selection. Specifically, the AdamW optimizer with a linearly decayed learning rate is used for training. We use a learning rate of <span class="arithmatex">\(\{1e-5,2e-5,3e-5\}\)</span> , a batch size of <span class="arithmatex">\(\{16,32\}\)</span> , and a warm-up ratio of <span class="arithmatex">\(\{0.0,0.05,0.1\}\)</span> . For small datasets (i.e., COPA, WSC, CB, RTE), we fine-tune pretrained models for 20 epochs. For larger datasets (i.e., WiC, BoolQ, MultiRC), we reduce the number of training epochs to be 10 as the model converges earlier. Early stopping is used to avoid over-fitting the training data.</p>
+<h4 id="main-results_1">Main Results<a class="headerlink" href="#main-results_1" title="Permanent link">&para;</a></h4>
+<p>The main results of fully-supervised learning are shown in Table 4 . We observe that P-tuning can improve fully-supervised learning performance on both BERTs and GPTs. (1) Specifically, on the BERT-Base model, P-tuning achieves best performance on 5/7 tasks, while with BERT-Large, P-tuning outperforms other methods on 4/7 tasks. The exceptions are WiC and MultiRC, both of which have relatively large training sets. We find that P-tuning might not have large gains over CLS-FT on such high-resource tasks, while benefits more on low-resource tasks. On average, P-tuning improves over the considered baselines. (2) On GPT2-Base and GPT2-Medium models, P-tuning consistently achieves the best performance on all tasks.</p>
+<h3 id="few-shot-learning">Few-Shot Learning<a class="headerlink" href="#few-shot-learning" title="Permanent link">&para;</a></h3>
+<p>While GPT-3 has shown decent few-shot learning potential with handcrafted prompts, it still struggles on some of the challenging tasks (e.g., natural language inference) Brown et al. (2020) . We are motivated to study whether P-tuning can also improve the few-shot learning performance of pretrained models on challenging tasks.</p>
+<h4 id="setup_2">Setup<a class="headerlink" href="#setup_2" title="Permanent link">&para;</a></h4>
+<p>Few-shot Evaluation. The few-shot performance is sensitive to lots of factors (e.g., the order of training examples, random seed, and prompt patterns), and thus suffers from high variance Zhao et al. (2021a) ; Lu et al. (2021) ; Zhang et al. (2020) . Therefore, the few-shot evaluation strategy should make sure that the improvements are indeed from an improved method instead of variance. To this end, we follow the FewNLU evaluation procedure Zheng et al. (2021) that has addressed and handled the issue. Specifically, we use random data splits to perform model selection only on a small labeled set to prevent overfitting a large dev set.</p>
+<p>Dataset. We use the few-shot SuperGLUE (also known as FewGLUE) benchmark Schick and Schütze (2020) and follow the setting in prior work Zheng et al. (2021) in terms of data split construction.</p>
+<p>Baseline and Hyper-parameter. In few-shot learning, we again compare P-tuning with PET Schick and Schütze (2020) , which was shown to outperform GPT-3 on some of the tasks. Similar to Schick and Schütze (2020) , we use ALBERT-xxLarge as the base model. For hyper-parameters that are shared by PET and P-tuning (e.g., learning rate, maximum training step, evaluation frequency), we use the same search space for fair comparison. Specifically, we search the learning rate in <span class="arithmatex">\(\{1e-5,2e-5\}\)</span> , the maximum training step in <span class="arithmatex">\(\{250,500\}\)</span> , and the evaluation frequency in <span class="arithmatex">\(\{0.02,0.04\}\)</span> .</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>BoolQ (Acc.)</th>
+<th>RTE (Acc.)</th>
+<th>WiC (Acc.)</th>
+<th>CB (Acc.) (F1.)</th>
+<th>CB (Acc.) (F1.)</th>
+<th>MultiRC (F1a.) (EM.)</th>
+<th>MultiRC (F1a.) (EM.)</th>
+<th>WSC (Acc.)</th>
+<th>COPA (Acc.)</th>
+<th>Avg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prompt Tuning</td>
+<td>58.47 <span class="arithmatex">\(\pm\)</span> 1.00</td>
+<td>54.42 <span class="arithmatex">\(\pm\)</span> 3.05</td>
+<td>52.74 <span class="arithmatex">\(\pm\)</span> 2.36</td>
+<td>75.45 <span class="arithmatex">\(\pm\)</span> 2.25</td>
+<td>67.73 <span class="arithmatex">\(\pm\)</span> 5.70</td>
+<td>59.28 <span class="arithmatex">\(\pm\)</span> 4.73</td>
+<td>15.03 <span class="arithmatex">\(\pm\)</span> 4.11</td>
+<td>74.04 <span class="arithmatex">\(\pm\)</span> 2.99</td>
+<td>61.50 <span class="arithmatex">\(\pm\)</span> 4.36</td>
+<td>58.56</td>
+</tr>
+<tr>
+<td>PET-FT</td>
+<td>76.70 <span class="arithmatex">\(\pm\)</span> 1.85</td>
+<td>72.83 <span class="arithmatex">\(\pm\)</span> 1.30</td>
+<td>53.87 <span class="arithmatex">\(\pm\)</span> 4.47</td>
+<td>84.38 <span class="arithmatex">\(\pm\)</span> 4.47</td>
+<td>62.56 <span class="arithmatex">\(\pm\)</span> 7.66</td>
+<td>76.51 <span class="arithmatex">\(\pm\)</span> 1.52</td>
+<td>36.46 <span class="arithmatex">\(\pm\)</span> 2.13</td>
+<td>80.05 <span class="arithmatex">\(\pm\)</span> 2.53</td>
+<td>81.75 <span class="arithmatex">\(\pm\)</span> 4.03</td>
+<td>70.74</td>
+</tr>
+<tr>
+<td>P-tuning</td>
+<td>76.55 <span class="arithmatex">\(\pm\)</span> 2.68</td>
+<td>63.27 <span class="arithmatex">\(\pm\)</span> 3.63</td>
+<td>55.49 <span class="arithmatex">\(\pm\)</span> 1.21</td>
+<td>88.39 <span class="arithmatex">\(\pm\)</span> 3.72</td>
+<td>84.24 <span class="arithmatex">\(\pm\)</span> 5.15</td>
+<td>75.91 <span class="arithmatex">\(\pm\)</span> 1.74</td>
+<td>38.01 <span class="arithmatex">\(\pm\)</span> 0.78</td>
+<td>78.85 <span class="arithmatex">\(\pm\)</span> 1.76</td>
+<td>85.25 <span class="arithmatex">\(\pm\)</span> 3.30</td>
+<td>71.81</td>
+</tr>
+</tbody>
+</table>
+<p>Table 5: The few-shot performance of PET Schick and Schütze (2020) , Prompt Tuning Lester et al. (2021) and our P-tuning over seven tasks based on ALBERT. Each result is averaged over 4 runs with different data splits. Results show that P-tuning consistently improves average few-shot performance by more than 1 point compared to PET and by more than 13 points compared to Prompt Tuning.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Method</th>
+<th>P#0</th>
+<th>P#1</th>
+<th>P#2</th>
+<th>P#3</th>
+<th>P#4</th>
+<th>P#5</th>
+<th>STD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FSL (BoolQ)</td>
+<td>PET-FT</td>
+<td>77.10</td>
+<td>67.96</td>
+<td>74.14</td>
+<td>72.48</td>
+<td>71.77</td>
+<td>60.86</td>
+<td>5.68</td>
+</tr>
+<tr>
+<td>FSL (BoolQ)</td>
+<td>PET-FT</td>
+<td><span class="arithmatex">\(\pm\)</span> 2.21</td>
+<td><span class="arithmatex">\(\pm\)</span> 2.69</td>
+<td><span class="arithmatex">\(\pm\)</span> 1.38</td>
+<td><span class="arithmatex">\(\pm\)</span> 4.31</td>
+<td><span class="arithmatex">\(\pm\)</span> 2.56</td>
+<td><span class="arithmatex">\(\pm\)</span> 3.99</td>
+<td>5.68</td>
+</tr>
+<tr>
+<td>FSL (BoolQ)</td>
+<td>P-tuning</td>
+<td>75.41</td>
+<td>75.11</td>
+<td>73.43</td>
+<td>71.35</td>
+<td>71.31</td>
+<td>65.86</td>
+<td>3.52</td>
+</tr>
+<tr>
+<td>FSL (BoolQ)</td>
+<td>P-tuning</td>
+<td><span class="arithmatex">\(\pm\)</span> 3.09</td>
+<td><span class="arithmatex">\(\pm\)</span> 1.61</td>
+<td><span class="arithmatex">\(\pm\)</span> 2.60</td>
+<td><span class="arithmatex">\(\pm\)</span> 4.57</td>
+<td><span class="arithmatex">\(\pm\)</span> 8.58</td>
+<td><span class="arithmatex">\(\pm\)</span> 3.80</td>
+<td>3.52</td>
+</tr>
+<tr>
+<td>LAMA (P17)</td>
+<td>MP</td>
+<td>31.3</td>
+<td>19.8</td>
+<td>31.4</td>
+<td>51.1</td>
+<td>34.0</td>
+<td>32.7</td>
+<td>10.1</td>
+</tr>
+<tr>
+<td>LAMA (P17)</td>
+<td>P-tuning</td>
+<td>57.8</td>
+<td>57.8</td>
+<td>58.1</td>
+<td>58.1</td>
+<td>58.9</td>
+<td>58.7</td>
+<td>0.46</td>
+</tr>
+</tbody>
+</table>
+<p>Table 6: Upper table: Few-shot learning (FSL) of PET and P-tuning in terms of each pattern on SuperGLUE with ALBERT; Lower table: Manual prompt (MP) and P-tuning performance on LAMA-P17 with BERT-base-cased. For each column, P-tuning and compared methods share the same manual prompts, while P-tuning additionally concatenates continuous prompt tokens. We report the standard deviation over multiple results of different patterns. Results show that P-tuning achieves smaller standard deviation, proving that P-tuning can improve stability w.r.t. the choice of discrete patterns.</p>
+<p>Construction of Prompt Patterns. For PET, we use the same manual prompts reported by Schick and Schütze (2020) . When constructing prompt patterns for P-tuning, based on the same manual prompts as PET, we insert different numbers of continuous prompt tokens into different positions, thus formulating a number of pattern candidates. We then select the best pattern for P-tuning using the validation strategy of FewNLU Zheng et al. (2021) . We also conduct further analysis of the number and the position of continuous prompt tokens in § 3.3.3 .</p>
+<h4 id="main-results_2">Main Results<a class="headerlink" href="#main-results_2" title="Permanent link">&para;</a></h4>
+<p>Few-Shot Performance. Table 5 shows the main results of few-shot learning. We find that, on ALBERT, P-tuning consistently outperform PET on average by more than 1 points. It outperforms PromptTuning by more than 13 points. It proves that by automatically learning continuous prompt tokens, the pretrained models can achieve better few-shot performance on NLU tasks.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Prompt Patterns of P-tuning</th>
+<th>Seg.</th>
+<th>Pos.</th>
+<th>#[P]</th>
+<th>Acc.</th>
+<th>F1.</th>
+<th>Avg.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>[Premise] Question: [Hypothesis] [P] ? Answer: [M].</td>
+<td>Yes</td>
+<td>Mid</td>
+<td>1</td>
+<td>87.95</td>
+<td>76.70</td>
+<td>82.33</td>
+</tr>
+<tr>
+<td>2</td>
+<td>[Premise] Question [P]: [Hypothesis] ? Answer: [M].</td>
+<td>Yes</td>
+<td>Mid</td>
+<td>1</td>
+<td>88.39</td>
+<td>78.57</td>
+<td>83.48</td>
+</tr>
+<tr>
+<td>3</td>
+<td>[Premise] Question: [Hypothesis] ? [P] Answer: [M].</td>
+<td>No</td>
+<td>Mid</td>
+<td>1</td>
+<td>89.29</td>
+<td>79.86</td>
+<td>84.58</td>
+</tr>
+<tr>
+<td>4</td>
+<td>[Premise] [P] Question: [Hypothesis] ? Answer: [M].</td>
+<td>No</td>
+<td>Miid</td>
+<td>1</td>
+<td>89.73</td>
+<td>82.15</td>
+<td>85.94</td>
+</tr>
+<tr>
+<td>5</td>
+<td>[Premise] Question: [Hypothesis] ? Answer: [M]. [P]</td>
+<td>No</td>
+<td>Edge</td>
+<td>1</td>
+<td>87.50</td>
+<td>83.39</td>
+<td>85.45</td>
+</tr>
+<tr>
+<td>6</td>
+<td>[Premise] Question: [Hypothesis] ? [P][P] Answer: [M].</td>
+<td>No</td>
+<td>Mid</td>
+<td>2</td>
+<td>88.39</td>
+<td>84.74</td>
+<td>86.57</td>
+</tr>
+<tr>
+<td>7</td>
+<td>[Premise] Question: [Hypothesis] ? [P][P][P][P] Answer: [M].</td>
+<td>No</td>
+<td>Mid</td>
+<td>4</td>
+<td>88.39</td>
+<td>85.14</td>
+<td>86.76</td>
+</tr>
+<tr>
+<td>8</td>
+<td>[Premise] Question: [Hypothesis] ? [P][P][P][P][P][P][P][P] Answer: [M].</td>
+<td>No</td>
+<td>Mid</td>
+<td>8</td>
+<td>83.48</td>
+<td>73.32</td>
+<td>78.40</td>
+</tr>
+</tbody>
+</table>
+<p>Table 7: The few-shot performance of P-tuning on the CB task on ALBERT with different prompt patterns. “Seg.” means whether the inserted prompt tokens segment complete sentences. “Pos.” indicates inserting the prompt tokens at the edge or in the middle of the inputs. “[P]” is continuous prompt token. “[M]” is the mask token.</p>
+<h4 id="ablation-study">Ablation Study<a class="headerlink" href="#ablation-study" title="Permanent link">&para;</a></h4>
+<p>Type of Prompt Encoder Prior work Shin et al. (2020) proposes to simply use an MLP as the prompt encoder, we perform further ablation analysis for prompt encoder selection, and results are shown in Table 8 . We consider LSTM, MLP, and EMB (i.e., we directly optimize the word embeddings without using additional parameters). From the results, we can see that LSTM, MLP, and EMB all work as a prompt encoder. Results show that both LSTM and MLP generally work well on these tasks, while EMB is unstable and can substantially under-perform the other two on some tasks (e.g,. WiC and CB). To sum up, both LSTM and MLP could be taken into account when working on new tasks.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>LSTM</th>
+<th>MLP</th>
+<th>EMB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WiC-ACC</td>
+<td>56.27 <span class="arithmatex">\(\pm\)</span> 1.54</td>
+<td>55.25 <span class="arithmatex">\(\pm\)</span> 3.09</td>
+<td>53.96 <span class="arithmatex">\(\pm\)</span> 3.23</td>
+</tr>
+<tr>
+<td>CB-ACC.</td>
+<td>81.70 <span class="arithmatex">\(\pm\)</span> 7.49</td>
+<td>88.39 <span class="arithmatex">\(\pm\)</span> 3.72</td>
+<td>82.59 <span class="arithmatex">\(\pm\)</span> 3.69</td>
+</tr>
+<tr>
+<td>CB-F1.</td>
+<td>77.41 <span class="arithmatex">\(\pm\)</span> 9.15</td>
+<td>84.24 <span class="arithmatex">\(\pm\)</span> 5.15</td>
+<td>67.27 <span class="arithmatex">\(\pm\)</span> 6.78</td>
+</tr>
+<tr>
+<td>BoolQ-ACC.</td>
+<td>75.41 <span class="arithmatex">\(\pm\)</span> 3.09</td>
+<td>76.46 <span class="arithmatex">\(\pm\)</span> 2.84</td>
+<td>76.87 <span class="arithmatex">\(\pm\)</span> 1.69</td>
+</tr>
+</tbody>
+</table>
+<p>Table 8: The few-shot performance on WiC, CB and BoolQ tasks with ALBERT using different prompt encoders. Results show that both LSTM and MLP generally work well on these tasks, while EMB is unstable and can substantially under-perform the other two on some tasks (e.g,. WiC and CB). “EMB” means using an identity mapping for the prompt encoder.</p>
+<p>Location of Prompt Tokens To study at which location to insert continuous prompt tokens, we perform experiments as Table 7 shows. From the results, we have the following findings.</p>
+<ul>
+<li>
+<ol>
+<li>By comparing #1 (or #2) with #3 (or #4), we find that it would be better if we insert continuous prompt tokens at the location where it does not segment the sentences. For example, in case#1, “[P]” breaks the completeness of sentence “[Hypothesis]?” while in case#3, “[P]” is located between sentences.</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>By comparing #2 (or #3) with #4, we find that there’s no special preference for placing on the edge or in the middle of the inputs.</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>It is suggested to write a number of pattern candidates and then search over them for the best for each task.</li>
+</ol>
+</li>
+</ul>
+<p>Number of Prompt Tokens We also study the influence of the number of prompt tokens and show the results in Table 7 . By comparing #3, #6, #7, and #8, we can conclude that the number of prompt tokens has a great impact on the few-shot performance. However, it is not that a larger number of prompt tokens would always be better. We conjecture that it could be that due to the limited training data, it becomes difficult to learn the parameters when excessively increasing the number of continuous prompt tokens. In practice, it is suggested to search for the best number of prompt tokens through model selection.</p>
+<h4 id="comparison-with-discrete-prompt-search">Comparison with Discrete Prompt Search<a class="headerlink" href="#comparison-with-discrete-prompt-search" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>LM-BFF (Auto)</th>
+<th>P-Tuning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SST-2</td>
+<td>92.89</td>
+<td>92.78</td>
+</tr>
+<tr>
+<td>MNLI</td>
+<td>57.53</td>
+<td>58.70</td>
+</tr>
+<tr>
+<td>MRPC</td>
+<td>68.26</td>
+<td>69.49</td>
+</tr>
+</tbody>
+</table>
+<p>Table 9: Few-shot performance of automatically searched prompts and P-Tuning. We evaluated LM-BFF (Auto) using the reported top-3 searched patterns under our evaluation procedure. P-Tuning also uses the same discrete prompts, in concatenation with continuous prompts. Results show that P-Tuning can be effectively combined with existing discrete patterns and achieve further performance improvement.</p>
+<p>Prior work Gao et al. (2020) proposed to automatically search discrete prompts and achieved better results than those of manual prompts. We now proceed to compare P-Tuning with auto-searched discrete prompts. For fair comparison, we follow the setting of LM-BFF Gao et al. (2020) to also conduct experiments on some of the GLUE tasks Wang et al. (2018) with RoBERTa-Large model Liu et al. (2019) . Since the the evaluation protocols have large impacts on few-shot performance, we use the top-3 discrete prompts searched by LM-BFF and experiment with using only the discrete prompts and additionally applying P-Tuning. For P-Tuning, the prompt patterns are constructed by concatenating the same discrete prompts as well as continuous prompts. Results in Table 9 show that additionally incorporating continuous prompts can further improve few-shot performance. P-Tuning is easy to be combined with existing discrete prompts, while further improving stability as discussed in Section 3.4 .</p>
+<h3 id="stabilizing-language-model-adaptation">Stabilizing Language Model Adaptation<a class="headerlink" href="#stabilizing-language-model-adaptation" title="Permanent link">&para;</a></h3>
+<p>In the above sections, we have shown that P-Tuning improves over performance across multiple settings. Now we present results to demonstrate that P-Tuning also stabilizes language model adaptation; i.e., reducing the differences between different prompts. As we have shown in Table 1 , manual prompts have a large impact on the performance. When it comes to few-shot learning, the performance gap of different prompts is prominent due to the sensitivity of few-shot learning Zheng et al. (2021) . Results in Table 6 show that P-tuning improves the performance of the worst-performing patterns (e.g., P#5), and achieves a smaller standard deviation over multiple patterns. Compared to PET-FT, P-tuning increases the stability w.r.t. the choice of patterns.</p>
+<p>On LAMA, we observe similar a phenomenon that while manual prompts often yield quite volatile results, appending trainable continuous prompts on top of the manual prompts can stabilize their performances, reducing the standard deviation from 10.1 to 0.46.</p>
+<h2 id="related-work">Related work<a class="headerlink" href="#related-work" title="Permanent link">&para;</a></h2>
+<p>Language Model Prompting. GPT-3 Brown et al. (2020) uses in-context examples Liu et al. (2021) ; Zhao et al. (2021b) as a way of prompting to transfer knowledge from pretraining to downstream tasks. Schick and Schütze (2020) proposed to use cloze patterns, which removes the constraint that the masked token is the last token of the sentence. This further minimizes the gap between pretraining and downstream tasks. To improve prompting for NLU, recent works have proposed methods to automatically search for high-performing prompts by mining the training corpus Jiang et al. (2020b) , gradient-based search Shin et al. (2020) , or using pretrained generative models Gao et al. (2020) . Our approach is different from these prior works in that we resort to using continuous prompt embeddings, which are found to be complementary to discrete prompts in our experiments.</p>
+<p>Recently, some concurrent works also proposed the use of continuous prompts. Prefix-tuning Li and Liang (2021) adds continuous prompts at the beginning of the sequence for each layer. In contrast to our work, prefix-tuning targets natural language generation tasks.</p>
+<p>In the area of NLU, a few concurrent methods were proposed based on continuous prompts, focusing on improving knowledge probing Qin and Eisner (2021) ; Zhong et al. (2021) . Lester et al. (2021) showed that with large pretrained models, only tuning continuous prompts with a frozen language model achieves comparable performance to full-model tuning.</p>
+<p>Compared to these concurrent works on NLU, P-Tuning reaches a unique conclusion that continuous prompts improve performance and stabilize training with either frozen or tuned models under both the few-shot and fully-supervised settings. For example, no concurrent works have shown that continuous prompts can improve performance with a tuned language model. Technically, P-Tuning also has a few unique designs such as using hybrid continuous-discrete prompts and employing a prompt encoder.</p>
+<p>Knowledge in Language Models. Self-supervised Liu et al. (2020) pre-trained language models Han et al. (2021) including GPT Radford et al. (2019) , BERT Devlin et al. (2018) , XLNet Yang et al. (2019) , RoBERTa Liu et al. (2019) have been observed to learn not only contextualized text representations but also linguistic and world knowledge. Hewitt and Manning (2019) demonstrates that contextualized representations produced by language models can form a parse tree in the embedding space. Vig (2019) ; Clark et al. (2019b) look into the multi-head attention patterns within transformers and discover that certain attention heads may correspond to some grammatical functions, including co-reference and noun modifiers. LAMA Petroni et al. (2019) ; Petroni et al. (2020) propose the LAMA task that leverages cloze tests to predict the fact triples of knowledge bases to examine language model’s ability of memorizing facts with answers in the single-token format. In Wang et al. (2020) , the authors investigate the attention matrices to find evidence about knowledge triples contained in the context. Jiang et al. (2020a) develops a multi-token fact retrieval dataset based on LAMA.</p>
+<h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
+<p>In this paper, we present a method P-Tuning that uses continuous prompts in concatenation with discrete prompts. P-Tuning improves performance and stabilizes training for pretrained language model adaptation. P-Tuning is effective with both tuned and frozen language models under both the few-shot and fully-supervised setings.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Brown et al. (2020) Tom B Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. arXiv preprint arXiv:2005.14165 .</p>
+</li>
+<li>
+<p>Clark et al. (2019a) Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina Toutanova. 2019a. Boolq: Exploring the surprising difficulty of natural yes/no questions. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 2924–2936.</p>
+</li>
+<li>
+<p>Clark et al. (2019b) Kevin Clark, Urvashi Khandelwal, Omer Levy, and Christopher D Manning. 2019b. What does bert look at? an analysis of bert’s attention. arXiv preprint arXiv:1906.04341 .</p>
+</li>
+<li>
+<p>Dagan et al. (2005) Ido Dagan, Oren Glickman, and Bernardo Magnini. 2005. The pascal recognising textual entailment challenge. In Machine Learning Challenges Workshop , pages 177–190. Springer.</p>
+</li>
+<li>
+<p>Dai et al. (2019) Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, Quoc V Le, and Ruslan Salakhutdinov. 2019. Transformer-xl: Attentive language models beyond a fixed-length context. arXiv preprint arXiv:1901.02860 .</p>
+</li>
+<li>
+<p>De Marneffe et al. (2019) Marie-Catherine De Marneffe, Mandy Simons, and Judith Tonhauser. 2019. The commitmentbank: Investigating projection in naturally occurring discourse. In proceedings of Sinn und Bedeutung , volume 23, pages 107–124.</p>
+</li>
+<li>
+<p>Devlin et al. (2018) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2018. Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805 .</p>
+</li>
+<li>
+<p>Gao et al. (2020) Tianyu Gao, Adam Fisch, and Danqi Chen. 2020. Making pre-trained language models better few-shot learners. arXiv preprint arXiv:2012.15723 .</p>
+</li>
+<li>
+<p>Han et al. (2021) Xu Han, Zhengyan Zhang, Ning Ding, Yuxian Gu, Xiao Liu, Yuqi Huo, Jiezhong Qiu, Liang Zhang, Wentao Han, Minlie Huang, et al. 2021. Pre-trained models: Past, present and future. AI Open .</p>
+</li>
+<li>
+<p>Hewitt and Manning (2019) John Hewitt and Christopher D. Manning. 2019. A structural probe for finding syntax in word representations. In North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL) . Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Jiang et al. (2020a) Zhengbao Jiang, Antonios Anastasopoulos, Jun Araki, Haibo Ding, and Graham Neubig. 2020a. X-factr: Multilingual factual knowledge retrieval from pretrained language models. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 5943–5959.</p>
+</li>
+<li>
+<p>Jiang et al. (2020b) Zhengbao Jiang, Frank F Xu, Jun Araki, and Graham Neubig. 2020b. How can we know what language models know? Transactions of the Association for Computational Linguistics , 8:423–438.</p>
+</li>
+<li>
+<p>Khashabi et al. (2018) Daniel Khashabi, Snigdha Chaturvedi, Michael Roth, Shyam Upadhyay, and Dan Roth. 2018. Looking beyond the surface: A challenge set for reading comprehension over multiple sentences. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers) , pages 252–262.</p>
+</li>
+<li>
+<p>Lester et al. (2021) Brian Lester, Rami Al-Rfou, and Noah Constant. 2021. The power of scale for parameter-efficient prompt tuning. ArXiv , abs/2104.08691.</p>
+</li>
+<li>
+<p>Levesque et al. (2012) Hector Levesque, Ernest Davis, and Leora Morgenstern. 2012. The winograd schema challenge. In Thirteenth International Conference on the Principles of Knowledge Representation and Reasoning . Citeseer.</p>
+</li>
+<li>
+<p>Li and Liang (2021) Xiang Lisa Li and Percy Liang. 2021. Prefix-tuning: Optimizing continuous prompts for generation. arXiv preprint arXiv:2101.00190 .</p>
+</li>
+<li>
+<p>Liu et al. (2021) Jiachang Liu, Dinghan Shen, Yizhe Zhang, Bill Dolan, Lawrence Carin, and Weizhu Chen. 2021. What makes good in-context examples for gpt- <span class="arithmatex">\(3\)</span> ? arXiv preprint arXiv:2101.06804 .</p>
+</li>
+<li>
+<p>Liu et al. (2020) Xiao Liu, Fanjin Zhang, Zhenyu Hou, Zhaoyu Wang, Li Mian, Jing Zhang, and Jie Tang. 2020. Self-supervised learning: Generative or contrastive. arXiv preprint arXiv:2006.08218 , 1(2).</p>
+</li>
+<li>
+<p>Liu et al. (2019) Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692 .</p>
+</li>
+<li>
+<p>Lu et al. (2021) Yao Lu, Max Bartolo, Alastair Moore, Sebastian Riedel, and Pontus Stenetorp. 2021. Fantastically ordered prompts and where to find them: Overcoming few-shot prompt order sensitivity. CoRR , abs/2104.08786.</p>
+</li>
+<li>
+<p>Petroni et al. (2020) Fabio Petroni, Patrick Lewis, Aleksandra Piktus, Tim Rocktäschel, Yuxiang Wu, Alexander H Miller, and Sebastian Riedel. 2020. How context affects language models’ factual predictions. arXiv preprint arXiv:2005.04611 .</p>
+</li>
+<li>
+<p>Petroni et al. (2019) Fabio Petroni, Tim Rocktäschel, Patrick Lewis, Anton Bakhtin, Yuxiang Wu, Alexander H Miller, and Sebastian Riedel. 2019. Language models as knowledge bases? arXiv preprint arXiv:1909.01066 .</p>
+</li>
+<li>
+<p>Pilehvar and Camacho-Collados (2018) Mohammad Taher Pilehvar and José Camacho-Collados. 2018. Wic: 10, 000 example pairs for evaluating context-sensitive representations. CoRR , abs/1808.09121.</p>
+</li>
+<li>
+<p>Qin and Eisner (2021) Guanghui Qin and J. Eisner. 2021. Learning how to ask: Querying lms with mixtures of soft prompts. ArXiv , abs/2104.06599.</p>
+</li>
+<li>
+<p>Radford et al. (2019) Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners. OpenAI blog , 1(8):9.</p>
+</li>
+<li>
+<p>Raffel et al. (2019) Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. 2019. Exploring the limits of transfer learning with a unified text-to-text transformer. arXiv preprint arXiv:1910.10683 .</p>
+</li>
+<li>
+<p>Roemmele et al. (2011) Melissa Roemmele, Cosmin Adrian Bejan, and Andrew S Gordon. 2011. Choice of plausible alternatives: An evaluation of commonsense causal reasoning. In AAAI Spring Symposium: Logical Formalizations of Commonsense Reasoning , pages 90–95.</p>
+</li>
+<li>
+<p>Schick and Schütze (2020) Timo Schick and Hinrich Schütze. 2020. It’s not just size that matters: Small language models are also few-shot learners. Computing Research Repository , arXiv:2009.07118.</p>
+</li>
+<li>
+<p>Shin et al. (2020) Taylor Shin, Yasaman Razeghi, Robert L Logan IV, Eric Wallace, and Sameer Singh. 2020. Autoprompt: Eliciting knowledge from language models with automatically generated prompts. arXiv preprint arXiv:2010.15980 .</p>
+</li>
+<li>
+<p>Vig (2019) Jesse Vig. 2019. A multiscale visualization of attention in the transformer model. arXiv preprint arXiv:1906.05714 .</p>
+</li>
+<li>
+<p>Wang et al. (2019a) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R Bowman. 2019a. Superglue: A stickier benchmark for general-purpose language understanding systems. arXiv preprint arXiv:1905.00537 .</p>
+</li>
+<li>
+<p>Wang et al. (2019b) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2019b. SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. In NeurIPS 2019 , pages 3261–3275.</p>
+</li>
+<li>
+<p>Wang et al. (2018) Alex Wang, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2018. Glue: A multi-task benchmark and analysis platform for natural language understanding. ArXiv , abs/1804.07461.</p>
+</li>
+<li>
+<p>Wang et al. (2020) Chenguang Wang, Xiao Liu, and Dawn Song. 2020. Language models are open knowledge graphs. arXiv preprint arXiv:2010.11967 .</p>
+</li>
+<li>
+<p>Yang et al. (2019) Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, and Quoc V Le. 2019. Xlnet: Generalized autoregressive pretraining for language understanding. arXiv preprint arXiv:1906.08237 .</p>
+</li>
+<li>
+<p>Zhang et al. (2018) Sheng Zhang, Xiaodong Liu, Jingjing Liu, Jianfeng Gao, Kevin Duh, and Benjamin Van Durme. 2018. Record: Bridging the gap between human and machine commonsense reading comprehension. arXiv preprint arXiv:1810.12885 .</p>
+</li>
+<li>
+<p>Zhang et al. (2020) Tianyi Zhang, Felix Wu, Arzoo Katiyar, Kilian Q. Weinberger, and Yoav Artzi. 2020. Revisiting few-sample BERT fine-tuning. CoRR , abs/2006.05987.</p>
+</li>
+<li>
+<p>Zhao et al. (2021a) Tony Z. Zhao, Eric Wallace, Shi Feng, Dan Klein, and Sameer Singh. 2021a. Calibrate before use: Improving few-shot performance of language models. CoRR , abs/2102.09690.</p>
+</li>
+<li>
+<p>Zhao et al. (2021b) Tony Z Zhao, Eric Wallace, Shi Feng, Dan Klein, and Sameer Singh. 2021b. Calibrate before use: Improving few-shot performance of language models. arXiv preprint arXiv:2102.09690 .</p>
+</li>
+<li>
+<p>Zheng et al. (2021) Yanan Zheng, Jing Zhou, Yujie Qian, Ming Ding, Jian Li, Ruslan Salakhutdinov, Jie Tang, Sebastian Ruder, and Zhilin Yang. 2021. Fewnlu: Benchmarking state-of-the-art methods for few-shot natural language understanding .</p>
+</li>
+<li>
+<p>Zhong et al. (2021) Zexuan Zhong, Dan Friedman, and Danqi Chen. 2021. Factual probing is [mask]: Learning vs. learning to recall. ArXiv , abs/2104.05240.</p>
+</li>
+</ul>
+<h2 id="footnotes">Footnotes<a class="headerlink" href="#footnotes" title="Permanent link">&para;</a></h2>
+<p>corresponding to: Zhilin Yang (zhiliny@tsinghua.edu.cn) and Jie Tang (jietang@tsinghua.edu.cn)</p>
+<p>indicates equal contribution.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--prev" aria-label="上一页: P-Tuning：连续模板如何帮助 GPT 理解任务">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                P-Tuning：连续模板如何帮助 GPT 理解任务
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../zh/" class="md-footer__link md-footer__link--next" aria-label="下一页: P-Tuning · 中英对照">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                P-Tuning · 中英对照
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

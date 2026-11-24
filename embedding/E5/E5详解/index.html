@@ -1,0 +1,12294 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/embedding/E5/E5%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="prev" href="../../DupMAE/zh/">
+      
+      
+        <link rel="next" href="../../E5-Mistral/E5-Mistral%E5%90%88%E6%88%90%E6%95%B0%E6%8D%AE%E8%AF%A6%E8%A7%A3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>E5 技术详解 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#e5-技术详解" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              E5 技术详解
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../post-training/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Embedding
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Embedding%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding 蒸馏技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Embedding%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding 调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM-Embedding%E5%86%B2%E6%A6%9C%E8%B7%AF%E7%BA%BF_E5Mistral-NVEmbed-GritLM-SFR-Arctic-Stella/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM-Embedding 冲榜路线：E5-Mistral / NV-Embed-v2 / GritLM / SFR-2 / Arctic-Embed v2 / Stella
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MLLM%E9%80%9A%E7%94%A8%E5%A4%9A%E6%A8%A1%E6%80%81%E5%B5%8C%E5%85%A5_GME-VLM2Vec-BGEVL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLLM 通用多模态嵌入：GME、VLM2Vec 与 MegaPairs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E6%B2%BF%E7%9F%AD%E6%B7%B1%E8%AF%BB_LateChunking-Vec2Vec-ModernBERT-DINOv2v3-Qwen3-Seed-ViDoRev2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    前沿短深读集合：Late Chunking / Vec2Vec / ModernBERT / DINOv2+v3 / Qwen3-Embedding / Seed1.5-Embedding / ViDoRe v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%9B%BE%E6%90%9C%E5%9B%BE%E4%B8%8E%E6%96%87%E6%90%9C%E5%9B%BE%E8%A1%A8%E7%A4%BA%E5%AD%A6%E4%B9%A0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图搜图与文搜图表示学习：数据、损失与小模型蒸馏
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%9B%BE%E6%96%87Embedding%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E7%BB%BC%E8%BF%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图文 Embedding 模型技术综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E4%B8%8EInfoNCE%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding 损失函数精讲：度量学习、对比学习、排序与蒸馏
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E6%97%A0%E7%9B%91%E7%9D%A3%E5%AF%B9%E6%AF%94%E6%A3%80%E7%B4%A2%E4%B8%89%E9%83%A8%E6%9B%B2_SimCSE-Contriever-Condenser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    无监督对比检索三部曲：SimCSE / Contriever / Condenser + coCondenser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding 相关论文 / 博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E9%9A%BE%E8%B4%9F%E4%BE%8B%E6%8C%96%E6%8E%98%E5%B7%A5%E4%B8%9A%E5%AE%9E%E8%B7%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    难负例挖掘工业实践
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E9%A2%86%E5%9F%9F%E4%B8%93%E7%94%A8Embedding%E9%80%82%E9%85%8D%E5%AE%9E%E8%B7%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    领域专用 Embedding 适配实践
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_14" id="__nav_2_14_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ANCE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ANCE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ANCE/ANCE%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ANCE 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ANCE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ANCE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arctic-Embed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arctic-Embed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Arctic-Embed/v1/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Arctic-Embed/v2/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_16" id="__nav_2_16_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BGE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    BGE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BGE/BGE-Reranker%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BGE-Reranker v2 / v2.5：从 XLM-R 到 LLM-as-Reranker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BGE/BGE-multilingual-gemma2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bge-multilingual-gemma2：Gemma-2 骨干的多语嵌入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../BGE/C-Pack/BGE-CPack%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C-Pack
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../BGE/EN-ICL/BGE-EN-ICL%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EN-ICL
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../BGE/M3/BGE-M3%E4%B8%89%E5%8A%9F%E8%83%BD%E7%BB%9F%E4%B8%80%E8%AF%A6%E8%A7%A3%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_17" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_17" id="__nav_2_17_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLIP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_17_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_17">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLIP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CLIP/CLIP%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLIP 补充解读：开放类别不等于开放式理解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CLIP/CLIP%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLIP：从自然语言监督学习可迁移的视觉模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CLIP/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLIP · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_18" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_18" id="__nav_2_18_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code-IR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_18_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code-IR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Code-IR/%E4%BB%A3%E7%A0%81%E6%A3%80%E7%B4%A2Embedding%E5%90%88%E5%86%99/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码检索 Embedding 合写
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_19" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_19" id="__nav_2_19_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_19_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_19">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ColBERT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColBERT/ColBERT%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERT 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColBERT/ColBERT%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERT：论文精炼研读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_20" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_20" id="__nav_2_20_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERTv2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_20_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_20">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ColBERTv2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColBERTv2/ColBERTv2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERTv2 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColBERTv2/ColBERTv2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERTv2：论文精炼研读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColBERTv2/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColBERTv2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_21" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_21" id="__nav_2_21_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColPali
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_21_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_21">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ColPali
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColPali/ColPali%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColPali 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColPali/ColPali%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColPali：论文精炼研读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColPali/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColPali · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_22" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_22" id="__nav_2_22_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColQwen
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_22_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_22">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ColQwen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColQwen/ColQwen%E7%B3%BB%E5%88%97%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColQwen 系列补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColQwen/ColQwen%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColQwen：基于 Qwen 视觉语言骨干的多向量检索系列
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ColQwen/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ColQwen · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_23" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_23" id="__nav_2_23_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conan-embedding
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_23_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_23">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Conan-embedding
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Conan-embedding/v1/Conan-embedding%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Conan-embedding/v2/Conan-embedding-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_24" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_24" id="__nav_2_24_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Condenser
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_24_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_24">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Condenser
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Condenser/Condenser/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Condenser
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Condenser/coCondenser/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    coCondenser
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_25" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_25" id="__nav_2_25_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contriever
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_25_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_25">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contriever
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contriever/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contriever · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_26" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_26" id="__nav_2_26_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DINO
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_26_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_26">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DINO
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DINO/DINOv2/DINOv2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DINOv2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DINO/DINOv3/DINOv3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DINOv3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_27" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_27" id="__nav_2_27_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_27_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_27">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DPR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DPR/DPR%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPR 补充解读：为什么这个简单方案成为基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DPR/DPR%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPR：面向开放域问答的稠密段落检索
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DPR/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPR · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_28" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_28" id="__nav_2_28_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeVE-QA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_28_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_28">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DeVE-QA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DeVE-QA/DeVE-QA%E7%A8%A0%E5%AF%86%E8%A7%86%E9%A2%91%E4%BA%8B%E4%BB%B6%E9%97%AE%E7%AD%94%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeVE-QA：稠密视频事件问答与数据构建
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DeVE-QA/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeVE-QA · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_29" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_29" id="__nav_2_29_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_29_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_29">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Doc2Query
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Doc2Query/Doc2Query%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query 详解：索引前用预测查询扩展文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Doc2Query/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_30" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_30" id="__nav_2_30_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query++
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_30_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_30">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Doc2Query++
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Doc2Query%2B%2B/Doc2Query%2B%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query++ 详解：主题覆盖扩展，稠密侧改成双索引
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Doc2Query%2B%2B/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Doc2Query++ · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_31" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_31" id="__nav_2_31_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DupMAE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_31_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_31">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DupMAE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DupMAE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DupMAE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_32" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_32" id="__nav_2_32_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_32_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_32">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    E5
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5 技术详解
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-一句话定位" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 一句话定位
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-问题背景与设计动机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 问题背景与设计动机
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ccpairs大规模弱监督文本对" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. CCPairs：大规模弱监督文本对
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. CCPairs：大规模弱监督文本对">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-数据来源与粗过滤" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 数据来源与粗过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-一致性过滤consistency-based-filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 一致性过滤（Consistency-based filter）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-与-ict--随机裁剪的对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 与 ICT / 随机裁剪的对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-方法两阶段对比学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 方法：两阶段对比学习
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 方法：两阶段对比学习">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-阶段一无监督--弱监督对比预训练" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 阶段一：无监督 / 弱监督对比预训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-非对称前缀asymmetric-prefixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 非对称前缀（Asymmetric prefixes）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-阶段二有监督微调--ce-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 阶段二：有监督微调 + CE 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-下游用法冻结嵌入" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 下游用法（冻结嵌入）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-模型规格与训练配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 模型规格与训练配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 模型规格与训练配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-三档规模" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 三档规模
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-关键超参速查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 关键超参速查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-实验结果要点" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 实验结果要点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 实验结果要点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-beir零样本检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 BEIR（零样本检索）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-mteb56-英文集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 MTEB（56 英文集）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-负面结论附录值得记" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 负面结论（附录值得记）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-族谱延伸multilingual-e5-与-e5-mistral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 族谱延伸：multilingual-e5 与 E5-Mistral
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 族谱延伸：multilingual-e5 与 E5-Mistral">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-multilingual-e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 multilingual-e5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-e5-mistralimproving-text-embeddings-with-llms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 E5-Mistral（Improving Text Embeddings with LLMs）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-工程使用注意" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 工程使用注意
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-实现要点清单对照复现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 实现要点清单（对照复现）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-小结与谱系位置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 小结与谱系位置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_33" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_33" id="__nav_2_33_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5-Mistral
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_33_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_33">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    E5-Mistral
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../E5-Mistral/E5-Mistral%E5%90%88%E6%88%90%E6%95%B0%E6%8D%AE%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5-Mistral 合成数据详解：两步 Prompt 配方
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../E5-Mistral/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E5-Mistral · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_34" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_34" id="__nav_2_34_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FollowIR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_34_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_34">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    FollowIR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../FollowIR/FollowIR%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FollowIR 补充解读：相关性是条件化的
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../FollowIR/FollowIR%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FollowIR：检索模型是否真的遵循指令
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../FollowIR/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FollowIR · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_35" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_35" id="__nav_2_35_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GME
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_35_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_35">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    GME
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GME/GME%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GME 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GME/GME%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GME：通用多模态向量检索
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GME/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GME · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_36" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_36" id="__nav_2_36_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_36_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_36">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    GPL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GPL/GPL%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPL 详解：用生成查询和交叉编码器间隔做稠密检索的无监督域适应
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GPL/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPL · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_37" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_37" id="__nav_2_37_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GTE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_37_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_37">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    GTE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GTE/GTE%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GTE 系列详解：从 BERT 编码器到 gte-v1.5 再到 Qwen2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../GTE/GTE/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GTE
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../GTE/mGTE/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mGTE
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_38" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_38" id="__nav_2_38_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GradCache
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_38_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_38">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    GradCache
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GradCache/GradCache%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GradCache 补充解读：把“谁影响谁”与“怎么编码”分开
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GradCache/GradCache%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GradCache：显存受限时的真正大批次对比学习
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GradCache/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GradCache · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_39" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_39" id="__nav_2_39_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GritLM
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_39_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_39">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    GritLM
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GritLM/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GritLM · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_40" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_40" id="__nav_2_40_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HyDE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_40_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_40">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HyDE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HyDE/HyDE%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HyDE 补充解读：先猜一种证据的样子
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HyDE/HyDE%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HyDE：用假想文档构造零样本检索向量
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HyDE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HyDE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_41" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_41" id="__nav_2_41_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    INSTRUCTOR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_41_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_41">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    INSTRUCTOR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTRUCTOR/INSTRUCTOR%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    INSTRUCTOR：一个 embedder，服务任意任务
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTRUCTOR/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    INSTRUCTOR · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_42" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_42" id="__nav_2_42_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_42_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_42">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    InPars
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars/InPars%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars 补充解读：生成分布、相关性与领域适配
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars/InPars%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars：用少样本大语言模型生成检索训练数据
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_43" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_43" id="__nav_2_43_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars-v2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_43_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_43">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    InPars-v2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars-v2/InPars-v2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars-v2 补充解读：谁来判断合成数据的质量
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars-v2/InPars-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars-v2：开放查询生成器与相关性过滤
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InPars-v2/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars-v2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_44" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_44" id="__nav_2_44_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InternLM2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_44_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_44">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    InternLM2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InternLM2/InternLM2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E4%B8%8E%E8%BF%87%E6%BB%A4%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InternLM2 数据处理与过滤详解（Cai et al. 2024）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../InternLM2/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InternLM2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_45" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_45" id="__nav_2_45_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jasper
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_45_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_45">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jasper
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Jasper/Jasper-Token-Compression-600M%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jasper-Token-Compression-600M 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_46" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_46" id="__nav_2_46_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jina
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_46_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_46">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jina
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Jina/Jina%E7%B3%BB%E5%88%97%E6%80%BB%E8%A7%88/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jina Embedding 系列总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/clip/jina-clip%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    clip
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/colbert-v2/Jina-ColBERT-v2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    colbert-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/rerank-v3/jina-reranker-v3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rerank-v3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/rerank-v3.5/jina-reranker-v3.5%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rerank-v3.5
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v1/Jina-embeddings-v1%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v2/Jina-embeddings-v2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v3/Jina-embeddings-v3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v4/Jina-embeddings-v4%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v4
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v5-omni/Jina-embeddings-v5-omni%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v5-omni
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Jina/v5-text/Jina-embeddings-v5-text%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v5-text
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_47" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_47" id="__nav_2_47_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM-DA-TPR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_47_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_47">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM-DA-TPR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM-DA-TPR/LLM-DA%E6%96%87%E6%9C%AC%E8%A1%8C%E4%BA%BA%E6%A3%80%E7%B4%A2%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM-DA：基于大模型的文本行人检索数据增强
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM-DA-TPR/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM-DA-TPR · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_48" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_48" id="__nav_2_48_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM2Vec
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_48_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_48">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM2Vec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM2Vec/LLM2Vec%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM2Vec 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_49" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_49" id="__nav_2_49_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LateChunking
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_49_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_49">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LateChunking
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LateChunking/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LateChunking · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_50" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_50" id="__nav_2_50_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Legal
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_50_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_50">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Legal
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Legal/%E6%B3%95%E5%BE%8B%E6%A3%80%E7%B4%A2Embedding%E5%90%88%E5%86%99/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    法律检索 Embedding 合写
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_51" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_51" id="__nav_2_51_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LilianWeng-contrastive
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_51_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_51">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LilianWeng-contrastive
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LilianWeng-contrastive/LilianWeng_%E5%AF%B9%E6%AF%94%E8%A1%A8%E7%A4%BA%E5%AD%A6%E4%B9%A0_2021/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LilianWeng 对比表示学习 2021
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_52" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_52" id="__nav_2_52_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LongEmbed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_52_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_52">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LongEmbed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LongEmbed/LongEmbed%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LongEmbed 补充解读：能输入、能注意、能保留是三回事
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LongEmbed/LongEmbed%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LongEmbed：测量并扩展嵌入模型的有效上下文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LongEmbed/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LongEmbed · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_53" id="__nav_2_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Longtail-Product-Retrieval
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Longtail-Product-Retrieval
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Longtail-Product-Retrieval/Longtail-Product-Retrieval%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长尾电商商品检索详解：离线改写蒸馏成原查询–商品对
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Longtail-Product-Retrieval/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Longtail-Product-Retrieval · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_54" id="__nav_2_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MRL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MRL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MRL/MRL%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MRL 补充解读：截短为什么必须先学会
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MRL/MRL%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MRL：Matryoshka Representation Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_55" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_55" id="__nav_2_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Margin-MSE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_55_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Margin-MSE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Margin-MSE/Margin-MSE%E7%A0%94%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Margin-MSE 研读笔记：只蒸间隔，不蒸绝对分，于是教师可以换架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Margin-MSE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Margin-MSE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_56" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_56" id="__nav_2_56_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MedCPT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_56_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_56">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MedCPT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MedCPT/MedCPT%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MedCPT 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_57" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_57" id="__nav_2_57_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MegaPairs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_57_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_57">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MegaPairs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MegaPairs/MegaPairs%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MegaPairs 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MegaPairs/MegaPairs%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MegaPairs：用大规模合成关系数据训练多模态检索器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MegaPairs/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MegaPairs · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_58" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_58" id="__nav_2_58_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModernBERT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_58_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_58">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ModernBERT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ModernBERT/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModernBERT · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_59" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_59" id="__nav_2_59_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multilingual-SBERT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_59_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_59">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Multilingual-SBERT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Multilingual-SBERT/Multilingual-SBERT%E7%A0%94%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多语知识蒸馏研读笔记：用平行语料把单语句向量空间「拷」到别的语言
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Multilingual-SBERT/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multilingual-SBERT · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_60" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_60" id="__nav_2_60_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NV-Embed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_60_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_60">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NV-Embed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NV-Embed/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NV-Embed · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_61" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_61" id="__nav_2_61_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NV-Retriever
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_61_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_61">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NV-Retriever
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NV-Retriever/NV-Retriever%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NV-Retriever 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NV-Retriever/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NV-Retriever · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_62" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_62" id="__nav_2_62_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nomic-Embed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_62_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_62">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Nomic-Embed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Nomic-Embed/Nomic-Embed%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nomic-Embed 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_63" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_63" id="__nav_2_63_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PLAID
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_63_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_63">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PLAID
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PLAID/PLAID%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PLAID 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PLAID/PLAID%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PLAID：论文精炼研读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PLAID/en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PLAID · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PLAID/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PLAID · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_64" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_64" id="__nav_2_64_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Promptagator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_64_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_64">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Promptagator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Promptagator/Promptagator%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Promptagator 详解：至多 8 条示范造查询，再训 110M 双塔
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Promptagator/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Promptagator · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_65" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_65" id="__nav_2_65_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QAT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_65_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_65">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    QAT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QAT/%E9%87%8F%E5%8C%96%E6%84%9F%E7%9F%A5%E8%AE%AD%E7%BB%83QAT%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    量化感知训练（QAT）详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QAT/Jacob2018/Jacob2018%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jacob2018
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QAT/Qwen3-VL-Embedding/Qwen3-VL-Embedding%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3-VL-Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_66" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_66" id="__nav_2_66_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QZhou-Embedding
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_66_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_66">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    QZhou-Embedding
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QZhou-Embedding/QZhou-Embedding%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QZhou-Embedding 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_67" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_67" id="__nav_2_67_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3-Embedding
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_67_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_67">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Qwen3-Embedding
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Qwen3-Embedding/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3-Embedding · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_68" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_68" id="__nav_2_68_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R-GPL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_68_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_68">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    R-GPL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../R-GPL/R-GPL%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R-GPL 详解：GPL 蒸馏途中用正在适应的模型重挖难负例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../R-GPL/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R-GPL · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_69" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_69" id="__nav_2_69_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RetroMAE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_69_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_69">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RetroMAE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RetroMAE/RetroMAE%E4%B8%8EDupMAE%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RetroMAE 与 DupMAE：面向检索的自编码预训练
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RetroMAE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RetroMAE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_70" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_70" id="__nav_2_70_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RocketQA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_70_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_70">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RocketQA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RocketQA/RocketQA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RocketQA 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../RocketQA/RocketQA/zh/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RocketQA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_71" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_71" id="__nav_2_71_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPECTER
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_71_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_71">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SPECTER
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SPECTER/SPECTER%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPECTER / SPECTER2 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_72" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_72" id="__nav_2_72_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPLADE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_72_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_72">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SPLADE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../SPLADE/SPLADE/SPLADE%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPLADE
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../SPLADE/SPLADE-v2/SPLADE-v2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPLADE-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_73" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_73" id="__nav_2_73_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sentence-BERT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_73_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_73">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Sentence-BERT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Sentence-BERT/Sentence-BERT%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sentence-BERT 补充解读：训练关系，部署向量
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Sentence-BERT/Sentence-BERT%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sentence-BERT：利用孪生 BERT 网络学习句向量
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Sentence-BERT/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sentence-BERT · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_74" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_74" id="__nav_2_74_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SigLIP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_74_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_74">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SigLIP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SigLIP/SigLIP%E4%B8%8ESigLIP2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SigLIP 与 SigLIP 2：从成对 sigmoid 损失到更完整的视觉语言表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../SigLIP/SigLIP/SigLIP%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SigLIP
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../SigLIP/SigLIP2/SigLIP2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SigLIP2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_75" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_75" id="__nav_2_75_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SimCSE
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_75_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_75">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SimCSE
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SimCSE/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SimCSE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_76" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_76" id="__nav_2_76_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token-Prepending
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_76_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_76">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Token-Prepending
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Token-Prepending/Token-Prepending%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Prepending 技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Token-Prepending/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token-Prepending · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_77" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_77" id="__nav_2_77_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM2Vec
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_77_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_77">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    VLM2Vec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../VLM2Vec/VLM2Vec%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM2Vec 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../VLM2Vec/VLM2Vec%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM2Vec：把视觉语言模型训练成通用多模态表示模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../VLM2Vec/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM2Vec · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_78" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_78" id="__nav_2_78_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vec2Vec
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_78_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_78">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Vec2Vec
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Vec2Vec/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vec2Vec · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_79" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_79" id="__nav_2_79_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ViDoRev2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_79_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_79">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ViDoRev2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ViDoRev2/ViDoRe-v2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ViDoRe v2 补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ViDoRev2/ViDoRe-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ViDoRe v2：更贴近真实用户的视觉文档检索评测
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ViDoRev2/zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ViDoRev2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_80" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_80" id="__nav_2_80_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YouTube-DNN
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_80_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_80">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    YouTube-DNN
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../YouTube-DNN/YouTube-DNN%E5%8F%8C%E5%A1%94%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YouTube DNN 双塔详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../post-training/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-一句话定位" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 一句话定位
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-问题背景与设计动机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 问题背景与设计动机
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ccpairs大规模弱监督文本对" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. CCPairs：大规模弱监督文本对
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. CCPairs：大规模弱监督文本对">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-数据来源与粗过滤" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 数据来源与粗过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-一致性过滤consistency-based-filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 一致性过滤（Consistency-based filter）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-与-ict--随机裁剪的对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 与 ICT / 随机裁剪的对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-方法两阶段对比学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 方法：两阶段对比学习
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 方法：两阶段对比学习">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-阶段一无监督--弱监督对比预训练" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 阶段一：无监督 / 弱监督对比预训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-非对称前缀asymmetric-prefixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 非对称前缀（Asymmetric prefixes）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-阶段二有监督微调--ce-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 阶段二：有监督微调 + CE 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-下游用法冻结嵌入" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 下游用法（冻结嵌入）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-模型规格与训练配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 模型规格与训练配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 模型规格与训练配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-三档规模" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 三档规模
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-关键超参速查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 关键超参速查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-实验结果要点" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 实验结果要点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 实验结果要点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-beir零样本检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 BEIR（零样本检索）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-mteb56-英文集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 MTEB（56 英文集）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-负面结论附录值得记" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 负面结论（附录值得记）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-族谱延伸multilingual-e5-与-e5-mistral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 族谱延伸：multilingual-e5 与 E5-Mistral
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 族谱延伸：multilingual-e5 与 E5-Mistral">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-multilingual-e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 multilingual-e5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-e5-mistralimproving-text-embeddings-with-llms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 E5-Mistral（Improving Text Embeddings with LLMs）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-工程使用注意" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 工程使用注意
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-实现要点清单对照复现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 实现要点清单（对照复现）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-小结与谱系位置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 小结与谱系位置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="e5-技术详解">E5 技术详解<a class="headerlink" href="#e5-技术详解" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>基于论文 <a href="https://arxiv.org/abs/2212.03533">Text Embeddings by Weakly-Supervised Contrastive Pre-training</a>（Wang et al., Microsoft, 2022）与开源实现 <a href="https://github.com/microsoft/unilm">microsoft/unilm</a>。
+本文把 <strong>CCPairs 数据管线、两阶段 InfoNCE、非对称前缀、模型族谱（E5 → multilingual-e5 → E5-Mistral）</strong> 与公式写全，便于对照实现与复现。</p>
+</blockquote>
+<hr />
+<h2 id="1-一句话定位">1. 一句话定位<a class="headerlink" href="#1-一句话定位" title="Permanent link">&para;</a></h2>
+<p><strong>E5</strong>（<strong>E</strong>mb<strong>E</strong>ddings from bidir<strong>E</strong>ctional <strong>E</strong>ncoder r<strong>E</strong>presentations）是微软提出的通用单向量文本嵌入族：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>骨干</td>
+<td>BERT / MiniLM 系双向 Encoder（后续扩展到多语 XLM-R、LLM）</td>
+</tr>
+<tr>
+<td>训练主线</td>
+<td><strong>弱监督对比预训练（CCPairs）</strong> → <strong>有监督微调（NLI + MS-MARCO + NQ）</strong></td>
+</tr>
+<tr>
+<td>核心设计</td>
+<td>大 batch in-batch negatives + 非对称前缀 <code>query:</code> / <code>passage:</code></td>
+</tr>
+<tr>
+<td>宣称效果</td>
+<td>无标注时 <strong>首次在 BEIR 平均上超过 BM25</strong>；微调后 E5-large（≈330M）在 MTEB 上可打过约 <strong>40× 参数</strong> 的 GTR-xxl / Sentence-T5-xxl</td>
+</tr>
+</tbody>
+</table>
+<p>谱系上，E5 把「海量半结构化文本对 + 一致性过滤」推成工业默认配方；后续 <strong>multilingual-e5</strong>、<strong>e5-mistral-7b-instruct</strong> 分别在多语与 LLM 骨干上延续同一对比哲学。</p>
+<hr />
+<h2 id="2-问题背景与设计动机">2. 问题背景与设计动机<a class="headerlink" href="#2-问题背景与设计动机" title="Permanent link">&para;</a></h2>
+<p>预训练 LM（BERT / GPT）能产出可迁移表示，但对 <strong>检索 / 匹配</strong> 这类需要 <strong>单向量、可 ANN 索引</strong> 的场景并不最优。对比学习是主流框架，但既有路线两极分化：</p>
+<ol>
+<li><strong>小而干净的标注数据</strong>（NLI、MS-MARCO）：质量高、覆盖窄，零样本 BEIR 往往弱于 BM25。</li>
+<li><strong>合成弱监督</strong>（ICT、随机裁剪、邻接句）：规模无限、噪声大，纯无监督通常仍打不过 BM25。</li>
+</ol>
+<p>E5 的主张：<strong>与其堆合成噪声，不如从 Web 半结构化源挖出「已经像 (query, passage)」的对，再做一致性过滤</strong>，用简单 InfoNCE + 超大 batch 学到可零样本迁移的通用嵌入。</p>
+<p>两条主线：</p>
+<ol>
+<li><strong>数据质量优先</strong>：CCPairs ≈ 1.3B 粗对 → 一致性过滤 → ≈ <strong>270M</strong> 精对。</li>
+<li><strong>训练简单可扩</strong>：共享 Encoder、in-batch negatives、温度缩放余弦相似度；第二阶段再注入人类标注与 CE 蒸馏。</li>
+</ol>
+<hr />
+<h2 id="3-ccpairs大规模弱监督文本对">3. CCPairs：大规模弱监督文本对<a class="headerlink" href="#3-ccpairs大规模弱监督文本对" title="Permanent link">&para;</a></h2>
+<h3 id="31-数据来源与粗过滤">3.1 数据来源与粗过滤<a class="headerlink" href="#31-数据来源与粗过滤" title="Permanent link">&para;</a></h3>
+<p>记一对文本为 <span class="arithmatex">\((q, p)\)</span>，其中 <span class="arithmatex">\(p\)</span> 可为短句、段落或长文档。CCPairs 从异构半结构化源自动挖掘：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>对类型（示例）</th>
+<th>过滤后量级（约）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reddit</td>
+<td>(post, upvoted comment)</td>
+<td>60M</td>
+</tr>
+<tr>
+<td>Common Crawl</td>
+<td>(title, passage) / 页内段落对</td>
+<td>69M</td>
+</tr>
+<tr>
+<td>S2ORC</td>
+<td>(title, abstract)、(citation) 等</td>
+<td>90M</td>
+</tr>
+<tr>
+<td>Wikipedia</td>
+<td>(entity+section title, passage)</td>
+<td>24M</td>
+</tr>
+<tr>
+<td>StackExchange</td>
+<td>(title/description, answer)</td>
+<td>19M</td>
+</tr>
+<tr>
+<td>News / Others</td>
+<td>(title, passage) 等</td>
+<td>~9M</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td>—</td>
+<td><strong>~270M</strong></td>
+</tr>
+</tbody>
+</table>
+<p>粗阶段规则包括：Reddit 过长评论（<span class="arithmatex">\(&gt;4096\)</span> 字符）或 score <span class="arithmatex">\(&lt;1\)</span> 丢弃；Web 段落按困惑度过滤（CCNet 风格）。粗过滤后约 <strong>1.3B</strong> 对，再进入一致性过滤。</p>
+<h3 id="32-一致性过滤consistency-based-filter">3.2 一致性过滤（Consistency-based filter）<a class="headerlink" href="#32-一致性过滤consistency-based-filter" title="Permanent link">&para;</a></h3>
+<p>动机来自神经网络 <strong>先记干净标签、后过拟合噪声</strong> 的记忆行为。流程：</p>
+<ol>
+<li>先在 1.3B 噪声对上训一个过滤模型；</li>
+<li>对每个 <span class="arithmatex">\((q,p)\)</span>，用该模型把 <span class="arithmatex">\(q\)</span> 对 <strong>100 万随机 passage 池</strong> 打分排序；</li>
+<li><strong>仅当正例 <span class="arithmatex">\(p\)</span> 落在 top-<span class="arithmatex">\(k\)</span>（论文取 <span class="arithmatex">\(k=2\)</span>）时保留</strong>。</li>
+</ol>
+<p>直觉：模型预测需与训练标签「一致」，否则视为假正例。消融显示：在 1M 子集上，过滤相对未过滤约 <strong>+6</strong> 分（六数据集均值）；全量时未过滤虽多约 <span class="arithmatex">\(4\times\)</span> 数据，仍落后约 <strong>1.6</strong> 分——<strong>过滤同时提升质量与训练效率</strong>。</p>
+<h3 id="33-与-ict--随机裁剪的对比">3.3 与 ICT / 随机裁剪的对比<a class="headerlink" href="#33-与-ict--随机裁剪的对比" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>监督信号</th>
+<th>质量</th>
+<th>BEIR 零样本 vs BM25</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ICT / random crop / 邻接句</td>
+<td>合成无限</td>
+<td>偏低</td>
+<td>通常不及 BM25</td>
+</tr>
+<tr>
+<td>纯标注（MS-MARCO 等）</td>
+<td>人工</td>
+<td>高</td>
+<td>覆盖窄</td>
+</tr>
+<tr>
+<td><strong>CCPairs</strong></td>
+<td>Web 半结构化 + 一致性过滤</td>
+<td>中高、覆盖广</td>
+<td><strong>E5-PT 首次平均超 BM25</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-方法两阶段对比学习">4. 方法：两阶段对比学习<a class="headerlink" href="#4-方法两阶段对比学习" title="Permanent link">&para;</a></h2>
+<h3 id="41-阶段一无监督--弱监督对比预训练">4.1 阶段一：无监督 / 弱监督对比预训练<a class="headerlink" href="#41-阶段一无监督--弱监督对比预训练" title="Permanent link">&para;</a></h3>
+<p>给定文本对集合 <span class="arithmatex">\(\{(q_i, p_i)\}_{i=1}^{n}\)</span>，为第 <span class="arithmatex">\(i\)</span> 个样本分配负例 <span class="arithmatex">\(\{p_{ij}^-\}_{j=1}^{m}\)</span>。<strong>InfoNCE</strong> 损失：</p>
+<div class="arithmatex">\[
+L_{\mathrm{cont}}
+=
+-\frac{1}{n}\sum_{i}
+\log
+\frac{
+e^{s_{\boldsymbol{\theta}}(q_i,p_i)}
+}{
+e^{s_{\boldsymbol{\theta}}(q_i,p_i)}
++
+\sum_{j}
+e^{s_{\boldsymbol{\theta}}(q_i,p_{ij}^-)}
+}.
+\]</div>
+<p>共享 Transformer Encoder，对末层做 <strong>平均池化</strong> 得 <span class="arithmatex">\(\mathbf{E}_q,\mathbf{E}_p\)</span>，打分函数为温度缩放余弦：</p>
+<div class="arithmatex">\[
+s_{\boldsymbol{\theta}}(q,p)
+=
+\frac{\mathrm{cos}(\mathbf{E}_q,\mathbf{E}_p)}{\tau},
+\qquad
+\tau = 0.01.
+\]</div>
+<p><strong>负例策略</strong>：默认 <strong>in-batch negatives</strong>（batch 内其它 passage 为负）。论文发现 batch 足够大时，该策略比 MoCo / pre-batch 更稳且更强：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>负例数</th>
+<th>六数据集均值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In-batch</td>
+<td>32K</td>
+<td><strong>51.6</strong></td>
+</tr>
+<tr>
+<td>+ pre-batch</td>
+<td>64K</td>
+<td>43.3</td>
+</tr>
+<tr>
+<td>MoCo</td>
+<td>130K</td>
+<td>45.5</td>
+</tr>
+</tbody>
+</table>
+<p>Batch size 消融（同六数据集）：<span class="arithmatex">\(32\mathrm{K}\to 51.6\)</span>，<span class="arithmatex">\(8\mathrm{K}\to 50.2\)</span>，<span class="arithmatex">\(1\mathrm{K}\to 45.8\)</span>——<strong>大 batch 直接等价于「更多难易混杂的负例」</strong>。</p>
+<h3 id="42-非对称前缀asymmetric-prefixes">4.2 非对称前缀（Asymmetric prefixes）<a class="headerlink" href="#42-非对称前缀asymmetric-prefixes" title="Permanent link">&para;</a></h3>
+<p>输入侧打破对称：给 <span class="arithmatex">\(q\)</span> 加前缀 <strong><code>query:</code></strong>，给 <span class="arithmatex">\(p\)</span> 加 <strong><code>passage:</code></strong>。对 citation 等「哪边是 query 不明确」的源，随机指定一侧。</p>
+<p>为何重要：目标语料中常有 query 的改写句；若对称编码，模型易把「改写句」当答案。前缀让同一编码器在检索设定下学到 <strong>查询侧 vs 文档侧</strong> 不同几何角色。推理时：</p>
+<ul>
+<li>检索：query 侧用 <code>query:</code>，语料用 <code>passage:</code>；</li>
+<li>Quora 等「问–问」任务：两侧都可用 <code>query:</code>；</li>
+<li>非检索任务（聚类 / STS 等）：论文默认用 <strong>query 嵌入</strong>。</li>
+</ul>
+<h3 id="43-阶段二有监督微调--ce-蒸馏">4.3 阶段二：有监督微调 + CE 蒸馏<a class="headerlink" href="#43-阶段二有监督微调--ce-蒸馏" title="Permanent link">&para;</a></h3>
+<p>在 CCPairs 预训练之上，拼接三类标注：</p>
+<ol>
+<li><strong>NLI</strong>（SimCSE 版本）：矛盾句作 hard negative；利于 STS / 线性探针；</li>
+<li><strong>MS-MARCO passage ranking</strong>；</li>
+<li><strong>NQ</strong>（DPR 设定）。</li>
+</ol>
+<p>对 MS-MARCO / NQ：<strong>挖掘 hard negatives</strong>，并从 <strong>cross-encoder 教师</strong> 蒸馏软标签。总损失：</p>
+<div class="arithmatex">\[
+\min\;
+D_{\mathrm{KL}}(p_{\mathrm{ce}},\,p_{\mathrm{stu}})
++
+\alpha\, L_{\mathrm{cont}},
+\qquad
+\alpha = 0.2.
+\]</div>
+<p>其中 <span class="arithmatex">\(L_{\mathrm{cont}}\)</span> 同式 (1)；每样本约 <strong>7</strong> 个 hard negatives（NLI 不足时随机补足）。微调数据组合消融（MTEB）：</p>
+<table>
+<thead>
+<tr>
+<th>微调数据</th>
+<th>Retr.</th>
+<th>STS</th>
+<th>Class.</th>
+<th>MTEB Avg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无微调（仅 PT）</td>
+<td>42.9</td>
+<td>69.5</td>
+<td>67.9</td>
+<td>55.6</td>
+</tr>
+<tr>
+<td>MS-MARCO + NQ</td>
+<td>50.3</td>
+<td>78.3</td>
+<td>68.3</td>
+<td>59.0</td>
+</tr>
+<tr>
+<td>NLI</td>
+<td>38.3</td>
+<td>81.1</td>
+<td>72.6</td>
+<td>57.3</td>
+</tr>
+<tr>
+<td><strong>全部</strong></td>
+<td>48.7</td>
+<td>81.0</td>
+<td>73.1</td>
+<td><strong>60.4</strong></td>
+</tr>
+</tbody>
+</table>
+<p>检索靠 MS-MARCO/NQ，STS/分类靠 NLI——<strong>多样性比单任务堆量更重要</strong>。</p>
+<h3 id="44-下游用法冻结嵌入">4.4 下游用法（冻结嵌入）<a class="headerlink" href="#44-下游用法冻结嵌入" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>零样本检索</td>
+<td>离线索引 <span class="arithmatex">\(\mathbf{E}_p\)</span>，在线 <span class="arithmatex">\(\mathbf{E}_q\)</span> + 余弦 top-<span class="arithmatex">\(k\)</span></td>
+</tr>
+<tr>
+<td>Few-shot 分类</td>
+<td>冻结嵌入上训线性头</td>
+</tr>
+<tr>
+<td>零样本分类</td>
+<td>输入/标签套 prompt，取最近标签嵌入</td>
+</tr>
+<tr>
+<td>STS</td>
+<td>余弦 + Spearman</td>
+</tr>
+<tr>
+<td>聚类</td>
+<td>k-means 等</td>
+</tr>
+</tbody>
+</table>
+<p>示例（SST-2 零样本）：输入「movie review: …」，标签句「it is an example of terrible/great movie review」。E5-large 可达 <strong>85.3</strong>，远高于 majority / BERT 池化基线。</p>
+<hr />
+<h2 id="5-模型规格与训练配置">5. 模型规格与训练配置<a class="headerlink" href="#5-模型规格与训练配置" title="Permanent link">&para;</a></h2>
+<h3 id="51-三档规模">5.1 三档规模<a class="headerlink" href="#51-三档规模" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>层数</th>
+<th>hidden</th>
+<th>参数量</th>
+<th>初始化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E5-small</td>
+<td>12</td>
+<td>384</td>
+<td>33M</td>
+<td>MiniLM</td>
+</tr>
+<tr>
+<td>E5-base</td>
+<td>12</td>
+<td>768</td>
+<td>110M</td>
+<td>bert-base-uncased</td>
+</tr>
+<tr>
+<td>E5-large</td>
+<td>24</td>
+<td>1024</td>
+<td>330M</td>
+<td>bert-large-uncased-wwm</td>
+</tr>
+</tbody>
+</table>
+<p>预训练：batch <strong>32768</strong>，约 <strong>20k</strong> steps（≈2.5 epoch），max length <strong>128</strong>；微调：batch <strong>256</strong>，3 epoch，max length <strong>192</strong>。评估时常 <strong>冻结位置编码</strong>、最大长度 <strong>512</strong>。混合精度 + gradient checkpointing。</p>
+<h3 id="52-关键超参速查">5.2 关键超参速查<a class="headerlink" href="#52-关键超参速查" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>Pretrain (base)</th>
+<th>Finetune (base)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LR</td>
+<td><span class="arithmatex">\(2\times 10^{-4}\)</span></td>
+<td><span class="arithmatex">\(2\times 10^{-5}\)</span></td>
+</tr>
+<tr>
+<td>Warmup</td>
+<td>1000</td>
+<td>400</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\tau\)</span></td>
+<td>0.01</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\alpha\)</span>（KL 权重）</td>
+<td>—</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Hard neg / 样本</td>
+<td>0</td>
+<td>7</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>32×V100</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-实验结果要点">6. 实验结果要点<a class="headerlink" href="#6-实验结果要点" title="Permanent link">&para;</a></h2>
+<h3 id="61-beir零样本检索">6.1 BEIR（零样本检索）<a class="headerlink" href="#61-beir零样本检索" title="Permanent link">&para;</a></h3>
+<p><strong>无标注方法</strong>（nDCG@10 平均，15 数据集）：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>Avg</th>
+<th>相对 BM25(41.7)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contriever</td>
+<td>36.0</td>
+<td>−5.7</td>
+</tr>
+<tr>
+<td>E5-PT-small</td>
+<td>40.8</td>
+<td>−0.9</td>
+</tr>
+<tr>
+<td><strong>E5-PT-base</strong></td>
+<td><strong>42.9</strong></td>
+<td><strong>+1.2</strong></td>
+</tr>
+<tr>
+<td>E5-PT-large</td>
+<td>44.2</td>
+<td>+2.5</td>
+</tr>
+</tbody>
+</table>
+<p>这是论文的核心宣称：<strong>第一个不靠标注数据、在 BEIR 平均上超过 BM25 的稠密模型</strong>。</p>
+<p><strong>有监督微调后</strong>：E5-base <strong>48.7</strong>，E5-large <strong>50.0</strong>，超过 GTR-large（47.0）等更大模型。部分域（FiQA、Fever 等）微调未必单调提升——域多样性仍不足。</p>
+<h3 id="62-mteb56-英文集">6.2 MTEB（56 英文集）<a class="headerlink" href="#62-mteb56-英文集" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>Avg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E5-PT-base</td>
+<td>55.6</td>
+</tr>
+<tr>
+<td>E5-base</td>
+<td>60.4</td>
+</tr>
+<tr>
+<td>E5-large</td>
+<td><strong>61.4</strong></td>
+</tr>
+<tr>
+<td>GTR-xxl (4.8B)</td>
+<td>59.0</td>
+</tr>
+<tr>
+<td>Sentence-T5-xxl (4.8B)</td>
+<td>59.5</td>
+</tr>
+</tbody>
+</table>
+<p>E5-large（330M）在当时可超过约 <strong>10–40×</strong> 更大的双塔 / T5 嵌入模型。BERT-FT-base（同微调数据、无 CCPairs PT）仅 55.2，与 E5-base 60.4 的差距证明 <strong>弱监督预训练不可省</strong>。</p>
+<h3 id="63-负面结论附录值得记">6.3 负面结论（附录值得记）<a class="headerlink" href="#63-负面结论附录值得记" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>BM25 hard neg</strong> 在 15M 子集有小幅增益，但在 250M+ 上算力不可行。</li>
+<li><strong>RoBERTa 初始化</strong> 在多数 BEIR 上不如 BERT。</li>
+<li><strong>辅助 MLM</strong> 无明显收益、只涨算力。</li>
+<li>BM25 在长尾域、长文档、强字面匹配任务上仍难完全替代。</li>
+</ul>
+<hr />
+<h2 id="7-族谱延伸multilingual-e5-与-e5-mistral">7. 族谱延伸：multilingual-e5 与 E5-Mistral<a class="headerlink" href="#7-族谱延伸multilingual-e5-与-e5-mistral" title="Permanent link">&para;</a></h2>
+<p>原文 E5 主打英文 BERT 骨干。后续同团队路线可概括为：</p>
+<h3 id="71-multilingual-e5">7.1 multilingual-e5<a class="headerlink" href="#71-multilingual-e5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>骨干换为多语 Encoder（XLM-R 系），延续 <strong>弱监督对 + 一致性思想 + 前缀约定</strong>；</li>
+<li>在跨语检索 / 多语 MTEB 子集上成为开源默认基线之一；</li>
+<li>instruct 变体进一步把「任务说明」接到 query 侧，与 Instructor / E5-Mistral 的指令化同向。</li>
+</ul>
+<h3 id="72-e5-mistralimproving-text-embeddings-with-llms">7.2 E5-Mistral（Improving Text Embeddings with LLMs）<a class="headerlink" href="#72-e5-mistralimproving-text-embeddings-with-llms" title="Permanent link">&para;</a></h3>
+<p>相对经典 E5 的跳变：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>E5-base/large</th>
+<th>e5-mistral-7b-instruct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>骨干</td>
+<td>BERT Encoder</td>
+<td>Mistral-7B Decoder</td>
+</tr>
+<tr>
+<td>池化</td>
+<td>mean pooling</td>
+<td>常见 last-token / 指令模板</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>CCPairs + 标注</td>
+<td>合成指令数据 + 公开检索/STS 等</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td>512</td>
+<td>更长（实现相关，常到 4k 量级）</td>
+</tr>
+<tr>
+<td>MTEB（当时公开）</td>
+<td>~61（large）</td>
+<td>~66.6 量级</td>
+</tr>
+</tbody>
+</table>
+<p>要点：<strong>对比损失与「query/文档角色分离」仍在，但表示能力从 Encoder 预训练转移到 LLM 世界知识 + 指令遵循</strong>。这为 gte-Qwen2、LLM2Vec、Conan-v2 等「Decoder→Embedder」工作铺路。</p>
+<h3 id="73-工程使用注意">7.3 工程使用注意<a class="headerlink" href="#73-工程使用注意" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>前缀必须配对</strong>：检索遗漏 <code>query:</code>/<code>passage:</code> 会导致显著掉分。</li>
+<li><strong><span class="arithmatex">\(\tau=0.01\)</span> 很小</strong>：logits 尖锐，对数值稳定与混合精度要小心。</li>
+<li><strong>评估长度</strong>：训练短、评估 512；超长文档需截断或换长上下文后继模型（Nomic / gte-Qwen2）。</li>
+<li><strong>开源权重</strong>：<code>intfloat/e5-{small,base,large}-v2</code> 及 multilingual / instruct 系列为社区事实标准。</li>
+</ol>
+<hr />
+<h2 id="8-实现要点清单对照复现">8. 实现要点清单（对照复现）<a class="headerlink" href="#8-实现要点清单对照复现" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1. 挖掘半结构化 (q,p) → 规则粗滤 → 一致性 top-k 滤
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>2. 共享 Encoder + mean pool + cos/τ
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>3. 输入加 query:/passage:
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>4. 超大 batch in-batch InfoNCE 预训练
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>5. NLI + MS-MARCO + NQ；hard neg + CE KL 蒸馏微调
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>6. 检索/STS/分类按任务选前缀与是否 L2 norm
+</code></pre></div>
+<p>可验证目标：</p>
+<ol>
+<li>仅阶段一：BEIR 平均 <span class="arithmatex">\(\ge\)</span> BM25 → 证明数据+大 batch 配方成立；</li>
+<li>阶段二：MTEB 相对 BERT-FT 同数据有清晰增益 → 证明预训练必要；</li>
+<li>去掉前缀做检索消融 → 非对称设计可见收益。</li>
+</ol>
+<hr />
+<h2 id="9-小结与谱系位置">9. 小结与谱系位置<a class="headerlink" href="#9-小结与谱系位置" title="Permanent link">&para;</a></h2>
+<p>E5 的历史贡献不是「又一个 BERT 微调」，而是把 <strong>可审计的弱监督对挖掘 + 一致性过滤 + 简单可扩展 InfoNCE</strong> 固化成通用嵌入的默认工业路径：</p>
+<ul>
+<li><strong>数据</strong>：CCPairs 证明「半结构化 Web 对 &gt; 纯合成对」；</li>
+<li><strong>目标</strong>：温度余弦 InfoNCE + 可选 CE 蒸馏；</li>
+<li><strong>接口</strong>：<code>query:</code> / <code>passage:</code> 非对称前缀成为后续 GTE / Nomic / E5-Mistral 的共同语言；</li>
+<li><strong>结果</strong>：无标注超 BM25；小模型打过大模型。</li>
+</ul>
+<p>后续阅读建议：同目录《GTE系列详解.md》（多阶段对比在 LLM 上的延续）、《Nomic-Embed详解.md》（开放数据复现与长上下文）、《LLM2Vec详解.md》（Decoder 改 Encoder 的无监督配方）。</p>
+<hr />
+<h2 id="参考">参考<a class="headerlink" href="#参考" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Wang et al. (2022). Text Embeddings by Weakly-Supervised Contrastive Pre-training. <a href="https://arxiv.org/abs/2212.03533">arXiv:2212.03533</a></li>
+<li>Wang et al. (2024). Improving Text Embeddings with Large Language Models. <a href="https://arxiv.org/abs/2401.00368">arXiv:2401.00368</a>（E5-Mistral 线）</li>
+<li>Muennighoff et al. (2022). MTEB. <a href="https://arxiv.org/abs/2210.07316">arXiv:2210.07316</a></li>
+<li>Thakur et al. (2021). BEIR.</li>
+<li>Gao et al. (2021). SimCSE. EMNLP.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../../DupMAE/zh/" class="md-footer__link md-footer__link--prev" aria-label="上一页: DupMAE · 中英对照">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                DupMAE · 中英对照
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../E5-Mistral/E5-Mistral%E5%90%88%E6%88%90%E6%95%B0%E6%8D%AE%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--next" aria-label="下一页: E5-Mistral 合成数据详解：两步 Prompt 配方">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                E5-Mistral 合成数据详解：两步 Prompt 配方
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3032 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/LoRA/LoRA%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="prev" href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="next" href="../en/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>LoRA 论文研读：低秩适配的提出、证据与解释 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lora-论文研读低秩适配的提出证据与解释" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              LoRA 论文研读：低秩适配的提出、证据与解释
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_8" id="__nav_4_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LoRA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 论文研读：低秩适配的提出、证据与解释
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 论文研读：低秩适配的提出、证据与解释
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#论文简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        论文简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要译文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要译文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#为什么任务适配可以比模型本身小" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        为什么任务适配可以比模型本身小
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#相关工作低秩更新区别于压缩预训练权重" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        相关工作：低秩更新区别于压缩预训练权重
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#用两个小矩阵表示更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        用两个小矩阵表示更新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="用两个小矩阵表示更新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#初始化为什么不会改变起始模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始化为什么不会改变起始模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#梯度只更新适配器仍需经过主干" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        梯度只更新适配器，仍需经过主干
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#放在哪些层原论文的选择与证据" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        放在哪些层：原论文的选择与证据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#数据与评测分别在检验什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据与评测分别在检验什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#主要结果参数少任务分数仍可接近全量微调" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主要结果：参数少，任务分数仍可接近全量微调
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="主要结果：参数少，任务分数仍可接近全量微调">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#资源收益需要看清分母" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        资源收益需要看清分母
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#秩与子空间分析低秩假设得到了什么支持" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        秩与子空间分析：低秩假设得到了什么支持
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#更新相对于预训练权重究竟改变了什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        更新相对于预训练权重，究竟改变了什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#合并切换与推理成本" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        合并、切换与推理成本
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录如何补充主文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录如何补充主文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论与局限" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论与局限
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#原文与中文全译" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        原文与中文全译
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#论文简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        论文简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要译文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要译文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#为什么任务适配可以比模型本身小" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        为什么任务适配可以比模型本身小
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#相关工作低秩更新区别于压缩预训练权重" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        相关工作：低秩更新区别于压缩预训练权重
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#用两个小矩阵表示更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        用两个小矩阵表示更新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="用两个小矩阵表示更新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#初始化为什么不会改变起始模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始化为什么不会改变起始模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#梯度只更新适配器仍需经过主干" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        梯度只更新适配器，仍需经过主干
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#放在哪些层原论文的选择与证据" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        放在哪些层：原论文的选择与证据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#数据与评测分别在检验什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据与评测分别在检验什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#主要结果参数少任务分数仍可接近全量微调" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主要结果：参数少，任务分数仍可接近全量微调
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="主要结果：参数少，任务分数仍可接近全量微调">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#资源收益需要看清分母" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        资源收益需要看清分母
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#秩与子空间分析低秩假设得到了什么支持" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        秩与子空间分析：低秩假设得到了什么支持
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#更新相对于预训练权重究竟改变了什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        更新相对于预训练权重，究竟改变了什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#合并切换与推理成本" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        合并、切换与推理成本
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录如何补充主文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录如何补充主文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论与局限" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论与局限
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#原文与中文全译" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        原文与中文全译
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="lora-论文研读低秩适配的提出证据与解释">LoRA 论文研读：低秩适配的提出、证据与解释<a class="headerlink" href="#lora-论文研读低秩适配的提出证据与解释" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>简述</strong>：冻结预训练权重，用两个可训练小矩阵表示低秩增量，完成任务适配后可将增量合回原权重。<br>
+<strong>paper</strong>：<a href="https://arxiv.org/abs/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a> · ICLR 2022<br>
+<strong>code</strong>：<a href="https://github.com/microsoft/LoRA">microsoft/LoRA</a> · <strong>refs</strong>：<a href="https://arxiv.org/abs/1902.00751">Adapter</a>、<a href="https://arxiv.org/abs/2101.00190">Prefix-Tuning</a><br>
+<strong>backbone</strong>：RoBERTa、DeBERTa、GPT-2、GPT-3 175B · <strong>date</strong>：2021-06（预印本）<br>
+<strong>modality / languages</strong>：文本；原论文主要评测英语，方法本身不限定语言。</p>
+</blockquote>
+<h2 id="论文简介">论文简介<a class="headerlink" href="#论文简介" title="Permanent link">&para;</a></h2>
+<p>大模型全量微调需要为全部权重保存梯度和优化器状态，每个任务还要维护一份完整模型。LoRA 假设任务适配所需的权重增量具有较低的内在秩：冻结原权重，在选定线性层旁加入两个小矩阵的乘积，只优化这条增量分支；训练后可将其合入原权重，保留原有网络结构。论文在语言理解、结构化数据生成和摘要等任务上，以很少的可训练参数达到接近或超过全量微调的结果，并通过投影位置、秩和子空间分析讨论这一假设。不过，最佳秩及插入位置依赖模型和任务；低秩约束并不保证能覆盖任意全量更新，原文的资源收益也不能直接套用到所有训练配置。</p>
+<h2 id="摘要译文">摘要译文<a class="headerlink" href="#摘要译文" title="Permanent link">&para;</a></h2>
+<p>自然语言处理的一个重要范式，是先在通用领域数据上大规模预训练，再适配到特定任务或领域。随着预训练模型越来越大，重新训练全部参数的全量微调变得不再可行。例如 GPT-3 有 1750 亿参数，为每个任务部署一份微调模型的独立副本代价极高。</p>
+<p>我们提出低秩适配（LoRA）：冻结预训练模型权重，在 Transformer 的每层注入可训练的秩分解矩阵，大幅减少下游任务的可训练参数。相较使用 Adam 的 GPT-3 175B 全量微调，LoRA 可将可训练参数减少一万倍，将 GPU 显存需求减少三倍。尽管可训练参数更少，LoRA 在 RoBERTa、DeBERTa、GPT-2 和 GPT-3 上取得与微调相当或更好的质量，并具有更高的训练吞吐；与 Adapter 不同，它不会引入额外推理延迟。我们还对语言模型适配中的秩亏现象进行了实证研究，为 LoRA 的有效性提供解释，并发布了便于接入 PyTorch 的软件包和模型实现。</p>
+<p><strong>解读</strong>：上述资源和效果数字来自论文各自的实验条件。推理延迟结论对应可合并到原浮点权重的部署路径，以下分别解释其适用范围。</p>
+<h2 id="为什么任务适配可以比模型本身小">为什么任务适配可以比模型本身小<a class="headerlink" href="#为什么任务适配可以比模型本身小" title="Permanent link">&para;</a></h2>
+<p>预训练模型需要用大量参数表示广泛知识，但一个下游任务只是在已有能力上作有限调整。全量微调直接优化所有权重，并没有利用这种不对称性。对于 GPT-3 175B，即便每个任务只保存一套半精度权重，也已经是约 350 GB；训练还需要梯度、Adam 状态和激活。</p>
+<p>Adapter 在层间插入瓶颈网络，能减少可训练参数，但增加了串行计算。Prefix-Tuning 学习供注意力读取的连续前缀，同样共享基座，但引入了额外前缀位置。LoRA 寻找的是另一种适配接口：直接改变已有线性变换，却把改变的自由度限制在很小的空间内。</p>
+<p>这里的假设是 <strong>增量低秩</strong>。它没有要求预训练矩阵本身低秩，也没有把大矩阵用低秩近似替换掉。</p>
+<h2 id="相关工作低秩更新区别于压缩预训练权重">相关工作：低秩更新区别于压缩预训练权重<a class="headerlink" href="#相关工作低秩更新区别于压缩预训练权重" title="Permanent link">&para;</a></h2>
+<p>论文从三条路线定位贡献。全量微调表达能力强，但每个任务要维护全部参数；Adapter 等方法增加较小模块，却可能引入额外串行计算；连续提示方法冻结基座，改为学习条件化向量，但需要在模型输入或注意力中保留提示路径。</p>
+<p>此前低秩结构也被用于分解、压缩或训练神经网络。本文的切入点是保留原始预训练矩阵，只对任务增量施加低秩约束。两者即使用到同样的矩阵乘积，优化对象与保留的基座信息也不同。LoRA 与 Prefix 等方法还可以组合，并非互斥路线。</p>
+<h2 id="用两个小矩阵表示更新">用两个小矩阵表示更新<a class="headerlink" href="#用两个小矩阵表示更新" title="Permanent link">&para;</a></h2>
+<p>对一个线性层，设冻结权重为 <span class="arithmatex">\(W_0\in\mathbb{R}^{d\times k}\)</span>，输入为 <span class="arithmatex">\(x\in\mathbb{R}^k\)</span>。全量微调会学习任意的 <span class="arithmatex">\(\Delta W\)</span>；LoRA 改为</p>
+<div class="arithmatex">\[
+h=W_0x+\Delta Wx=W_0x+\frac{\alpha}{r}BAx,
+\qquad B\in\mathbb{R}^{d\times r},\quad A\in\mathbb{R}^{r\times k}.
+\]</div>
+<p><span class="arithmatex">\(r\)</span> 是秩预算，<span class="arithmatex">\(\alpha/r\)</span> 控制更新幅度。因为 <span class="arithmatex">\(\operatorname{rank}(BA)\le r\)</span>，更新只能落在所选低秩空间中。每个层的可训练参数从 <span class="arithmatex">\(dk\)</span> 降为 <span class="arithmatex">\(r(d+k)\)</span>；对方阵，比例是 <span class="arithmatex">\(2r/d\)</span>。例如 <span class="arithmatex">\(d=4096,r=8\)</span> 时，一层由约 1678 万个可训练参数降为 65536 个，约占 0.39%。这是单层增量的参数比例，不能当成整个训练任务的显存比例。</p>
+<p><img alt="LoRA 原论文图 1：冻结主干与可训练低秩分支" src="../figs/S1-F1-01.png" /></p>
+<p>图中蓝色分支保留预训练变换，橙色分支先将输入映射到 <span class="arithmatex">\(r\)</span> 维，再映射回输出维度，两者相加。两个小矩阵共同学习一个更新，增量分支不需要改变主干的宽度或深度。</p>
+<h3 id="初始化为什么不会改变起始模型">初始化为什么不会改变起始模型<a class="headerlink" href="#初始化为什么不会改变起始模型" title="Permanent link">&para;</a></h3>
+<p>原论文对 <span class="arithmatex">\(A\)</span> 采用随机高斯初始化，对 <span class="arithmatex">\(B\)</span> 采用零初始化，因此训练开始时 <span class="arithmatex">\(BA=0\)</span>，模型输出与基座一致。若记输出梯度为 <span class="arithmatex">\(g\)</span>，则忽略缩放系数时</p>
+<div class="arithmatex">\[
+\nabla_B\mathcal L=g(Ax)^\top,
+\qquad
+\nabla_A\mathcal L=B^\top g x^\top.
+\]</div>
+<p>第一步 <span class="arithmatex">\(A\)</span> 的梯度为零，而 <span class="arithmatex">\(B\)</span> 通常可以先更新；随后两者都参与学习。两者同时置零会使这条分支无法启动。现代库可能对 <span class="arithmatex">\(A\)</span> 使用 Kaiming 等其他随机初始化，阅读实现时应与论文设置分开。</p>
+<p><span class="arithmatex">\(\alpha/r\)</span> 是原始缩放方式，改变秩也会影响优化动态。论文中的小秩有效不能推出所有任务都应固定 <span class="arithmatex">\(r=1\)</span>，也不能推出只增加秩就一定改善结果。</p>
+<h3 id="梯度只更新适配器仍需经过主干">梯度只更新适配器，仍需经过主干<a class="headerlink" href="#梯度只更新适配器仍需经过主干" title="Permanent link">&para;</a></h3>
+<p>训练时 <span class="arithmatex">\(W_0\)</span> 不计算权重梯度，也不维护对应的优化器状态；反向传播仍然需要经过冻结层，才能把损失传给较早层的 <span class="arithmatex">\(A,B\)</span>。因此 LoRA 节省的是大量参数相关状态，并没有省掉主干权重和全部激活。长序列、大 batch 下，激活依然可能是主要开销。</p>
+<h2 id="放在哪些层原论文的选择与证据">放在哪些层：原论文的选择与证据<a class="headerlink" href="#放在哪些层原论文的选择与证据" title="Permanent link">&para;</a></h2>
+<p>Transformer 中注意力的 <span class="arithmatex">\(W_q,W_k,W_v,W_o\)</span> 以及 MLP 的投影都可以使用这种参数化。原论文为控制研究范围，主要讨论注意力权重，并冻结 MLP；这是一项实验取舍，不能据此认为 MLP 不值得适配。</p>
+<p>原论文表 5 固定 GPT-3 的可训练参数预算约为 18M，在不同注意力投影之间分配秩：</p>
+<table>
+<thead>
+<tr>
+<th>更新位置</th>
+<th style="text-align: right;">每个矩阵的秩</th>
+<th style="text-align: right;">WikiSQL Acc.</th>
+<th style="text-align: right;">MNLI-m Acc.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">70.4</td>
+<td style="text-align: right;">91.0</td>
+</tr>
+<tr>
+<td>K</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">70.0</td>
+<td style="text-align: right;">90.8</td>
+</tr>
+<tr>
+<td>V</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">73.0</td>
+<td style="text-align: right;">91.0</td>
+</tr>
+<tr>
+<td>O</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">73.2</td>
+<td style="text-align: right;">91.3</td>
+</tr>
+<tr>
+<td>Q、K</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">71.4</td>
+<td style="text-align: right;">91.3</td>
+</tr>
+<tr>
+<td>Q、V</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">91.3</td>
+</tr>
+<tr>
+<td>Q、K、V、O</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">91.7</td>
+</tr>
+</tbody>
+</table>
+<p>同样预算下，覆盖多个投影可以比单个矩阵堆更高秩更有效。Q/V 是原文中有吸引力的折中，但表中并不存在一个在全部指标上严格最优的位置组合。QLoRA 和后续工程研究进一步说明，指令微调中覆盖 MLP 等线性层值得单独验证。</p>
+<h2 id="数据与评测分别在检验什么">数据与评测分别在检验什么<a class="headerlink" href="#数据与评测分别在检验什么" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>数据 / 任务</th>
+<th>主要模型</th>
+<th>要检验的能力与指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GLUE 中的多项理解任务</td>
+<td>RoBERTa、DeBERTa</td>
+<td>情感、推断、句子关系等；各子任务使用自己的分类指标</td>
+</tr>
+<tr>
+<td>E2E、WebNLG、DART</td>
+<td>GPT-2</td>
+<td>将属性表或三元组转成自然语言；BLEU、METEOR、ROUGE-L 等</td>
+</tr>
+<tr>
+<td>WikiSQL</td>
+<td>GPT-3</td>
+<td>从自然语言问题和表结构生成 SQL；原文报告逻辑形式准确率</td>
+</tr>
+<tr>
+<td>MNLI-m</td>
+<td>GPT-3</td>
+<td>判断句子对的蕴含、中立或矛盾关系；匹配域准确率</td>
+</tr>
+<tr>
+<td>SAMSum</td>
+<td>GPT-3</td>
+<td>将日常对话概括为摘要；ROUGE-1/2/L</td>
+</tr>
+</tbody>
+</table>
+<p>这些实验覆盖判别和生成任务，但仍主要是英语基准。不能把其结果直接视作多语言、长上下文、复杂推理或持续预训练的结论。</p>
+<h2 id="主要结果参数少任务分数仍可接近全量微调">主要结果：参数少，任务分数仍可接近全量微调<a class="headerlink" href="#主要结果参数少任务分数仍可接近全量微调" title="Permanent link">&para;</a></h2>
+<p>以下摘自原论文表 4，均为 GPT-3 175B。参数列是参与训练的参数数量，SAMSum 依次为 ROUGE-1/2/L。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th style="text-align: right;">可训练参数</th>
+<th style="text-align: right;">WikiSQL</th>
+<th style="text-align: right;">MNLI-m</th>
+<th>SAMSum R1/R2/RL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全量微调</td>
+<td style="text-align: right;">175255.8M</td>
+<td style="text-align: right;">73.8</td>
+<td style="text-align: right;">89.5</td>
+<td>52.0 / 28.0 / 44.5</td>
+</tr>
+<tr>
+<td>BitFit</td>
+<td style="text-align: right;">14.2M</td>
+<td style="text-align: right;">71.3</td>
+<td style="text-align: right;">91.0</td>
+<td>51.3 / 27.4 / 43.5</td>
+</tr>
+<tr>
+<td>PreEmbed</td>
+<td style="text-align: right;">3.2M</td>
+<td style="text-align: right;">63.1</td>
+<td style="text-align: right;">88.6</td>
+<td>48.3 / 24.2 / 40.5</td>
+</tr>
+<tr>
+<td>PreLayer</td>
+<td style="text-align: right;">20.2M</td>
+<td style="text-align: right;">70.1</td>
+<td style="text-align: right;">89.5</td>
+<td>50.8 / 27.3 / 43.5</td>
+</tr>
+<tr>
+<td>Adapter-H</td>
+<td style="text-align: right;">40.1M</td>
+<td style="text-align: right;">73.2</td>
+<td style="text-align: right;">91.5</td>
+<td>53.2 / 29.0 / 45.1</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td style="text-align: right;">4.7M</td>
+<td style="text-align: right;">73.4</td>
+<td style="text-align: right;">91.7</td>
+<td>53.8 / 29.8 / 45.9</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td style="text-align: right;">37.7M</td>
+<td style="text-align: right;">74.0</td>
+<td style="text-align: right;">91.6</td>
+<td>53.4 / 29.2 / 45.1</td>
+</tr>
+</tbody>
+</table>
+<p>LoRA 4.7M 在 WikiSQL 略低于全量微调，在 MNLI 和 SAMSum 更高。37.7M 在 WikiSQL 又有提高，但并没有在其余指标上全面超过 4.7M。论文支持的是“很小的增量容量可以完成这些任务”，而非参数越多必然越好。</p>
+<p><img alt="LoRA 原论文图 2：训练参数预算与 WikiSQL、MNLI 表现" src="../figs/S5-F2-01.png" /></p>
+<p>图中把可训练参数作为横轴，可以看到 LoRA 在小预算区域已经有较强表现。曲线比较的是适配器容量和任务分数，不是实际训练时间、总显存或服务成本。</p>
+<p>生成侧，原论文表 3 中 GPT-2 Medium 的全量微调与 LoRA 在 E2E 上分别为 68.2 和 70.4 BLEU，可训练参数分别约为 354.92M 和 0.35M。这为低秩更新提供了另一组证据，但不同任务的指标不能合并为一个通用“能力提升比例”。</p>
+<h3 id="资源收益需要看清分母">资源收益需要看清分母<a class="headerlink" href="#资源收益需要看清分母" title="Permanent link">&para;</a></h3>
+<p>论文给出的 GPT-3 资源示例中，训练总显存从约 1.2 TB 降至 350 GB；当仅适配 Q/V 且 <span class="arithmatex">\(r=4\)</span> 时，单任务 checkpoint 从约 350 GB 降至 35 MB，约缩小一万倍。后者只是任务增量，运行时仍要加载共享基座。这个配置也不应与上表某一行的参数数量强行视为同一设置。</p>
+<h2 id="秩与子空间分析低秩假设得到了什么支持">秩与子空间分析：低秩假设得到了什么支持<a class="headerlink" href="#秩与子空间分析低秩假设得到了什么支持" title="Permanent link">&para;</a></h2>
+<p>原论文表 6 固定更新 Q/V，在 GPT-3 上改变秩：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">秩</th>
+<th style="text-align: right;">WikiSQL Acc.</th>
+<th style="text-align: right;">MNLI-m Acc.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">73.4</td>
+<td style="text-align: right;">91.3</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">73.3</td>
+<td style="text-align: right;">91.4</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">73.7</td>
+<td style="text-align: right;">91.3</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">73.8</td>
+<td style="text-align: right;">91.6</td>
+</tr>
+<tr>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">73.5</td>
+<td style="text-align: right;">91.4</td>
+</tr>
+</tbody>
+</table>
+<p>在这两个任务上，<span class="arithmatex">\(r=1\)</span> 已经有效，增至 64 没有持续提高。作者进一步比较不同秩学习到的方向：</p>
+<p><img alt="LoRA 原论文图 3：不同秩适配器的子空间相似度" src="../figs/S7-F3-01.png" /></p>
+<p>图中比较 <span class="arithmatex">\(r=8\)</span> 与 <span class="arithmatex">\(r=64\)</span> 的 <span class="arithmatex">\(A\)</span> 矩阵子空间，主要方向有明显重合。它说明较大秩中的一些有效方向可以被较小秩捕获；它不是对所有任务最小所需秩的证明。子空间相似度也不能直接等同于模型输出或泛化能力完全一致。</p>
+<h2 id="更新相对于预训练权重究竟改变了什么">更新相对于预训练权重，究竟改变了什么<a class="headerlink" href="#更新相对于预训练权重究竟改变了什么" title="Permanent link">&para;</a></h2>
+<p>原文不仅比较不同秩，还把预训练权重投影到更新所选的方向中。设 <span class="arithmatex">\(U_\Delta,V_\Delta\)</span> 是 <span class="arithmatex">\(\Delta W\)</span> 的主要左右奇异向量，则考察 <span class="arithmatex">\(\|U_\Delta^\top W V_\Delta\|_F\)</span>，并与原始 <span class="arithmatex">\(W\)</span> 的主方向和随机方向作比较。</p>
+<p>原文表 7 在 GPT-3 的被分析权重上，<span class="arithmatex">\(r=4\)</span> 时，更新方向内的预训练权重范数为 0.32，原始权重顶部方向为 21.67，随机方向为 0.02；<span class="arithmatex">\(\|W_q\|_F=61.95\)</span>，<span class="arithmatex">\(\|\Delta W_q\|_F=6.91\)</span>。作者据此提出：更新比随机方向更贴近已有权重，却没有简单重复预训练权重的最强方向，而可能放大原本较弱、对当前任务有用的特征。该方向内的增量与原权重之比约为 <span class="arithmatex">\(6.91/0.32=21.6\)</span>。</p>
+<p><strong>解读</strong>：这是选定模型、层与任务的几何分析，不是“所有知识都早已存在”的证明，也不是说整个模型权重放大了二十多倍。原文附录还显示不同随机种子和不同秩存在不完全重合的方向，主方向相似不等于全部矩阵一致。</p>
+<h2 id="合并切换与推理成本">合并、切换与推理成本<a class="headerlink" href="#合并切换与推理成本" title="Permanent link">&para;</a></h2>
+<p>在相同浮点表示下，可以先计算</p>
+<div class="arithmatex">\[
+W_{\mathrm{merge}}=W_0+\frac{\alpha}{r}BA,
+\qquad h=W_{\mathrm{merge}}x.
+\]</div>
+<p>合并后不再执行独立 LoRA 分支，线性层形状保持不变，因此避免了该分支的额外推理运算。如果服务需要同时切换许多适配器，通常会保留共享基座和各自增量，通过专门内核批处理；此时成本由运行时决定。量化基座上的合并还涉及舍入或重新量化，不能把浮点合并公式直接解释成任意低位格式都无损。</p>
+<h2 id="附录如何补充主文">附录如何补充主文<a class="headerlink" href="#附录如何补充主文" title="Permanent link">&para;</a></h2>
+<p>附录 A 讨论只有上下文学习仍可能不足，解释为什么需要参数适配；B 比较 Adapter 的推理延迟；C/D 补充各数据集、超参数和任务配置。E 研究 LoRA 与 Prefix-Tuning 的组合，说明更新权重与学习条件前缀可以互补。F 增加 GPT-2、GPT-3 与低数据量实验。G 定义基于子空间投影的相似度，H 将不同层、随机种子、秩和权重相关性的分析展开。</p>
+<p>子空间相似度归一化到零至一，衡量选定奇异方向的重合程度，而不是直接计算两个完整模型的行为相似度。附录中的这些分析与主表共同支持低秩适配的经验有效性，但没有给出任意任务的最优秩或统一训练配方。</p>
+<h2 id="结论与局限">结论与局限<a class="headerlink" href="#结论与局限" title="Permanent link">&para;</a></h2>
+<p>LoRA 的核心贡献是一种容易嵌入现有模型的增量参数化：只保存任务变化，并把变化约束在低秩空间。它兼顾了训练状态、任务存储和合并部署的便利。但它仍需要主干前后向计算；表达能力、最优层位置和优化动态都有任务依赖。数据分布变化很大、任务容量需求提高或训练规模接近预训练时，应重新与全量微调及更高容量方案比较。</p>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Hu et al. <a href="https://arxiv.org/abs/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a>，ICLR 2022；正文、附录与表 3–7。</li>
+<li>
+<p><a href="https://github.com/microsoft/LoRA">官方代码 microsoft/LoRA</a>。</p>
+</li>
+<li>
+<p><a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/">LoRA 技术总章</a>：跨论文理解 rank、alpha、目标权重、训练与部署。</p>
+</li>
+</ul>
+<h2 id="原文与中文全译">原文与中文全译<a class="headerlink" href="#原文与中文全译" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../en/">英文全文</a>，保留主文、附录、图表、脚注和参考文献。</li>
+<li><a href="../zh/">中文全译稿</a>，以机器初译为底稿，统一术语，并校订摘要及关键方法段落。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--prev" aria-label="上一页: DoRA 详解">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                DoRA 详解
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../en/" class="md-footer__link md-footer__link--next" aria-label="下一页: LoRA · 英文原文">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                LoRA · 英文原文
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

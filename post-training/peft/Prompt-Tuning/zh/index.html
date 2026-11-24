@@ -1,0 +1,4141 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/Prompt-Tuning/zh/">
+      
+      
+        <link rel="prev" href="../en/">
+      
+      
+        <link rel="next" href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Prompt-Tuning · 中英对照 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#规模的力量参数高效的提示微调" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prompt-Tuning · 中英对照
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_13" id="__nav_4_4_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt-Tuning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt Tuning：输入层软提示的规模效应
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#及时调整" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        及时调整
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="及时调整">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#设计决策" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计决策
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#忘却腐败" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        忘却腐败
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#缩小差距" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        缩小差距
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消融研究
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="消融研究">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提示长度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提示长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提示初始化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提示初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预训练目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预训练目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#与类似方法的比较" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与类似方法的比较
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#适应领域转移的能力" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        适应领域转移的能力
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#即时合奏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        即时合奏
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#可解释性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        可解释性
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#再现性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        再现性
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="再现性">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-实验设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.1 实验设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-超参数搜索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.2 超参数搜索
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-数据集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.3 数据集
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#及时调整" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        及时调整
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="及时调整">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#设计决策" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计决策
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#忘却腐败" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        忘却腐败
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#缩小差距" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        缩小差距
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#消融研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消融研究
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="消融研究">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提示长度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提示长度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提示初始化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提示初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预训练目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预训练目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#与类似方法的比较" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与类似方法的比较
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#适应领域转移的能力" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        适应领域转移的能力
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#即时合奏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        即时合奏
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#可解释性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        可解释性
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#再现性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        再现性
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="再现性">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-实验设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.1 实验设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-超参数搜索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.2 超参数搜索
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-数据集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.3 数据集
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="规模的力量参数高效的提示微调">规模的力量：参数高效的提示微调<a class="headerlink" href="#规模的力量参数高效的提示微调" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>原文：<a href="https://arxiv.org/html/2104.08691v2">arXiv:2104.08691v2</a>，作者及机构信息见下。
+中文全译稿：以机器初译为底稿，统一技术术语，并校订摘要和关键方法段落；覆盖主文、附录、表格、图注和脚注。参考文献保留原始书目，原图内部文字保留英文。英文转写见 <a href="../en/">en.md</a>，方法分析另见 <a href="../Prompt-Tuning%E8%AF%A6%E8%A7%A3/">Prompt-Tuning详解.md</a>。</p>
+</blockquote>
+<h2 id="作者与机构">作者与机构<a class="headerlink" href="#作者与机构" title="Permanent link">&para;</a></h2>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Brian Lester * Rami Al-Rfou Noah Constant Affiliation: Google Research Email: {brianlester,rmyeid,nconstant}@google.com</p>
+<h2 id="摘要">摘要<a class="headerlink" href="#摘要" title="Permanent link">&para;</a></h2>
+<p>本文研究“提示微调”：一种简单而有效的机制，通过学习“软提示”，使冻结的语言模型完成特定下游任务。与 GPT-3 使用的离散文本提示不同，软提示通过反向传播学习，并能从任意数量的标注样本中吸收训练信号。我们的端到端学习方法大幅超过 GPT-3 的少样本学习。更显著的是，通过 T5 模型规模消融，我们发现提示微调随规模扩大而更具竞争力：模型达到数十亿参数以上时，方法能够“缩小差距”，达到模型微调（更新全部模型权重）的强表现。大型模型的共享和服务成本高，而多个下游任务复用同一冻结模型可减轻负担，因此这一发现尤其重要。本文方法可视为 Li 和 Liang（2021）近期提出的 Prefix-Tuning 的简化，我们将其与这类方法进行比较。最后，我们说明，用软提示条件化冻结模型能够改善领域迁移的鲁棒性，并支持高效的“提示集成”。</p>
+<h2 id="简介">简介<a class="headerlink" href="#简介" title="Permanent link">&para;</a></h2>
+<p>随着预训练大型语言模型的广泛成功，出现了一系列技术来使这些通用模型适配下游任务。埃尔莫·彼得斯等人。 （2018）建议冻结预训练模型并学习其每层表示的特定于任务的权重。然而，自从 GPT Radford 等人。 (2018) 和 BERT Devlin 等人。 (2019) 中，主要的适应技术是模型调整（或“微调”），如 Howard 和 Ruder (2018) 所提出的，所有模型参数在适应过程中都会进行调整。</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>图 1：T5 的标准模型调优实现了强大的性能，但需要为每个最终任务存储单独的模型副本。随着规模的增加，我们对 T5 的及时调整与模型调整的质量相匹配，同时能够为所有任务重用单个冻结模型。我们的方法明显优于使用 GPT-3 的小样本提示设计。我们展示了 <span class="arithmatex">\(3\)</span> 运行中调整方法的平均值和标准差。</p>
+<p>最近，布朗等人。 (2020) 表明，提示设计（或“启动”）在通过文本提示微调冻结的 GPT-3 模型的行为方面出奇地有效。提示通常由任务描述和/或几个规范示例组成。这种“冻结”预训练模型的回归很有吸引力，特别是随着模型尺寸的不断增加。单个通才模型不需要为每个下游任务提供单独的模型副本，而是可以同时服务于许多不同的任务。</p>
+<p><img alt="Figure S1.F2" src="../figs/S1-F2-01.png" /></p>
+<p>图 2：模型调整需要为每个下游任务制作整个预训练模型的特定于任务的副本，并且推理必须分批执行。提示调整只需要为每个任务存储一个小的特定于任务的提示，并使用原始的预训练模型启用混合任务推理。对于 T5“XXL”模型，调整模型的每个副本都需要 <span class="arithmatex">\(11\)</span> 十亿个参数。相比之下，假设提示长度为 <span class="arithmatex">\(5\)</span> 令牌，我们调整的提示将只需要每个任务 <span class="arithmatex">\(20{,}480\)</span> 参数，减少超过五个数量级。</p>
+<p>不幸的是，基于提示的适应有几个主要缺点。任务描述容易出错并且需要人工参与，提示的有效性受到模型输入中可以容纳多少条件文本的限制。因此，下游任务质量仍然远远落后于调整后的模型。例如，GPT-3 175B 在 SuperGLUE 上的少样本性能为 <span class="arithmatex">\(17.5\)</span> 点，低于微调的 T5-XXL Raffel 等人。 （2020）（ <span class="arithmatex">\(71.8\)</span> 与 <span class="arithmatex">\(89.3\)</span> ）尽管使用了 <span class="arithmatex">\(16\)</span> 多倍的参数。</p>
+<p>最近已经提出了一些自动化提示设计的努力。申等人。 （2020）提出了一种在离散单词空间上的搜索算法，以下游应用训练数据为指导。虽然这种技术优于手动提示设计，但相对于模型调整仍然存在差距。</p>
+<p>Li和Liang（2021）提出了“前缀调整”，并在生成任务上显示出强大的结果。此方法会冻结模型参数，并在调整到编码器堆栈中每一层（包括输入层）前面的前缀激活期间反向传播误差。哈姆巴祖米扬等人。 （2021）通过将可训练参数限制为掩码语言模型的输入和输出子网络来简化这个配方，并在分类任务上显示合理的结果。</p>
+<p>在本文中，我们提出即时调优作为适应语言模型的进一步简化。我们冻结整个预训练模型，只允许将每个下游任务的额外 <span class="arithmatex">\(k\)</span> 可调标记添加到输入文本中。这种“软提示”经过端到端训练，可以压缩来自完整标记数据集的信号，使我们的方法能够超越少数样本提示，并通过模型调整缩小质量差距（图 1）。同时，由于单个预训练模型会被循环用于所有下游任务，因此我们保留了冻结模型的高效服务优势（图 2）。</p>
+<p>虽然我们与 Li 和 Liang (2021) 以及 Hambardzumyan 等人同时开发了我们的方法。 (2021)，我们第一个证明仅提示调整（没有中间层前缀或特定于任务的输出层）就足以与模型调整竞争。通过第 2-3 节中的详细实验，我们证明语言模型能力是这些方法成功的关键因素。如图 1 所示，随着规模的扩大，即时调整变得更具竞争力。</p>
+<p>我们在第 4 节中与类似方法进行比较。将特定于任务的参数与一般语言理解所需的“通才”参数明确分开具有一系列额外的好处。我们在第 5 节中表明，通过在提示中捕获任务定义，同时保持通才参数固定，我们能够实现更好的领域转换弹性。在第 6 节中，我们展示了“提示集成”，即为同一任务学习多个提示，可以提高质量，并且比经典模型集成更有效。最后，在第 7 节中，我们研究了所学软提示的可解释性。总之，我们的主要贡献是：</p>
+<ul>
+<li>
+<ol>
+<li>提出即时调优，并在大语言模型领域展现其与模型调优的竞争力。</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>消除许多设计选择，并显示质量和稳健性随着规模的扩大而提高。</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>在域转移问题上，显示提示调整优于模型调整。</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>提出“即时集成”并展示其有效性。</li>
+</ol>
+</li>
+</ul>
+<h2 id="及时调整">及时调整<a class="headerlink" href="#及时调整" title="Permanent link">&para;</a></h2>
+<p>遵循 T5 的“文本到文本”范式（Raffel 等，2020），我们将所有任务表示为文本生成。分类不再建模为给定输入 <span class="arithmatex">\(X\)</span> 时输出类别 <span class="arithmatex">\(y\)</span> 的概率 <span class="arithmatex">\(\Pr(y|X)\)</span>——其中 <span class="arithmatex">\(X\)</span> 是 token 序列、<span class="arithmatex">\(y\)</span> 是单个类别标签——而是建模为条件生成，其中 <span class="arithmatex">\(Y\)</span> 是代表类别标签的 token 序列。T5 将分类表示为 <span class="arithmatex">\(\Pr_{\theta}(Y|X)\)</span>，参数 <span class="arithmatex">\(\theta\)</span> 是构成其编码器和解码器的 Transformer 权重（Vaswani 等，2017）。</p>
+<p>提示是为模型在生成 <span class="arithmatex">\(Y\)</span> 期间添加额外信息的方法。通常，提示是通过在输入 <span class="arithmatex">\(X\)</span> 前面添加一系列标记 <span class="arithmatex">\(P\)</span> 来完成的，以便模型最大化正确 <span class="arithmatex">\(Y\)</span> 和 <span class="arithmatex">\(\Pr_{\theta}(Y|[P;X])\)</span> 的可能性，同时保持模型参数 <span class="arithmatex">\(\theta\)</span> 固定。在 GPT-3 中，提示标记 <span class="arithmatex">\(P=\{p_{1},p_{2},\dots,p_{n}\}\)</span> 的表示是模型嵌入表的一部分，由冻结的 <span class="arithmatex">\(\theta\)</span> 参数化。因此，找到最佳提示需要通过手动搜索或不可微搜索方法来选择提示标记。 (2020);申等人。 （2020）。提示音整定取消了提示音<span class="arithmatex">\(P\)</span>由<span class="arithmatex">\(\theta\)</span>参数化的限制；相反，提示有其自己的专用参数 <span class="arithmatex">\(\theta_{P}\)</span> ，可以更新。虽然提示设计涉及从冻结嵌入的固定词汇中选择提示标记，但提示调整可以被认为是使用特殊标记的固定提示，其中只能更新这些提示标记的嵌入。我们新的条件生成现在是 <span class="arithmatex">\(\Pr_{\theta;\theta_{P}}(Y|[P;X])\)</span> ，可以通过反向传播最大化 <span class="arithmatex">\(Y\)</span> 的可能性来进行训练，同时仅对 <span class="arithmatex">\(\theta_{P}\)</span> 应用梯度更新。</p>
+<p>给定一系列 <span class="arithmatex">\(n\)</span> 令牌 <span class="arithmatex">\(\{x_{1},x_{2},\dots,x_{n}\}\)</span> ，T5 所做的第一件事是嵌入令牌，形成矩阵 <span class="arithmatex">\(X_{e}\in\mathbb{R}^{n\times e}\)</span>，其中 <span class="arithmatex">\(e\)</span> 是嵌入空间的维度。我们的软提示表示为参数 <span class="arithmatex">\(P_{e}\in\mathbb{R}^{p\times e}\)</span> ，其中 <span class="arithmatex">\(p\)</span> 是提示的长度。然后，我们的提示符连接到嵌入输入，形成单个矩阵 <span class="arithmatex">\([P_{e};X_{e}]\in\mathbb{R}^{(p+n)\times e}\)</span>，然后正常流经编码器-解码器。我们的模型经过训练以最大化 <span class="arithmatex">\(Y\)</span> 的概率，但仅更新提示参数 <span class="arithmatex">\(P_{e}\)</span> 。</p>
+<h3 id="设计决策">设计决策<a class="headerlink" href="#设计决策" title="Permanent link">&para;</a></h3>
+<p>有许多可能的方法来初始化提示表示。最简单的方法是使用随机初始化从头开始训练。一个更复杂的选项是将每个提示标记初始化为从模型词汇表中提取的嵌入。从概念上讲，我们的软提示以与输入之前的文本相同的方式调节冻结网络的行为，因此，类似单词的表示可能作为一个很好的初始化点。对于分类任务，第三种选择是使用枚举输出类的嵌入来初始化提示，类似于 Schick 和 Schütze (2021) 的“标签词映射”。由于我们希望模型在输出中生成这些标记，因此使用有效目标标记的嵌入来初始化提示应该启动模型以将其输出限制为合法的输出类。</p>
+<p>另一个设计考虑因素是提示的长度。我们方法的参数成本是 <span class="arithmatex">\(EP\)</span> ，其中 <span class="arithmatex">\(E\)</span> 是令牌嵌入维度，<span class="arithmatex">\(P\)</span> 是提示长度。提示越短，必须调整的新参数就越少，因此我们的目标是找到仍然表现良好的最小长度。</p>
+<h3 id="忘却腐败">忘却腐败<a class="headerlink" href="#忘却腐败" title="Permanent link">&para;</a></h3>
+<p>与 GPT-3 等自回归语言模型不同，我们实验的 T5 模型使用编码器-解码器架构，并针对跨度损坏目标进行预训练。具体来说，T5 的任务是“重建”输入文本中的屏蔽跨度，这些跨度用唯一的哨兵标记进行标记。目标输出文本由所有屏蔽内容组成，由标记分隔，加上最终标记。例如，从文本“谢谢你上周邀请我参加你的聚会”中，我们可以构建一个预训练示例，其中输入是“谢谢你 <span class="arithmatex">\(\langle\)</span> X <span class="arithmatex">\(\rangle\)</span> 我参加你的聚会 <span class="arithmatex">\(\langle\)</span> Y <span class="arithmatex">\(\rangle\)</span> 周”，目标输出是“ <span class="arithmatex">\(\langle\)</span> X <span class="arithmatex">\(\rangle\)</span> 邀请<span class="arithmatex">\(\langle\)</span> Y <span class="arithmatex">\(\rangle\)</span> 最后 <span class="arithmatex">\(\langle\)</span> Z <span class="arithmatex">\(\rangle\)</span>”。</p>
+<p>而拉斐尔等人。 （2020）发现这种架构和预训练目标比传统语言建模更有效，我们假设这种设置不太适合生成可以通过即时调整轻松控制的冻结模型。特别是，专门针对跨度损坏进行预训练的 T5 模型（例如 T5.1.1）从未见过真正自然的输入文本（不含哨兵标记），也从未被要求预测真正自然的目标。事实上，由于 T5 跨度损坏预处理的细节，每个预训练目标都将从哨兵开始。虽然这种输出哨兵的“不自然”倾向很容易通过微调来克服，但我们怀疑仅通过提示来覆盖会更困难，因为解码器先验无法调整。</p>
+<p>考虑到这些问题，我们在三种设置中对 T5 模型进行了实验。 (1)“Span Corruption”：我们使用预训练的现成 T5 作为我们的冻结模型，并测试其为下游任务输出预期文本的能力。 （2）“Span Corruption + Sentinel”：我们使用相同的模型，但在所有下游目标前面添加一个哨兵，以便更接近预训练中看到的目标。 (3)“LM适应”：我们继续T5的自我监督训练少量的额外步骤，但使用Raffel等人讨论的“LM”目标。 (2020);给定自然文本前缀作为输入，模型必须生成自然文本延续作为输出。至关重要的是，这种适应仅发生一次，产生一个单一的冻结模型，我们可以重复使用该模型来跨任意数量的下游任务进行快速调整。</p>
+<p>通过 LM 适配，我们希望“快速”将 T5 转变为更类似于 GPT-3 的模型，GPT-3 始终输出真实的文本，并且作为“few-shot learner”能够很好地响应提示。与从头开始的预训练相比，这种后期转换有多成功尚不清楚，而且据我们所知，之前也没有对此进行过调查。因此，我们尝试了各种长度的适应，最多 100K 步。</p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-01.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-02.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-03.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-04.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-05.png" /></p>
+<p>图 3：各种超参数对即时调优性能的消融（<span class="arithmatex">\(3\)</span> 运行中的平均值和标准差）。在我们的“默认”( ) 配置中，质量随着模型尺寸的变化而稳定提高。在所有消融中，最大 (XXL) 模型对于超参数选择是最稳健的。 3(a) 提示长度：增加到 <span class="arithmatex">\(20\)</span> + 令牌通常会带来很大的提升，但 XXL 即使使用单令牌提示也能表现良好。 3(b) 提示初始化：随机统一初始化落后于使用采样词汇或类标签嵌入的更“高级”初始化，但差异在 XXL 大小时消失。 3(c) 预训练目标：即使将哨兵添加到下游任务目标中，LM 适应也优于跨度损坏，但 XXL 适用于任何方法。 3(d) LM适应：较长的适应通常会带来较大的增益，但XXL即使对于较短的适应也具有鲁棒性。</p>
+<h2 id="结果">结果<a class="headerlink" href="#结果" title="Permanent link">&para;</a></h2>
+<p>我们的冻结模型建立在各种尺寸（小、基础、大、XL、XXL）的预训练 T5 检查点之上。我们利用公共 T5.1.1 检查点，其中包括对原始 T5 的改进。 <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup></p>
+<p>我们的“默认”配置始终用绿色‘<span class="arithmatex">\(\times\)</span>’（）绘制，使用经过额外 100K 步骤训练的 T5 的 LM 适配版本，使用类标签进行初始化（参见第 3.2 节），并使用 <span class="arithmatex">\(100\)</span> 令牌的提示长度。虽然这比 Li 和 Liang (2021) 使用的默认 10 个令牌前缀长，但我们的方法仍然使用较少的特定于任务的参数，因为我们只调整输入层，而不是覆盖所有网络层中的激活。详细比较请参见图 4。很快我们还将看到，随着模型大小的增加，甚至更短的提示也是可行的。</p>
+<p>我们在 SuperGLUE 基准测试上测量性能 Wang 等人。 (2019a)，八个具有挑战性的英语语言理解任务的集合。 <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> 我们报告与每个数据集相关的开发集的指标。</p>
+<p>我们的每个提示都针对单个 SuperGLUE 任务进行训练；没有多任务设置或跨任务混合训练数据。我们按照 Raffel 等人的方法将每个 SuperGLUE 数据集转换为文本到文本格式。 (2020) ，除了我们省略了输入前面的任务名称，指示示例属于哪个 SuperGLUE 任务。</p>
+<p>我们使用 T5 的标准交叉熵损失来训练 <span class="arithmatex">\(30{,}000\)</span> 步骤的提示，学习率为 <span class="arithmatex">\(0.3\)</span> 的恒定学习率和 <span class="arithmatex">\(32\)</span> 的批量大小。检查点是通过在开发集上提前停止来选择的，其中停止指标是数据集的默认指标，或者是使用多个指标评估的数据集的指标平均值。所有实验均在 JAX Bradbury 等人中进行。 (2018) 使用 Adafactor 优化器 Shazeer 和 Stern (2018) 进行权重衰减 <span class="arithmatex">\(1e{-5}\)</span> 、 <span class="arithmatex">\(\beta_{2}\)</span> 衰减 <span class="arithmatex">\(0.8\)</span> 和参数缩放。这些模型在 Flax Heek 等人中实现。 （2020）。更多详细信息请参阅附录 A。</p>
+<h3 id="缩小差距">缩小差距<a class="headerlink" href="#缩小差距" title="Permanent link">&para;</a></h3>
+<p>为了将我们的方法与标准模型调整进行比较，我们使用 T5 库中指定的默认超参数（学习率 <span class="arithmatex">\(0.001\)</span> 和恢复预训练参数状态的 Adafactor 优化器）调整 SuperGLUE 上的公共 T5.1.1 检查点。我们考虑两个基线。 (1)“模型调整”：为了进行同类比较，我们分别调整每个任务，就像我们的提示调整设置一样。 <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> (2)“模型调优（多任务）”：我们使用 T5 的多任务调优设置来实现更具竞争力的基线。 <sup id="fnref:footnote4"><a class="footnote-ref" href="#fn:footnote4">4</a></sup> 在这种情况下，单个模型在所有任务上联合调整，并带有指示任务名称的文本前缀。</p>
+<p>在图 1 (p.1) 中，我们看到随着规模的增加，即时调优与模型调优相比变得更具竞争力。在 XXL 大小（110 亿个参数）下，即时调优甚至可以匹配更强的多任务模型调优基线，尽管任务特定参数的数量要少 <span class="arithmatex">\(20{,}000\)</span> 倍以上。</p>
+<p>为了与即时设计进行比较，我们在 SuperGLUE 开发分组中纳入了 GPT-3 的小样本性能，正如 Brown 等人所报告的那样。 （2020）。 <sup id="fnref:footnote5"><a class="footnote-ref" href="#fn:footnote5">5</a></sup> 图 1 显示，提示微调大幅优于 GPT-3 提示设计，提示微调 T5-Small 匹配 GPT-3 XL（比 <span class="arithmatex">\(16\)</span> 大 1 倍），提示微调 T5-Large 优于 GPT-3 175B（比 <span class="arithmatex">\(220\)</span> 大 1 倍）。</p>
+<h3 id="消融研究">消融研究<a class="headerlink" href="#消融研究" title="Permanent link">&para;</a></h3>
+<h4 id="提示长度">提示长度<a class="headerlink" href="#提示长度" title="Permanent link">&para;</a></h4>
+<p>我们训练每个模型大小的提示，同时改变 <span class="arithmatex">\(\{1,5,20,100,150\}\)</span> 中的提示长度并将其他设置固定为我们的默认配置。图 3(a) 显示，对于大多数模型大小，将提示长度增加到超过单个标记对于实现良好的性能至关重要。值得注意的是，XXL 模型在单标记提示下仍然给出了很好的结果，这表明模型越大，实现目标行为所需的条件信号就越少。在所有模型中，增加超过 <span class="arithmatex">\(20\)</span> token只会产生边际收益。 <sup id="fnref:footnote6"><a class="footnote-ref" href="#fn:footnote6">6</a></sup></p>
+<h4 id="提示初始化">提示初始化<a class="headerlink" href="#提示初始化" title="Permanent link">&para;</a></h4>
+<p>我们通过训练各种尺寸的模型来消除提示初始化的影响，同时将其他超参数固定为其默认值。对于随机初始化，我们从 [ <span class="arithmatex">\(-0.5\)</span> ， <span class="arithmatex">\(0.5\)</span> ] 范围内均匀采样。从采样词汇进行初始化时，我们将 T5 的 SentencePiece 词汇 Kudo 和 Richardson (2018) 中最“常见”的标记限制为 <span class="arithmatex">\(5{,}000\)</span>，这些标记在预训练语料库中按可能性排序。对于“类标签”初始化，我们在下游任务中获取每个类的字符串表示形式的嵌入，并使用它们来初始化提示中的标记之一。当类标签是多标记时，我们对标记嵌入进行平均。在较长的提示长度下，我们经常在初始化所有提示标记之前就用完类标签。在这种情况下，我们会退回到采样词汇策略来填写提示。 <sup id="fnref:footnote7"><a class="footnote-ref" href="#fn:footnote7">7</a></sup></p>
+<p>图 3(b) 显示了我们对不同模型大小的初始化策略的消融，我们发现基于类的初始化表现最好。在较小的模型尺寸下，不同的初始化之间存在很大的差距，但一旦模型缩放到 XXL 尺寸，这些差异就会消失。</p>
+<p>通过“类标签”初始化，我们观察到类标签通常保留在学习的提示中，使得最近的标记嵌入（余弦距离）与用于初始化的标记相匹配。除此之外，我们没有发现我们学到的提示是可解释的，类似于 Shin 等人的提示。 （2020）。详细信息请参见第 7 节。</p>
+<h4 id="预训练目标">预训练目标<a class="headerlink" href="#预训练目标" title="Permanent link">&para;</a></h4>
+<p>在图 3(c) 和 3(d) 中，我们看到预训练目标对即时调优质量有明显的影响。正如第 2.2 节中假设的那样，T5 的默认“跨度损坏”目标不太适合训练冻结模型，以便稍后通过提示进行调节。直观上，预训练用于读写哨兵标记的模型很难直接应用于没有哨兵的读写文本任务。如图 3(c) 所示，即使是向下游目标添加哨兵的“解决方法”也没有什么好处。虽然 LM 适应增加了所有模型尺寸的价值，但我们注意到我们最大的 XXL 模型是最宽容的，即使在跨度损坏的情况下也能给出很好的结果。</p>
+<p>鉴于 LM 适应的好处，我们还探讨了适应多长时间是有帮助的。图 3(d) 显示较长的自适应可提供额外的增益，最高可达 <span class="arithmatex">\(100\)</span> K 步。这表明从跨度损坏到语言建模目标的“过渡”并不是一个微不足道的改变，并且进行有效的转换需要训练资源的投资（<span class="arithmatex">\(10\)</span> 原始 T5 预训练步骤的％）。同时，与我们的其他消融一样，我们观察到 XXL 模型即使对于非理想配置也具有鲁棒性。在这种规模下，适应带来的收益相当有限。</p>
+<p>在非最佳“跨度损坏”设置中，我们观察到模型大小之间的不稳定性，小模型优于较大的 Base、Large 和 XL 模型。经过检查，我们发现对于许多任务，这些中型模型从未学会输出合法的类别标签，因此得分为 0%。两种最常见的错误模式是从输入复制子跨度和预测空字符串。此外，这种较差的性能并不是由于提示调整中的随机方差造成的，因为我们观察到每个大小的 <span class="arithmatex">\(3\)</span> 运行的方差较低。这些结果表明，使用通过“跨度损坏”目标进行预训练的模型可能不可靠，<span class="arithmatex">\(5\)</span> 模型中只有 <span class="arithmatex">\(2\)</span> 运行良好，而 LM 适应版本在所有模型大小上都能可靠运行。</p>
+<p>我们发布了 T5 1.1 检查点，该检查点使用 LM 目标针对所有模型尺寸的 <span class="arithmatex">\(100\)</span> K 步进行了调整。 <sup id="fnref:footnote8"><a class="footnote-ref" href="#fn:footnote8">8</a></sup></p>
+<h2 id="与类似方法的比较">与类似方法的比较<a class="headerlink" href="#与类似方法的比较" title="Permanent link">&para;</a></h2>
+<p><img alt="Figure S4.F4" src="../figs/S4-F4-01.png" /></p>
+<p>图 4：各种适应技术的参数使用，将架构固定为 T5.1.1，将提示/前缀长度固定为 <span class="arithmatex">\(1\)</span> – <span class="arithmatex">\(100\)</span> 令牌（带显示平均值和标准偏差）。模型调整：所有参数都是特定于任务的。前缀调整：激活在每层的前缀中进行调整，需要 <span class="arithmatex">\(0.1\)</span> – <span class="arithmatex">\(1\)</span> % 任务特定参数进行推理，但更多用于训练。 WARP ：通过仅调整输入和输出层，任务参数减少到 <span class="arithmatex">\(0.1\)</span> % 以下。提示调整：仅调整提示嵌入，对于大多数模型尺寸达到 <span class="arithmatex">\(0.01\)</span> % 以下。提示设计：仅需要一系列提示 ID（<span class="arithmatex">\(500\)</span> – <span class="arithmatex">\(2000\)</span> 令牌）。</p>
+<p>在本节中，我们回顾最近关于学习连续提示的工作，并与我们的方法进行比较。比较的一个重要轴是每种方法所需的特定于任务的参数数量，如图 4 所示。在具有可学习参数的方法中，即时调整是参数效率最高的，对于超过十亿个参数的模型，需要少于 <span class="arithmatex">\(0.01\)</span> % 的任务特定参数。 <sup id="fnref:footnote9"><a class="footnote-ref" href="#fn:footnote9">9</a></sup></p>
+<p>Li和Liang（2021）提出了“前缀调整”：学习每个Transformer层前面的前缀序列。这类似于学习Transformer激活，这些激活在每个网络层的示例中都是固定的。相反，提示调整使用附加到嵌入输入之前的单个提示表示。除了需要更少的参数之外，我们的方法还允许转换器更新中间层任务表示，如输入示例的上下文所示。他们的工作建立在 GPT-2 Radford 等人的基础上。 (2019) 和 BART Lewis 等人。 (2020)，而我们的重点是 T5，并检查随着模型尺寸的增加，性能和设计选择的稳健性的变化。使用 BART 时，前缀调整包括编码器和解码器网络上的前缀，而提示调整仅需要编码器上的提示。 Li 和 Liang (2021) 还依靠前缀的重参数化来稳定学习，这会在训练期间添加大量参数，而我们的配置不需要这种重参数化，并且在 SuperGLUE 任务和模型大小中具有鲁棒性。</p>
+<p>哈姆巴祖米扬等人。 （2021）提出“WARP”，其中提示参数被添加到输入层。此方法适用于掩码语言模型，依靠 [MASK] 标记和可学习的输出层将掩码投影到类 logits。该公式将模型限制为产生单个输出，从而将其限制为分类。即时调整不需要对输入或特定于任务的头进行任何更改。提示微调的性能也相当接近模型调优的强大性能。</p>
+<p>刘等人。 （2021）提出“P-tuning”，其中可学习的连续提示在整个嵌入式输入中交织，使用基于人类设计的模式。我们的方法通过简单地将提示添加到输入中来消除这种复杂性。为了获得强大的 SuperGLUE 结果，P 调优必须与模型调优结合使用，即模型联合更新提示参数和主要模型参数，而我们的方法保持原始语言模型冻结。 <sup id="fnref:footnote10"><a class="footnote-ref" href="#fn:footnote10">10</a></sup></p>
+<p>Qing 和 Eisner (2021) 使用“软词”来学习提示，以从预训练的 LM 中提取知识。提示的位置与基于手工设计的提示原型的输入相关，并且每层都包含学习的 <span class="arithmatex">\(\Delta_{i}^{\ell}\)</span> 参数，因此参数成本随模型深度而变化。</p>
+<p>洛格斯瓦兰等人。 （2020）使用可学习的前置标记来使 Transformer 模型适配各种任务，但重点关注旨在适应组合任务表示的小型合成数据集，而不是更大的现实世界数据集。他们的基本模型是与任务表示联合从头开始训练的小型Transformer，而我们保持基本模型冻结并使用更大的Transformer研究缩放法则。</p>
+<p>更一般地说，任务提示的工作与“适配器”Rebuffi 等人的工作密切相关。 (2017);霍尔斯比等人。 (2019)，在冻结的预训练网络层之间插入小瓶颈层。适配器提供了另一种减少任务特定参数的方法，Houlsby 等人。 (2019) 在冻结 BERT-Large 并且仅添加 <span class="arithmatex">\(2\)</span> – <span class="arithmatex">\(4\)</span> % 附加参数时，实现接近完整模型调整的 GLUE 性能。菲佛等人。 （2020）在多语言环境中使用多个适配器来明确地将语言理解与任务规范分开，类似于我们的方法。适配器和提示调整之间的核心区别在于这些方法如何改变模型行为。适配器通过允许在任何给定层重写激活来修改作用于由神经网络参数化的输入表示的实际函数。提示调整通过保持函数固定并添加可能影响后续输入处理方式的新输入表示来修改行为。</p>
+<h2 id="适应领域转移的能力">适应领域转移的能力<a class="headerlink" href="#适应领域转移的能力" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>域名</th>
+<th>型号</th>
+<th>提示</th>
+<th><span class="arithmatex">\(\Delta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小队</td>
+<td>维基百科</td>
+<td>94.9 <span class="arithmatex">\(\pm\)</span> 0.2</td>
+<td>94.8 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td><span class="arithmatex">\(-\)</span> 0.1</td>
+</tr>
+<tr>
+<td>教科书质量保证</td>
+<td>预订</td>
+<td>54.3 <span class="arithmatex">\(\pm\)</span> 3.7</td>
+<td>66.8 <span class="arithmatex">\(\pm\)</span> 2.9</td>
+<td>+12.5</td>
+</tr>
+<tr>
+<td>生物ASQ</td>
+<td>简介</td>
+<td>77.9 <span class="arithmatex">\(\pm\)</span> 0.4</td>
+<td>79.1 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+<td>+1.2</td>
+</tr>
+<tr>
+<td>种族</td>
+<td>考试</td>
+<td>59.8 <span class="arithmatex">\(\pm\)</span> 0.6</td>
+<td>60.7 <span class="arithmatex">\(\pm\)</span> 0.5</td>
+<td>+0.9</td>
+</tr>
+<tr>
+<td>稀土</td>
+<td>维基百科</td>
+<td>88.4 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td>88.8 <span class="arithmatex">\(\pm\)</span> 0.2</td>
+<td>+0.4</td>
+</tr>
+<tr>
+<td>杜奥RC</td>
+<td>电影</td>
+<td>68.9 <span class="arithmatex">\(\pm\)</span> 0.7</td>
+<td>67.7 <span class="arithmatex">\(\pm\)</span> 1.1</td>
+<td><span class="arithmatex">\(-\)</span> 1.2</td>
+</tr>
+<tr>
+<td>丢弃</td>
+<td>维基百科</td>
+<td>68.9 <span class="arithmatex">\(\pm\)</span> 1.7</td>
+<td>67.1 <span class="arithmatex">\(\pm\)</span> 1.9</td>
+<td><span class="arithmatex">\(-\)</span> 1.8</td>
+</tr>
+</tbody>
+</table>
+<p>表 1：在 SQuAD 上训练并在 MRQA 2019 共享任务的域外数据集上进行评估的模型的 F1 平均值和标准差。快速调整往往比模型调整提供更强的零样本性能，特别是在像 TextbookQA 这样具有较大域变化的数据集上。</p>
+<p>通过冻结核心语言模型参数，及时调整可以防止模型修改其对语言的一般理解。相反，提示表示间接地调制输入的表示。这降低了模型通过记住特定词汇线索和虚假相关性而过度拟合数据集的能力。这一限制表明，及时调整可以提高对域转换的鲁棒性，其中训练和评估之间的输入分布不同。</p>
+<p>我们研究了两项任务的零样本域迁移：问答（QA）和释义检测。对于问题回答，我们使用 MRQA 2019 泛化共享任务 Fisch 等人。 （2019）。此任务以统一格式收集提取的 QA 数据集，并测试在“域内”数据集上训练的模型在“域外”数据集上进行评估时的表现。在我们的实验中，我们在 SQuAD Rajpurkar 等人上进行训练。 （2016）并对每个域外数据集进行评估。 <sup id="fnref:footnote11"><a class="footnote-ref" href="#fn:footnote11">11</a></sup></p>
+<p>表 1 显示，在大多数域外数据集上，即时调优优于模型调优，在 TextbookQA 上两种方法之间存在显着的 <span class="arithmatex">\(12.5\)</span> F1 点差距。我们观察到，在较大领域转移的情况下，及时调整会带来更大的收益（例如，BioASQ 中的生物医学或 TextbookQA 中的教科书）。在模型调整更好的数据集中，我们看到 DROP 与 SQuAD 共享一个域（维基百科），因此是最小的域传输之一。</p>
+<p>作为域转移稳健性的第二个测试，我们探索了 GLUE Wang 等人的两个释义检测任务之间的转移。 （2019b）。第一个任务是 QQP Iyer 等人。 (2017)，其中询问社区问答网站 Quora 中的两个问题是否“重复”。第二个任务是 MRPC Dolan 和 Brockett (2005)，它询问从新闻文章中提取的两个句子是否是释义。我们测试双向传输（QQP <span class="arithmatex">\(\Leftrightarrow\)</span> MRPC）。和以前一样，我们训练“域内”任务，使用域内验证选择检查点，并评估“域外”任务的零样本。</p>
+<table>
+<thead>
+<tr>
+<th>火车</th>
+<th>评估</th>
+<th>调音</th>
+<th>准确度</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QQP</td>
+<td>物料循环过程控制</td>
+<td>型号</td>
+<td>73.1 <span class="arithmatex">\(\pm\)</span> 0.9</td>
+<td>81.2 <span class="arithmatex">\(\pm\)</span> 2.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>提示</td>
+<td>76.3 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td>84.3 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+</tr>
+<tr>
+<td>物料循环过程控制</td>
+<td>QQP</td>
+<td>型号</td>
+<td>74.9 <span class="arithmatex">\(\pm\)</span> 1.3</td>
+<td>70.9 <span class="arithmatex">\(\pm\)</span> 1.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>提示</td>
+<td>75.4 <span class="arithmatex">\(\pm\)</span> 0.8</td>
+<td>69.7 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+</tr>
+</tbody>
+</table>
+<p>表 2：两个释义检测任务之间零样本域转移的平均值和标准偏差。</p>
+<p>表 2 显示，在 QQP 数据上训练轻量级提示并在 MRPC 上进行评估可提供比调整整个模型更好的性能（+ <span class="arithmatex">\(3.2\)</span> 准确度和 + <span class="arithmatex">\(3.1\)</span> F1）。另一个方向的结果更加接近，及时调整显示精度略有提高，F1 略有下降。这些结果支持这样的观点：模型调整可能过度参数化，并且更容易过度拟合训练任务，从而损害不同领域中的类似任务。</p>
+<h2 id="即时合奏">即时合奏<a class="headerlink" href="#即时合奏" title="Permanent link">&para;</a></h2>
+<p>通过对相同数据进行不同初始化训练的神经模型集合被广泛观察到可以提高任务性能 Hansen 和 Salamon (1990)，并且对于估计模型不确定性非常有用 Lakshminarayanan 等人。 （2017）。然而，随着模型尺寸的增加，集成可能变得不切实际。除了存储 <span class="arithmatex">\(N\)</span> 模型所需的空间（例如，每个 T5-XXL 副本需要 <span class="arithmatex">\(42\)</span> GiB）之外，运行 <span class="arithmatex">\(N\)</span> 不同模型（无论是并行还是串行）都会产生大量推理成本。</p>
+<p>即时调优提供了一种更有效的方法来集成预训练语言模型的多种适应性。通过在同一任务上训练 <span class="arithmatex">\(N\)</span> 提示，我们为任务创建 <span class="arithmatex">\(N\)</span> 单独的“模型”，同时仍然共享核心语言建模参数。除了大幅降低存储成本之外，即时集成还使推理更加高效。为了处理一个示例，我们可以执行批量大小为 <span class="arithmatex">\(N\)</span> 的单个前向传递，跨批次复制示例并改变提示，而不是计算 <span class="arithmatex">\(N\)</span> 不同模型的前向传递。这些节省反映了图 2 中多任务处理所看到的节省。</p>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>公制</th>
+<th>平均</th>
+<th>最佳</th>
+<th>合奏团</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>布尔Q</td>
+<td>附件</td>
+<td>91.1</td>
+<td>91.3</td>
+<td>91.7</td>
+</tr>
+<tr>
+<td>CB</td>
+<td>加速/F1</td>
+<td>99.3 / 99.0</td>
+<td>100.00 / 100.00</td>
+<td>100.0 / 100.0</td>
+</tr>
+<tr>
+<td>科帕</td>
+<td>附件</td>
+<td>98.8</td>
+<td>100.0</td>
+<td>100.0</td>
+</tr>
+<tr>
+<td>多RC</td>
+<td>EM/F1a</td>
+<td>65.7 / 88.7</td>
+<td>66.3 / 89.0</td>
+<td>67.1 / 89.4</td>
+</tr>
+<tr>
+<td>记录</td>
+<td>电磁/F1</td>
+<td>92.7 / 93.4</td>
+<td>92.9 / 93.5</td>
+<td>93.2 / 93.9</td>
+</tr>
+<tr>
+<td>即时通讯</td>
+<td>附件</td>
+<td>92.6</td>
+<td>93.5</td>
+<td>93.5</td>
+</tr>
+<tr>
+<td>无线通信</td>
+<td>附件</td>
+<td>76.2</td>
+<td>76.6</td>
+<td>77.4</td>
+</tr>
+<tr>
+<td>世界科学委员会</td>
+<td>附件</td>
+<td>95.8</td>
+<td>96.2</td>
+<td>96.2</td>
+</tr>
+<tr>
+<td>SuperGLUE（开发）</td>
+<td>SuperGLUE（开发）</td>
+<td>90.5</td>
+<td>91.0</td>
+<td>91.3</td>
+</tr>
+</tbody>
+</table>
+<p>表 3：从单个冻结 T5-XXL 模型构建的五提示合奏的性能超过了五个提示中的平均水平和最佳水平。</p>
+<p>为了演示提示集成的可行性，我们使用具有默认超参数的单个冻结 T5-XXL 模型为每个 SuperGLUE 任务训练五个提示。我们使用简单多数投票来计算整体的预测。表 3 显示，在所有任务中，整体击败了单个提示的平均值，并且击败或匹配了最佳的单个提示。</p>
+<h2 id="可解释性">可解释性<a class="headerlink" href="#可解释性" title="Permanent link">&para;</a></h2>
+<p>理想的可解释提示应由自然语言组成，该语言可以清楚地描述手头的任务，明确地向模型询问某些结果或操作，并且可以轻松理解为什么提示会从模型中引发此类行为。</p>
+<p>由于提示调整在连续嵌入空间而不是离散标记空间中进行，因此解释提示变得更加困难。为了测试我们学习的软提示的可解释性，我们从冻结模型的词汇中计算每个提示标记的最近邻居。我们使用词汇嵌入向量和提示标记表示之间的余弦距离作为相似性度量。</p>
+<p>我们观察到，对于给定的学习提示标记，前 5 个最近邻形成紧密的语义簇。例如，我们看到词汇上相似的集群，例如 { Technology / technology / Technologies / Technical / Technologies }，以及更多样化但仍然密切相关的集群，例如 { Complete / Complete / Totally / Together / 100% }。这些簇的性质表明提示实际上是在学习“类似单词”的表示。我们发现从嵌入空间抽取的随机向量不显示这种语义聚类。</p>
+<p>当使用“类标签”策略初始化提示时，我们经常发现类标签在训练中仍然存在。具体来说，如果提示标记被初始化为给定标签，则在调整后该标签通常位于学习标记的最近邻居中。当使用“Random Uniform”或“Sampled Vocab”方法初始化时，类标签也可以在提示的最近邻居中找到；然而，它们往往显示为多个提示标记的邻居。这表明模型正在学习将提示中的预期输出类存储为参考，并且将提示初始化为输出类使这变得更容易、更集中。</p>
+<p>当检查较长的提示（例如大小 <span class="arithmatex">\(100\)</span> ）时，我们经常会发现多个具有相同最近邻居的提示标记。这表明提示中存在过剩容量，或者提示表示中缺乏顺序结构使得模型难以将信息定位到特定位置。</p>
+<p>虽然学习到的提示作为序列显示出很少的可解释性，但我们确实观察到像科学、技术和工程这样的高频词是在 BoolQ 数据集上训练的提示的最近邻居，并且大约 <span class="arithmatex">\(20\)</span> % 的问题属于“自然/科学”类别。虽然需要更多的调查，但这表明提示的作用之一可能是启动模型来解释特定领域或上下文（例如“科学”）中的输入。</p>
+<h2 id="结论">结论<a class="headerlink" href="#结论" title="Permanent link">&para;</a></h2>
+<p>在本文中，我们表明，即时调优是一种使冻结的预训练语言模型适配下游任务的竞争技术。在流行的 SuperGLUE 基准测试中，其任务性能可与传统模型调优相媲美，并且随着模型尺寸的增加，差距逐渐消失。在零样本域转移中，我们发现及时调整可以提高泛化能力。这似乎表明，冻结通用语言理解参数并将下游学习限制为轻量级参数足迹可以帮助避免过度拟合特定领域。</p>
+<p>除了任务质量指标之外，我们还讨论了在存储和服务成本方面转向冻结预训练模型的吸引力。这一举措既可以实现高效的多任务服务，也可以实现高效的高性能提示集成。展望未来，我们相信，将任务定义参数与一般语言建模参数区分开来是一个令人兴奋的步骤，为新研究开辟了许多途径。</p>
+<h2 id="致谢">致谢<a class="headerlink" href="#致谢" title="Permanent link">&para;</a></h2>
+<p>我们感谢 Lucas Dixon、Waleed Ammar、Slav Petrov 和 Sebastian Ruder 对早期草案提出的意见，并感谢以下人员进行有益的讨论：Colin Raffel、Adam Roberts 和 Noam Shazeer。我们感谢林婷雪对LM适应训练的帮助。</p>
+<h2 id="参考文献">参考文献<a class="headerlink" href="#参考文献" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Bar-Haim et al. (2006) Roy Bar-Haim, Ido Dagan, Bill Dolan, Lisa Ferro, Danilo Giampiccolo, Bernardo Magnini, and Idan Szpektor. 2006. The second PASCAL recognising textual entailment challenge. In Proceedings of the second PASCAL challenges workshop on recognising textual entailment , volume 6, pages 6–4. Venice.</p>
+</li>
+<li>
+<p>Bentivogli et al. (2009) Luisa Bentivogli, Peter Clark, Ido Dagan, and Danilo Giampiccolo. 2009. The fifth PASCAL recognizing textual entailment challenge. In TAC .</p>
+</li>
+<li>
+<p>Bradbury et al. (2018) James Bradbury, Roy Frostig, Peter Hawkins, Matthew James Johnson, Chris Leary, Dougal Maclaurin, George Necula, Adam Paszke, Jake VanderPlas, Skye Wanderman-Milne, and Qiao Zhang. 2018. JAX: composable transformations of Python+NumPy programs .</p>
+</li>
+<li>
+<p>Brown et al. (2020) Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners . In Advances in Neural Information Processing Systems , volume 33, pages 1877–1901. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Clark et al. (2019) Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina Toutanova. 2019. BoolQ: Exploring the surprising difficulty of natural yes/no questions . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 2924–2936, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Dagan et al. (2005) Ido Dagan, Oren Glickman, and Bernardo Magnini. 2005. The PASCAL recognising textual entailment challenge. In Machine Learning Challenges Workshop , pages 177–190. Springer.</p>
+</li>
+<li>
+<p>De Marneff et al. (2019) Marie-Catherine De Marneff, Mandy Simons, and Judith Tonhauser. 2019. The CommitmentBank: Investigating projection in naturally occurring discourse. Proceedings of Sinn und Bedeutung 23 .</p>
+</li>
+<li>
+<p>Devlin et al. (2019) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of deep bidirectional transformers for language understanding . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 4171–4186, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Dolan and Brockett (2005) William B Dolan and Chris Brockett. 2005. Automatically constructing a corpus of sentential paraphrases. In Proceedings of the Third International Workshop on Paraphrasing (IWP2005) .</p>
+</li>
+<li>
+<p>Dua et al. (2019) Dheeru Dua, Yizhong Wang, Pradeep Dasigi, Gabriel Stanovsky, Sameer Singh, and Matt Gardner. 2019. DROP: A reading comprehension benchmark requiring discrete reasoning over paragraphs . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 2368–2378, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Fisch et al. (2019) Adam Fisch, Alon Talmor, Robin Jia, Minjoon Seo, Eunsol Choi, and Danqi Chen. 2019. MRQA 2019 shared task: Evaluating generalization in reading comprehension. In Proceedings of 2nd Machine Reading for Reading Comprehension (MRQA) Workshop at EMNLP .</p>
+</li>
+<li>
+<p>Giampiccolo et al. (2007) Danilo Giampiccolo, Bernardo Magnini, Ido Dagan, and Bill Dolan. 2007. The third PASCAL recognizing textual entailment challenge. In Proceedings of the ACL-PASCAL workshop on textual entailment and paraphrasing , pages 1–9. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Hambardzumyan et al. (2021) Karen Hambardzumyan, Hrant Khachatrian, and Jonathan May. 2021. WARP: Word-level Adversarial ReProgramming . In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers) , pages 4921–4933, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Hansen and Salamon (1990) L. K. Hansen and P. Salamon. 1990. Neural network ensembles . IEEE Transactions on Pattern Analysis and Machine Intelligence , 12(10):993–1001.</p>
+</li>
+<li>
+<p>Heek et al. (2020) Jonathan Heek, Anselm Levskaya, Avital Oliver, Marvin Ritter, Bertrand Rondepierre, Andreas Steiner, and Marc van Zee. 2020. Flax: A neural network library and ecosystem for JAX .</p>
+</li>
+<li>
+<p>Houlsby et al. (2019) Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. 2019. Parameter-efficient transfer learning for NLP . In Proceedings of the 36th International Conference on Machine Learning , volume 97 of Proceedings of Machine Learning Research , pages 2790–2799. PMLR.</p>
+</li>
+<li>
+<p>Howard and Ruder (2018) Jeremy Howard and Sebastian Ruder. 2018. Universal language model fine-tuning for text classification . In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 328–339, Melbourne, Australia. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Iyer et al. (2017) Shankar Iyer, Nikhil Dandekar, and Kornel Csernai. 2017. First Quora dataset release: Question pairs .</p>
+</li>
+<li>
+<p>Jiang et al. (2020) Zhengbao Jiang, Frank F. Xu, Jun Araki, and Graham Neubig. 2020. How can we know what language models know? Transactions of the Association for Computational Linguistics , 8:423–438.</p>
+</li>
+<li>
+<p>Kembhavi et al. (2017) A. Kembhavi, M. Seo, D. Schwenk, J. Choi, A. Farhadi, and H. Hajishirzi. 2017. Are you smarter than a sixth grader? textbook question answering for multimodal machine comprehension . In 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 5376–5384.</p>
+</li>
+<li>
+<p>Khashabi et al. (2018) Daniel Khashabi, Snigdha Chaturvedi, Michael Roth, Shyam Upadhyay, and Dan Roth. 2018. Looking beyond the surface: A challenge set for reading comprehension over multiple sentences. In Proceedings of North American Chapter of the Association for Computational Linguistics (NAACL) .</p>
+</li>
+<li>
+<p>Kocijan et al. (2019) Vid Kocijan, Ana-Maria Cretu, Oana-Maria Camburu, Yordan Yordanov, and Thomas Lukasiewicz. 2019. A surprisingly robust trick for the Winograd schema challenge . In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics , pages 4837–4842, Florence, Italy. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Kudo and Richardson (2018) Taku Kudo and John Richardson. 2018. SentencePiece: A simple and language independent subword tokenizer and detokenizer for neural text processing . In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing: System Demonstrations , pages 66–71, Brussels, Belgium. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lai et al. (2017) Guokun Lai, Qizhe Xie, Hanxiao Liu, Yiming Yang, and Eduard Hovy. 2017. RACE: Large-scale ReAding comprehension dataset from examinations . In Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing , pages 785–794, Copenhagen, Denmark. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lakshminarayanan et al. (2017) Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell. 2017. Simple and scalable predictive uncertainty estimation using deep ensembles . In Advances in Neural Information Processing Systems , volume 30. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Levesque et al. (2012) Hector Levesque, Ernest Davis, and Leora Morgenstern. 2012. The Winograd schema challenge. In Thirteenth International Conference on the Principles of Knowledge Representation and Reasoning .</p>
+</li>
+<li>
+<p>Levy et al. (2017) Omer Levy, Minjoon Seo, Eunsol Choi, and Luke Zettlemoyer. 2017. Zero-shot relation extraction via reading comprehension . In Proceedings of the 21st Conference on Computational Natural Language Learning (CoNLL 2017) , pages 333–342, Vancouver, Canada. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lewis et al. (2020) Mike Lewis, Yinhan Liu, Naman Goyal, Marjan Ghazvininejad, Abdelrahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer. 2020. BART: Denoising sequence-to-sequence pre-training for natural language generation, translation, and comprehension . In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics , pages 7871–7880, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Li and Liang (2021) Xiang Lisa Li and Percy Liang. 2021. Prefix-tuning: Optimizing continuous prompts for generation . In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers) , pages 4582–4597, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Liu et al. (2021) Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. 2021. GPT understands, too . CoRR , abs/2103.10385.</p>
+</li>
+<li>
+<p>Logeswaran et al. (2020) Lajanugen Logeswaran, Ann Lee, Myle Ott, Honglak Lee, Marc’Aurelio Ranzato, and Arthur Szlam. 2020. Few-shot sequence learning with transformers . CoRR , abs/2012.09543.</p>
+</li>
+<li>
+<p>Nair and Hinton (2010) Vinod Nair and Geoffrey E. Hinton. 2010. Rectified linear units improve restricted Boltzmann machines. In Proceedings of the 27th International Conference on International Conference on Machine Learning , ICML’10, page 807–814, Madison, WI, USA. Omnipress.</p>
+</li>
+<li>
+<p>Peters et al. (2018) Matthew Peters, Mark Neumann, Mohit Iyyer, Matt Gardner, Christopher Clark, Kenton Lee, and Luke Zettlemoyer. 2018. Deep contextualized word representations . In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers) , pages 2227–2237, New Orleans, Louisiana. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Pfeiffer et al. (2020) Jonas Pfeiffer, Ivan Vulić, Iryna Gurevych, and Sebastian Ruder. 2020. MAD-X: An Adapter-Based Framework for Multi-Task Cross-Lingual Transfer . In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 7654–7673, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Pilehvar and Camacho-Collados (2018) Mohammad Taher Pilehvar and Jose Camacho-Collados. 2018. WiC: 10,000 example pairs for evaluating context-sensitive representations . CoRR , abs/1808.09121.</p>
+</li>
+<li>
+<p>Qin and Eisner (2021) Guanghui Qin and Jason Eisner. 2021. Learning how to ask: Querying LMs with mixtures of soft prompts . In Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , pages 5203–5212, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Radford et al. (2018) Alec Radford, Karthik Narasimhan, Tim Salimans, and Ilya Sutskever. 2018. Improving language understanding by generative pre-training .</p>
+</li>
+<li>
+<p>Radford et al. (2019) Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners . OpenAI Blog .</p>
+</li>
+<li>
+<p>Raffel et al. (2020) Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J. Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer . Journal of Machine Learning Research , 21(140):1–67.</p>
+</li>
+<li>
+<p>Rajpurkar et al. (2016) Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. SQuAD: 100,000+ questions for machine comprehension of text . In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing , pages 2383–2392, Austin, Texas. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Rebuffi et al. (2017) Sylvestre-Alvise Rebuffi, Hakan Bilen, and Andrea Vedaldi. 2017. Learning multiple visual domains with residual adapters . In Advances in Neural Information Processing Systems , volume 30. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Roemmele et al. (2011) Melissa Roemmele, Cosmin Adrian Bejan, and Andrew S Gordon. 2011. Choice of plausible alternatives: An evaluation of commonsense causal reasoning. In 2011 AAAI Spring Symposium Series .</p>
+</li>
+<li>
+<p>Saha et al. (2018) Amrita Saha, Rahul Aralikatte, Mitesh M. Khapra, and Karthik Sankaranarayanan. 2018. DuoRC: Towards complex language understanding with paraphrased reading comprehension . In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 1683–1693, Melbourne, Australia. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Schick and Schütze (2021) Timo Schick and Hinrich Schütze. 2021. Exploiting cloze-questions for few-shot text classification and natural language inference . In Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume , pages 255–269, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Shazeer (2020) Noam Shazeer. 2020. GLU variants improve transformer . CoRR , abs/2002.05202.</p>
+</li>
+<li>
+<p>Shazeer and Stern (2018) Noam Shazeer and Mitchell Stern. 2018. Adafactor: Adaptive learning rates with sublinear memory cost . In Proceedings of the 35th International Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , pages 4596–4604. PMLR.</p>
+</li>
+<li>
+<p>Shin et al. (2020) Taylor Shin, Yasaman Razeghi, Robert L. Logan IV, Eric Wallace, and Sameer Singh. 2020. AutoPrompt: Eliciting Knowledge from Language Models with Automatically Generated Prompts . In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 4222–4235, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Vaswani et al. (2017) Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need . In Advances in Neural Information Processing Systems , volume 30, pages 5998–6008.</p>
+</li>
+<li>
+<p>Wang et al. (2019a) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel Bowman. 2019a. SuperGLUE: A stickier benchmark for general-purpose language understanding systems . In Advances in Neural Information Processing Systems , volume 32. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Wang et al. (2019b) Alex Wang, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2019b. GLUE: A multi-task benchmark and analysis platform for natural language understanding. In the Proceedings of ICLR.</p>
+</li>
+<li>
+<p>Waskom (2021) Michael L. Waskom. 2021. seaborn: statistical data visualization . Journal of Open Source Software , 6(60):3021.</p>
+</li>
+<li>
+<p>Zhang et al. (2018) Sheng Zhang, Xiaodong Liu, Jingjing Liu, Jianfeng Gao, Kevin Duh, and Benjamin Van Durme. 2018. ReCoRD: Bridging the gap between human and machine commonsense reading comprehension . CoRR , abs/1810.12885.</p>
+</li>
+</ul>
+<h2 id="再现性">再现性<a class="headerlink" href="#再现性" title="Permanent link">&para;</a></h2>
+<h3 id="a1-实验设置">A.1 实验设置<a class="headerlink" href="#a1-实验设置" title="Permanent link">&para;</a></h3>
+<p>我们使用基准测试中指定的指标来评估每个 GLUE 和 SuperGLUE 数据集。我们重用公开的 T5 开源版本中的评估代码来计算指标。 <sup id="fnref:footnote12"><a class="footnote-ref" href="#fn:footnote12">12</a></sup> 对于 SQuAD 和 MRQA 数据集，我们使用 F1 进行评估，F1 是 SQuAD 基准测试使用的指标之一，其中考虑了部分答案范围。同样，我们使用 T5 开源版本进行指标计算。 <sup id="fnref:footnote13"><a class="footnote-ref" href="#fn:footnote13">13</a></sup> 我们所有的模型都使用 T5 1.1 作为基础冻结模型，其他详细信息和预训练检查点可以在 GitHub 上找到。 <sup id="fnref:footnote14"><a class="footnote-ref" href="#fn:footnote14">14</a></sup> <sup id="fnref:footnote15"><a class="footnote-ref" href="#fn:footnote15">15</a></sup></p>
+<p>T5 Small 和 Base 模型的所有提示均在 <span class="arithmatex">\(4\)</span> TPU v2 芯片上进行训练，而较大模型的提示则在 <span class="arithmatex">\(16\)</span> TPU v3 芯片上进行训练。</p>
+<table>
+<thead>
+<tr>
+<th>T5尺寸</th>
+<th>提示长度</th>
+<th>可训练参数</th>
+<th>总参数</th>
+<th>可训练百分比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小号</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(76{,}961{,}664\)</span></td>
+<td><span class="arithmatex">\(0.00067\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(2{,}560\)</span></td>
+<td><span class="arithmatex">\(76{,}963{,}712\)</span></td>
+<td><span class="arithmatex">\(0.00333\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(10{,}420\)</span></td>
+<td><span class="arithmatex">\(76{,}971{,}572\)</span></td>
+<td><span class="arithmatex">\(0.01330\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(25{,}600\)</span></td>
+<td><span class="arithmatex">\(76{,}986{,}752\)</span></td>
+<td><span class="arithmatex">\(0.03325\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(51{,}200\)</span></td>
+<td><span class="arithmatex">\(77{,}012{,}352\)</span></td>
+<td><span class="arithmatex">\(0.06648\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(76{,}800\)</span></td>
+<td><span class="arithmatex">\(77{,}037{,}952\)</span></td>
+<td><span class="arithmatex">\(0.09969\)</span> %</td>
+</tr>
+<tr>
+<td>基地</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(768\)</span></td>
+<td><span class="arithmatex">\(247{,}578{,}624\)</span></td>
+<td><span class="arithmatex">\(0.00031\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(3{,}840\)</span></td>
+<td><span class="arithmatex">\(247{,}581{,}696\)</span></td>
+<td><span class="arithmatex">\(0.00155\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(15{,}360\)</span></td>
+<td><span class="arithmatex">\(247{,}593{,}216\)</span></td>
+<td><span class="arithmatex">\(0.00620\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(38{,}400\)</span></td>
+<td><span class="arithmatex">\(247{,}616{,}256\)</span></td>
+<td><span class="arithmatex">\(0.01551\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(76{,}800\)</span></td>
+<td><span class="arithmatex">\(247{,}654{,}656\)</span></td>
+<td><span class="arithmatex">\(0.03101\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(115{,}200\)</span></td>
+<td><span class="arithmatex">\(247{,}693{,}056\)</span></td>
+<td><span class="arithmatex">\(0.04651\)</span> %</td>
+</tr>
+<tr>
+<td>大号</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(1{,}024\)</span></td>
+<td><span class="arithmatex">\(783{,}151{,}104\)</span></td>
+<td><span class="arithmatex">\(0.00013\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(5{,}120\)</span></td>
+<td><span class="arithmatex">\(783{,}155{,}200\)</span></td>
+<td><span class="arithmatex">\(0.00065\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(20{,}480\)</span></td>
+<td><span class="arithmatex">\(783{,}170{,}560\)</span></td>
+<td><span class="arithmatex">\(0.00262\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(51{,}200\)</span></td>
+<td><span class="arithmatex">\(783{,}201{,}280\)</span></td>
+<td><span class="arithmatex">\(0.00654\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(102{,}400\)</span></td>
+<td><span class="arithmatex">\(783{,}252{,}480\)</span></td>
+<td><span class="arithmatex">\(0.01907\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(153{,}600\)</span></td>
+<td><span class="arithmatex">\(783{,}303{,}680\)</span></td>
+<td><span class="arithmatex">\(0.01961\)</span> %</td>
+</tr>
+<tr>
+<td>XL</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(2{,}048\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}759{,}232\)</span></td>
+<td><span class="arithmatex">\(0.00007\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(10{,}240\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}767{,}424\)</span></td>
+<td><span class="arithmatex">\(0.00036\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(40{,}960\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}798{,}144\)</span></td>
+<td><span class="arithmatex">\(0.00143\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(102{,}400\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}859{,}584\)</span></td>
+<td><span class="arithmatex">\(0.00359\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(204{,}800\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}961{,}984\)</span></td>
+<td><span class="arithmatex">\(0.00718\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(307{,}200\)</span></td>
+<td><span class="arithmatex">\(2{,}850{,}064{,}384\)</span></td>
+<td><span class="arithmatex">\(0.01078\)</span> %</td>
+</tr>
+<tr>
+<td>特大码</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(4{,}096\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}336{,}448\)</span></td>
+<td><span class="arithmatex">\(0.00004\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(20{,}480\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}352{,}832\)</span></td>
+<td><span class="arithmatex">\(0.00018\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(81{,}920\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}414{,}272\)</span></td>
+<td><span class="arithmatex">\(0.00074\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(204{,}800\)</span></td>
+<td><span class="arithmatex">\(11{,}137{,}380{,}352\)</span></td>
+<td><span class="arithmatex">\(0.00184\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(409{,}600\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}741{,}952\)</span></td>
+<td><span class="arithmatex">\(0.00368\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(614{,}400\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}946{,}752\)</span></td>
+<td><span class="arithmatex">\(0.00552\)</span> %</td>
+</tr>
+</tbody>
+</table>
+<p>表 4：用于各种提示长度和 T5 模型尺寸的参数数量。可训练参数是提示本身的参数数量，而总参数包括提示加上原始 T5 参数。 T5 参数被冻结并在所有任务之间共享，并且包括 SentencePiece 查找表参数。最后一列是可训练参数总数的百分比。</p>
+<p>每个提示的参数计数可在表 4 中找到。收敛之前的平均运行时间可以在表 5 中找到。</p>
+<table>
+<thead>
+<tr>
+<th>提示长度</th>
+<th>T5尺寸</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>大号</td>
+<td>3:17 <span class="arithmatex">\(\pm\)</span> 02:10</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>3:37 <span class="arithmatex">\(\pm\)</span> 02:11</td>
+</tr>
+<tr>
+<td></td>
+<td>特大码</td>
+<td>21:23 <span class="arithmatex">\(\pm\)</span> 01:54</td>
+</tr>
+<tr>
+<td>20</td>
+<td>XL</td>
+<td>49:08 <span class="arithmatex">\(\pm\)</span> 18:53</td>
+</tr>
+<tr>
+<td></td>
+<td>特大码</td>
+<td>53:03 <span class="arithmatex">\(\pm\)</span> 16:25</td>
+</tr>
+<tr>
+<td>50</td>
+<td>小号</td>
+<td>09:05 <span class="arithmatex">\(\pm\)</span> 05:07</td>
+</tr>
+<tr>
+<td></td>
+<td>基地</td>
+<td>55:01 <span class="arithmatex">\(\pm\)</span> 27:48</td>
+</tr>
+<tr>
+<td></td>
+<td>大号</td>
+<td>1:14:16 <span class="arithmatex">\(\pm\)</span> 13:12</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>2:30:10 <span class="arithmatex">\(\pm\)</span> 25:40</td>
+</tr>
+<tr>
+<td></td>
+<td>特大码</td>
+<td>3:13:13 <span class="arithmatex">\(\pm\)</span> 23:08</td>
+</tr>
+<tr>
+<td>100</td>
+<td>小号</td>
+<td>16:25 <span class="arithmatex">\(\pm\)</span> 01:15</td>
+</tr>
+<tr>
+<td></td>
+<td>基地</td>
+<td>29:57 <span class="arithmatex">\(\pm\)</span> 00:18</td>
+</tr>
+<tr>
+<td></td>
+<td>大号</td>
+<td>1:23:36 <span class="arithmatex">\(\pm\)</span> 10:21</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>3:35:00 <span class="arithmatex">\(\pm\)</span> 54:42</td>
+</tr>
+<tr>
+<td></td>
+<td>特大码</td>
+<td>3:51:15 <span class="arithmatex">\(\pm\)</span> 45:53</td>
+</tr>
+</tbody>
+</table>
+<p>表 5：BoolQ 数据集以及各种提示长度和模型大小收敛之前运行时间的平均值和标准差。收敛定义为达到该模型配置平均值的 <span class="arithmatex">\(1\)</span> % 范围内的性能。一些配置已被省略，因为它们的运行时间由于抢占而被人为延长。</p>
+<h3 id="a2-超参数搜索">A.2 超参数搜索<a class="headerlink" href="#a2-超参数搜索" title="Permanent link">&para;</a></h3>
+<p>这项工作使用了 <span class="arithmatex">\(77\)</span> 超参数搜索试验（<span class="arithmatex">\(40\)</span> 用于提示调整，<span class="arithmatex">\(37\)</span> 用于单任务模型调整），以及每个基线配置和消融设置的 <span class="arithmatex">\(3\)</span> 训练运行（带有验证评估），总共 <span class="arithmatex">\(195\)</span> 运行用于我们的主要结果和消融。还进行了额外的 <span class="arithmatex">\(18\)</span> 运行用于域转移实验，并进行了 <span class="arithmatex">\(24\)</span> 额外运行来创建整体。超参数范围可在表 6 中找到。超参数调整是通过手动调整完成的，并根据 SuperGLUE 分数选择设置。这项工作中的所有实验，除了被消除的超参数之外，都使用我们的默认配置，即 100K 步的 LM 自适应、提示长度为 100 以及“类标签”初始化。</p>
+<p>我们实验结果的所有图表都绘制了由 Seaborn Waskom (2021) 计算的 3 次运行的平均值和标准差。某些设置的方差非常低，以至于标准差隐藏在线条本身后面，例如图 1 中的“模型调整（多任务）”以及图 3(b) 中根据“跨度损坏”预训练目标训练的 Base、Large 和 XL 提示。图 4 还显示了每种方法使用的参数数量的平均值和标准差，因为提示长度从 <span class="arithmatex">\(1\)</span> – <span class="arithmatex">\(100\)</span> 变化。 “前缀调整（训练）”曲线似乎没有标准偏差，因为参数计数很大程度上受重参数化参数的成本支配，以至于标准偏差带被遮挡。对于域转移实验，我们报告了 3 次运行的平均值和标准差。</p>
+<table>
+<thead>
+<tr>
+<th>超参数</th>
+<th>搜索空间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学习率</td>
+<td><span class="arithmatex">\(0.001\)</span> – <span class="arithmatex">\(0.5\)</span></td>
+</tr>
+<tr>
+<td>参数缩放</td>
+<td><span class="arithmatex">\(\{\)</span> 真，假 <span class="arithmatex">\(\}\)</span></td>
+</tr>
+<tr>
+<td>批量大小</td>
+<td><span class="arithmatex">\(\{32,64,126,256,512\}\)</span></td>
+</tr>
+<tr>
+<td>步数</td>
+<td><span class="arithmatex">\(\{10{,}000,20{,}000,30{,}000\}\)</span></td>
+</tr>
+<tr>
+<td>热身步骤</td>
+<td><span class="arithmatex">\(\{\text{off},2{,}000,3{,}000\}\)</span></td>
+</tr>
+<tr>
+<td>衰减因子</td>
+<td><span class="arithmatex">\(\{\text{off},0.1,0.5\}\)</span></td>
+</tr>
+<tr>
+<td>每次衰减步数</td>
+<td><span class="arithmatex">\(\{\text{off},4{,}000,6{,}000,8{,}000\}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 6：考虑的每个超参数的搜索空间。参数缩放是指 Adafactor 设置，其中更新按其将应用的参数范数进行缩放。预热步骤是线性增加的学习率达到学习率值之前的步骤数，从零开始。衰减因子是每个“每次衰减的步数”步骤发生的学习率大小的减少。</p>
+<h3 id="a3-数据集">A.3 数据集<a class="headerlink" href="#a3-数据集" title="Permanent link">&para;</a></h3>
+<p>使用的所有数据集均为英文。对于 GLUE <sup id="fnref:footnote16"><a class="footnote-ref" href="#fn:footnote16">16</a></sup> 、 <sup id="fnref:footnote17"><a class="footnote-ref" href="#fn:footnote17">17</a></sup> 和 SuperGLUE <sup id="fnref:footnote18"><a class="footnote-ref" href="#fn:footnote18">18</a></sup> 数据集，我们使用了 TensorFlow 数据集附带的训练、验证和测试分割。我们对 GLUE 使用版本 1.0.0，对 SuperGLUE 数据集使用版本 1.0.2。对于 SQuAD <sup id="fnref:footnote19"><a class="footnote-ref" href="#fn:footnote19">19</a></sup>，我们使用 Tensorflow 数据集中的 v1.1:3.0.0，并遵循提供的训练、验证和测试拆分。对于域外数据集，我们使用作为 MRQA 共享任务的一部分分发的开发拆分。 <sup id="fnref:footnote20"><a class="footnote-ref" href="#fn:footnote20">20</a></sup> 数据集大小可在表 7 中找到。每个数据集的标签分布可在表 8 (BoolQ)、表 9 (CB)、表 10 (COPA)、表 11 (MultiRC)、表 14 (RTE)、表 12 (WiC)、表 13 (WSC)、表 15 (MRPC) 和表 16 (QQP) 中找到。</p>
+<table>
+<thead>
+<tr>
+<th>数据集</th>
+<th>培训</th>
+<th>验证</th>
+<th>测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>布尔Q</td>
+<td><span class="arithmatex">\(9{,}427\)</span></td>
+<td><span class="arithmatex">\(3{,}270\)</span></td>
+<td><span class="arithmatex">\(3{,}245\)</span></td>
+</tr>
+<tr>
+<td>CB</td>
+<td><span class="arithmatex">\(250\)</span></td>
+<td><span class="arithmatex">\(56\)</span></td>
+<td><span class="arithmatex">\(250\)</span></td>
+</tr>
+<tr>
+<td>科帕</td>
+<td><span class="arithmatex">\(400\)</span></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(500\)</span></td>
+</tr>
+<tr>
+<td>多RC</td>
+<td><span class="arithmatex">\(27{,}243\)</span></td>
+<td><span class="arithmatex">\(4{,}848\)</span></td>
+<td><span class="arithmatex">\(9{,}693\)</span></td>
+</tr>
+<tr>
+<td>记录</td>
+<td><span class="arithmatex">\(100{,}730\)</span></td>
+<td><span class="arithmatex">\(10{,}000\)</span></td>
+<td><span class="arithmatex">\(10{,}000\)</span></td>
+</tr>
+<tr>
+<td>即时通讯</td>
+<td><span class="arithmatex">\(2{,}490\)</span></td>
+<td><span class="arithmatex">\(277\)</span></td>
+<td><span class="arithmatex">\(3{,}000\)</span></td>
+</tr>
+<tr>
+<td>无线通信</td>
+<td><span class="arithmatex">\(5{,}428\)</span></td>
+<td><span class="arithmatex">\(638\)</span></td>
+<td><span class="arithmatex">\(1{,}400\)</span></td>
+</tr>
+<tr>
+<td>世界科学委员会</td>
+<td><span class="arithmatex">\(259^{*}\)</span></td>
+<td><span class="arithmatex">\(104\)</span></td>
+<td><span class="arithmatex">\(146\)</span></td>
+</tr>
+<tr>
+<td>物料循环过程控制</td>
+<td><span class="arithmatex">\(3{,}668\)</span></td>
+<td><span class="arithmatex">\(408\)</span></td>
+<td><span class="arithmatex">\(1{,}725\)</span></td>
+</tr>
+<tr>
+<td>QQP</td>
+<td><span class="arithmatex">\(363{,}849\)</span></td>
+<td><span class="arithmatex">\(40{,}430\)</span></td>
+<td><span class="arithmatex">\(390{,}965\)</span></td>
+</tr>
+<tr>
+<td>小队</td>
+<td><span class="arithmatex">\(87{,}599\)</span></td>
+<td><span class="arithmatex">\(10{,}570\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>教科书质量保证</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}504\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>种族</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}503\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>生物ASQ</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}501\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>稀土</td>
+<td>-</td>
+<td><span class="arithmatex">\(674\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>杜奥RC</td>
+<td>-</td>
+<td><span class="arithmatex">\(2{,}948\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>丢弃</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}503\)</span></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>表 7：所使用的每个数据集的训练、验证和测试分割的大小。 * 在 T5 之后，我们将 WSC 转换为文本生成问题，这意味着我们只能在所提供的指称正确的示例上进行训练。这意味着我们的训练数据集比正常的 WSC 训练数据集小，后者包含 <span class="arithmatex">\(554\)</span> 示例。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>错误</th>
+<th>真实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(37.7\)</span></td>
+<td><span class="arithmatex">\(62.3\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(37.8\)</span></td>
+<td><span class="arithmatex">\(62.2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 8：BoolQ 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>矛盾</th>
+<th>蕴含</th>
+<th>中立的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(47.6\)</span></td>
+<td><span class="arithmatex">\(46.0\)</span></td>
+<td><span class="arithmatex">\(6.4\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(41.1\)</span></td>
+<td><span class="arithmatex">\(8.9\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 9：CB 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>选择1</th>
+<th>选择2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(48.8\)</span></td>
+<td><span class="arithmatex">\(51.2\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(55.0\)</span></td>
+<td><span class="arithmatex">\(45.0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 10：COPA 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>错误</th>
+<th>真实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(55.9\)</span></td>
+<td><span class="arithmatex">\(44.1\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(57.2\)</span></td>
+<td><span class="arithmatex">\(42.8\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 11：MultiRC 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>错误</th>
+<th>真实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 12：WiC 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>错误</th>
+<th>真实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(0.0\)</span></td>
+<td><span class="arithmatex">\(100.0\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(63.5\)</span></td>
+<td><span class="arithmatex">\(36.5\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 13：WSC 数据集的标签分布。在 T5 之后，我们将 WSC 数据集转换为自由格式文本生成任务，其中模型生成突出显示范围的指称，而不是预测提供的实体是否是突出显示范围的正确指称。因此，我们只使用所提供的指示物正确的训练数据，使我们的训练标签分布完全集中在 True 上。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>蕴含</th>
+<th>不蕴涵</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(51.2\)</span></td>
+<td><span class="arithmatex">\(49.8\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(52.7\)</span></td>
+<td><span class="arithmatex">\(47.3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 14：RTE 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>同等</th>
+<th>不等同</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(67.4\)</span></td>
+<td><span class="arithmatex">\(32.6\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(68.4\)</span></td>
+<td><span class="arithmatex">\(31.6\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 15：MRPC 数据集的标签分布。</p>
+<table>
+<thead>
+<tr>
+<th>斯普利特</th>
+<th>重复的</th>
+<th>不重复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>培训</td>
+<td><span class="arithmatex">\(36.9\)</span></td>
+<td><span class="arithmatex">\(63.1\)</span></td>
+</tr>
+<tr>
+<td>验证</td>
+<td><span class="arithmatex">\(36.8\)</span></td>
+<td><span class="arithmatex">\(63.2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>表 16：QQP 数据集的标签分布。</p>
+<p>问答数据集是具有各种答案的提取数据集，因此无需报告标签分布。类似地，ReCoRD 数据集是一个多项选择数据集，其中模型必须从可能的实体列表中预测被屏蔽的实体。由于这种表述，没有有意义的标签分布。</p>
+<p>我们对每个数据集都遵循开源 T5 预处理过程 <sup id="fnref:footnote21"><a class="footnote-ref" href="#fn:footnote21">21</a></sup>，只是我们省略了表示示例所属 SuperGLUE 数据集的数据集前缀。对于 SQuAD 和 MRQA 数据集，我们使用 T5 SQuAD 预处理代码 <sup id="fnref:footnote22"><a class="footnote-ref" href="#fn:footnote22">22</a></sup> 。通过遵循 T5 预处理和文本到文本格式，我们将 WSC 数据集重新构建为文本生成任务。我们的模型不是预测所提供的指示对象对于突出显示的范围是否正确，而是直接预测正确的指示对象。因此，我们只能从指示对象正确的训练示例中学习，因此所提供的指示对象不正确的 WSC 训练数据将被忽略。</p>
+<p>这项工作没有收集新数据。</p>
+<h2 id="脚注">脚注<a class="headerlink" href="#脚注" title="Permanent link">&para;</a></h2>
+<p>作为 Google AI 常驻人员完成的工作。</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p>这些改进是 (1) 从预训练中删除所有监督数据，(2) 对超参数 <span class="arithmatex">\(d_{\text{model}}\)</span> 和 <span class="arithmatex">\(d_{f\!f}\)</span> 进行调整，以及 (3) 在 ReLU Nair 和 Hinton (2010) 激活上使用 GeGLU Shazeer (2020)。&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p>任务是 BoolQ Clark 等人。 (2019)，CB De Marneff 等人。 (2019)，COPA Roemmele 等人。 (2011)，MultiRC Khashabi 等人。 (2018)，ReCoRD 张等人。 (2018)，RTE Dagan 等人。 (2005);巴尔-海姆等人。 (2006);詹皮科洛等人。 (2007);本蒂沃利等人。 (2009)、WiC Pilehvar 和 Camacho-Collados (2018) 以及 WSC Levesque 等人。 （2012）。&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p>为了改进此基线，我们对批次大小超参数进行了扫描，并为每批次选择了 <span class="arithmatex">\(2^{16}\)</span> token。&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote4">
+<p>T5 SuperGLUE 提交使用了更复杂的设置，首先将多任务监督数据混合到预训练中，然后进行单任务微调。由于我们自始至终都使用 T5.1.1，因此此设置不可用，因为预训练阶段是完全自我监督的。我们关注拉斐尔等人。 (2020) 每批使用 <span class="arithmatex">\(2^{20}\)</span> token并将 DPR 数据包含在多任务混合中，众所周知，这可以提高 WSC 任务性能 Kocijan 等人。 （2019）。&#160;<a class="footnote-backref" href="#fnref:footnote4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote5">
+<p>我们还尝试直接将 GPT-3 的手动文本提示与我们的 LM 适配的 T5 检查点一起使用。然而，对于可比较的模型大小，性能远低于 GPT-3。这可能是由于预训练数据和模型架构的差异，以及T5的序列长度较短造成的。&#160;<a class="footnote-backref" href="#fnref:footnote5" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote6">
+<p>对于较大的模型来说，超越 <span class="arithmatex">\(100\)</span> token似乎有点不利。 Li 和Liang (2021) 观察到了类似的性能下降模式，超过一定的前缀长度。&#160;<a class="footnote-backref" href="#fnref:footnote6" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote7">
+<p>T5 处理 ReCoRD 和 WSC 任务需要模型生成简短的自由格式文本。在这些情况下，我们用与任务相关的单词初始化提示：ReCoRD 的 commonsense 、 Reasoning 、 Reading 和 commplementation 以及 WSC 的 commonsense 、 pronoun 和 resolution 。&#160;<a class="footnote-backref" href="#fnref:footnote7" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote8">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/main/released_checkpoints.md##lm-adapted-t511lm100k&#160;<a class="footnote-backref" href="#fnref:footnote8" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote9">
+<p>为了与提示设计进行比较，我们将提示中的每个令牌 ID 作为参数，并假设提示在 <span class="arithmatex">\(500\)</span> – <span class="arithmatex">\(2000\)</span> 令牌之间，以匹配 GPT-3 设置。虽然该技术是迄今为止参数效率最高的技术，但它是以任务质量为代价的。&#160;<a class="footnote-backref" href="#fnref:footnote9" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote10">
+<p>另一个区别是，P 调优需要在输入中添加“锚”标记（例如，RTE 任务中的假设后面的问号）以实现强大的性能，而即时调优则保持输入不变。&#160;<a class="footnote-backref" href="#fnref:footnote10" title="Jump back to footnote 10 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote11">
+<p>我们根据 SQuAD 验证 F1 选择检查点。域外数据集是 TextbookQA Kembhavi 等人。 (2017)，RACE Lai 等人。 (2017)，BioASQ (http://bioasq.org/)，RE Levy 等人。 (2017)，DuoRC Saha 等人。 (2018) 和 DROP Dua 等人。 （2019）。&#160;<a class="footnote-backref" href="#fnref:footnote11" title="Jump back to footnote 11 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote12">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/evaluation/metrics.py&#160;<a class="footnote-backref" href="#fnref:footnote12" title="Jump back to footnote 12 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote13">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/evaluation/metrics.py##L151&#160;<a class="footnote-backref" href="#fnref:footnote13" title="Jump back to footnote 13 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote14">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/released_checkpoints.md##t511&#160;<a class="footnote-backref" href="#fnref:footnote14" title="Jump back to footnote 14 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote15">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/main/released_checkpoints.md##lm-adapted-t511lm100k&#160;<a class="footnote-backref" href="#fnref:footnote15" title="Jump back to footnote 15 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote16">
+<p>https://www.tensorflow.org/datasets/catalog/glue##gluemrpc&#160;<a class="footnote-backref" href="#fnref:footnote16" title="Jump back to footnote 16 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote17">
+<p>https://www.tensorflow.org/datasets/catalog/glue##glueqqp&#160;<a class="footnote-backref" href="#fnref:footnote17" title="Jump back to footnote 17 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote18">
+<p>https://www.tensorflow.org/datasets/catalog/super_glue&#160;<a class="footnote-backref" href="#fnref:footnote18" title="Jump back to footnote 18 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote19">
+<p>https://www.tensorflow.org/datasets/catalog/squad##squadv11_default_config&#160;<a class="footnote-backref" href="#fnref:footnote19" title="Jump back to footnote 19 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote20">
+<p>https://github.com/mrqa/MRQA-Shared-Task-2019##out-of-domain&#160;<a class="footnote-backref" href="#fnref:footnote20" title="Jump back to footnote 20 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote21">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/data/preprocessors.py&#160;<a class="footnote-backref" href="#fnref:footnote21" title="Jump back to footnote 21 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote22">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/data/preprocessors.py##L264&#160;<a class="footnote-backref" href="#fnref:footnote22" title="Jump back to footnote 22 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../en/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Prompt-Tuning · 英文原文">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Prompt-Tuning · 英文原文
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--next" aria-label="下一页: QA-LoRA 论文研读：分组适配与量化模型的等价合并">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                QA-LoRA 论文研读：分组适配与量化模型的等价合并
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

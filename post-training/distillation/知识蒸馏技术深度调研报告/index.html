@@ -1,0 +1,7584 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../peft/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>知识蒸馏技术深度调研报告 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#知识蒸馏技术深度调研报告" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              知识蒸馏技术深度调研报告
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#llm--vlm--embedding-蒸馏理论方法产业实践与前沿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM / VLM / Embedding 蒸馏：理论、方法、产业实践与前沿
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-执行摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 执行摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-引言与基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 引言与基本概念
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 引言与基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-什么是知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 什么是知识蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-为什么需要蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 为什么需要蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-蒸馏的核心要素" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 蒸馏的核心要素
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-发展历程与范式演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 发展历程与范式演进
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 发展历程与范式演进">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-完整时间线" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 完整时间线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-四阶段演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 四阶段演进
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 四阶段演进">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-萌芽期20062014模型压缩" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 萌芽期（2006–2014）：模型压缩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#322-预训练语言模型期20182022transformer-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.2 预训练语言模型期（2018–2022）：Transformer 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-生成式大模型黑盒蒸馏期20222024指令与-cot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3 生成式大模型黑盒蒸馏期（2022–2024）：指令与 CoT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-白盒深度蒸馏与多模态嵌入蒸馏期2023-至今" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4 白盒深度蒸馏与多模态/嵌入蒸馏期（2023 至今）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-范式转变从压缩到能力迁移" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 范式转变：从压缩到能力迁移
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-知识类型演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 知识类型演进
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-理论基础与统一方法学" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 理论基础与统一方法学
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 理论基础与统一方法学">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-hinton-经典蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Hinton 经典蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-知识的三种层次gou-et-al-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 知识的三种层次（Gou et al., 2021）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-访问层级白盒-vs-黑盒" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 访问层级：白盒 vs 黑盒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-训练范式offline--online--self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 训练范式：offline / online / self
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-损失目标从-kl-到偏好优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 损失目标：从 KL 到偏好优化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-on-policy-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 On-Policy Distillation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-llm-知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. LLM 知识蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. LLM 知识蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-知识获取knowledge-elicitation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 知识获取（Knowledge Elicitation）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.1 知识获取（Knowledge Elicitation）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#511-labeling标注式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.1 Labeling（标注式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#512-expansion扩展式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.2 Expansion（扩展式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#513-curation策划式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.3 Curation（策划式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#514-feature--feedback--self-knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.4 Feature / Feedback / Self-Knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-白盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 白盒蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.2 白盒蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#521-logits-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.1 Logits-based
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#522-hint-based特征中间层" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.2 Hint-based（特征/中间层）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#523-序列级-vs-token-级" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.3 序列级 vs token 级
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-黑盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 黑盒蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3 黑盒蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-指令跟随蒸馏sft-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 指令跟随蒸馏（SFT 蒸馏）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#532-cot--推理轨迹蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.2 CoT / 推理轨迹蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#533-反馈偏好蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.3 反馈/偏好蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#534-agent-蒸馏前沿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.4 Agent 蒸馏（前沿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-蒸馏算法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 蒸馏算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.4 蒸馏算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#541-监督微调sft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.1 监督微调（SFT）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#542-散度最小化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.2 散度最小化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#543-强化学习蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.3 强化学习蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#544-排序优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.4 排序优化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-技能蒸馏skill-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 技能蒸馏（Skill Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-llm-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 LLM 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-vlm-知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. VLM 知识蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. VLM 知识蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-分类体系vlm-kd-survey-acl-2026-投稿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 分类体系（VLM-KD Survey, ACL 2026 投稿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-核心方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 核心方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 核心方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-llava-kd-cai-et-al-iccv-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 LLaVA-KD (Cai et al., ICCV 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-llava-mod-neurips-2024--iclr-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 LLaVA-MoD (NeurIPS 2024 / ICLR 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-genrecal-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 GenRecal (2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-align-kd-mobilevlm-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Align-KD (MobileVLM V2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-vlsi-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.5 VLsI (2024)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#636-其他相关实践" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.6 其他相关实践
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-vlm-蒸馏效果对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 VLM 蒸馏效果对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-vlm-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 VLM 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-开放问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 开放问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-embedding-模型蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Embedding 模型蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Embedding 模型蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-背景与动机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 背景与动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-核心方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 核心方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.3 核心方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#731-单-teacher-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.1 单 Teacher 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#732-jasper--stella-zhang-et-al-2024-arxiv241219048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.2 Jasper &amp; Stella (Zhang et al., 2024, arXiv:2412.19048)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#733-emo-emnlp-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.3 EMO (EMNLP 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#734-jina-embeddings-v5-text-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.4 jina-embeddings-v5-text (2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#735-qwen3-embedding-alibaba-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.5 Qwen3-Embedding (Alibaba, 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#736-macse-ijcnn-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.6 MaCSE (IJCNN 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#737-跨语言多阶段蒸馏-naacl-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.7 跨语言多阶段蒸馏 (NAACL 2022)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#738-维度自适应蒸馏mrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.8 维度自适应蒸馏（MRL）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-多模态嵌入蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 多模态嵌入蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-embedding-蒸馏的通用损失" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Embedding 蒸馏的通用损失
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-embedding-蒸馏实践对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 Embedding 蒸馏实践对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-embedding-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 Embedding 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-业界应用与代表性模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 业界应用与代表性模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 业界应用与代表性模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-llm-蒸馏里程碑" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 LLM 蒸馏里程碑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-deepseek-r1-distill-深度解析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 DeepSeek-R1-Distill 深度解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-产业平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 产业平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-vlm-蒸馏代表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 VLM 蒸馏代表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-embedding-蒸馏代表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Embedding 蒸馏代表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-前沿方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 前沿方向
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 前沿方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-推理蒸馏reasoning-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 推理蒸馏（Reasoning Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-agent-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Agent 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-在线--on-policy-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 在线 / On-Policy 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-自蒸馏与无-teacher-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 自蒸馏与无 Teacher 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-数据合成与数据高效蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.5 数据合成与数据高效蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#96-跨架构蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.6 跨架构蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#97-多教师蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.7 多教师蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#98-偏好蒸馏与对抗蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.8 偏好蒸馏与对抗蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#99-持续蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.9 持续蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#910-多模态统一蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.10 多模态统一蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-挑战与未来方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 挑战与未来方向
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 挑战与未来方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-当前挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 当前挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-开放问题对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 开放问题对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-未来方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 未来方向
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-未来趋势预测" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 未来趋势预测
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-实践指南与选型建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实践指南与选型建议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 实践指南与选型建议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-决策树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 决策树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-超参数建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 超参数建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-工具链推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 工具链推荐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-常见陷阱" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.4 常见陷阱
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 参考文献
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 参考文献">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#经典与基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        经典与基础
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预训练语言模型蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预训练语言模型蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-黑盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM 黑盒蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-白盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM 白盒蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeepSeek-R1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vlm-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VLM 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多模态嵌入" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        多模态嵌入
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#综述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        综述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-policy-distillation-与-reverse-kl-估计附录-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-Policy Distillation 与 Reverse KL 估计（附录 C）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-a术语表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 A：术语表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-b重要资源链接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 B：重要资源链接
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="附录 B：重要资源链接">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#论文合集与综述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        论文合集与综述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#开源工具与框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开源工具与框架
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#代表性模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        代表性模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#技术博客" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术博客
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#企业平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        企业平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-con-policy-distillation-延伸阅读" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 C：On-Policy Distillation 延伸阅读
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="附录 C：On-Policy Distillation 延伸阅读">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c1-第一层monte-carlo-估计-kl-期望建议优先" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.1 第一层：Monte Carlo 估计 KL 期望（建议优先）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c2-第二层on-policy-distillation-落地实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.2 第二层：On-Policy Distillation 落地实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c3-第三层期望-via-采样rl-通用背景" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.3 第三层：期望 via 采样（RL 通用背景）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c4-第四层综述与论文索引" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.4 第四层：综述与论文索引
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c5-精确-kl-vs-采样-kl-对照" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.5 精确 KL vs 采样 KL 对照
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../peft/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#llm--vlm--embedding-蒸馏理论方法产业实践与前沿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM / VLM / Embedding 蒸馏：理论、方法、产业实践与前沿
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-执行摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 执行摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-引言与基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 引言与基本概念
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 引言与基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-什么是知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 什么是知识蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-为什么需要蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 为什么需要蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-蒸馏的核心要素" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 蒸馏的核心要素
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-发展历程与范式演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 发展历程与范式演进
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 发展历程与范式演进">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-完整时间线" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 完整时间线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-四阶段演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 四阶段演进
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 四阶段演进">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-萌芽期20062014模型压缩" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 萌芽期（2006–2014）：模型压缩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#322-预训练语言模型期20182022transformer-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.2 预训练语言模型期（2018–2022）：Transformer 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-生成式大模型黑盒蒸馏期20222024指令与-cot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3 生成式大模型黑盒蒸馏期（2022–2024）：指令与 CoT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-白盒深度蒸馏与多模态嵌入蒸馏期2023-至今" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4 白盒深度蒸馏与多模态/嵌入蒸馏期（2023 至今）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-范式转变从压缩到能力迁移" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 范式转变：从压缩到能力迁移
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-知识类型演进" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 知识类型演进
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-理论基础与统一方法学" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 理论基础与统一方法学
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 理论基础与统一方法学">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-hinton-经典蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Hinton 经典蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-知识的三种层次gou-et-al-2021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 知识的三种层次（Gou et al., 2021）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-访问层级白盒-vs-黑盒" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 访问层级：白盒 vs 黑盒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-训练范式offline--online--self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 训练范式：offline / online / self
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-损失目标从-kl-到偏好优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 损失目标：从 KL 到偏好优化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-on-policy-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 On-Policy Distillation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-llm-知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. LLM 知识蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. LLM 知识蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-知识获取knowledge-elicitation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 知识获取（Knowledge Elicitation）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.1 知识获取（Knowledge Elicitation）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#511-labeling标注式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.1 Labeling（标注式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#512-expansion扩展式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.2 Expansion（扩展式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#513-curation策划式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.3 Curation（策划式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#514-feature--feedback--self-knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.4 Feature / Feedback / Self-Knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-白盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 白盒蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.2 白盒蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#521-logits-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.1 Logits-based
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#522-hint-based特征中间层" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.2 Hint-based（特征/中间层）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#523-序列级-vs-token-级" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.3 序列级 vs token 级
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-黑盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 黑盒蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3 黑盒蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-指令跟随蒸馏sft-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 指令跟随蒸馏（SFT 蒸馏）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#532-cot--推理轨迹蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.2 CoT / 推理轨迹蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#533-反馈偏好蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.3 反馈/偏好蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#534-agent-蒸馏前沿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.4 Agent 蒸馏（前沿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-蒸馏算法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 蒸馏算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.4 蒸馏算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#541-监督微调sft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.1 监督微调（SFT）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#542-散度最小化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.2 散度最小化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#543-强化学习蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.3 强化学习蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#544-排序优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.4 排序优化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-技能蒸馏skill-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 技能蒸馏（Skill Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-llm-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 LLM 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-vlm-知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. VLM 知识蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. VLM 知识蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-分类体系vlm-kd-survey-acl-2026-投稿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 分类体系（VLM-KD Survey, ACL 2026 投稿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-核心方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 核心方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 核心方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-llava-kd-cai-et-al-iccv-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 LLaVA-KD (Cai et al., ICCV 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-llava-mod-neurips-2024--iclr-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 LLaVA-MoD (NeurIPS 2024 / ICLR 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-genrecal-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 GenRecal (2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-align-kd-mobilevlm-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Align-KD (MobileVLM V2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-vlsi-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.5 VLsI (2024)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#636-其他相关实践" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.6 其他相关实践
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-vlm-蒸馏效果对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 VLM 蒸馏效果对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-vlm-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 VLM 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-开放问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 开放问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-embedding-模型蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Embedding 模型蒸馏
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Embedding 模型蒸馏">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-背景与动机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 背景与动机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-核心方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 核心方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.3 核心方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#731-单-teacher-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.1 单 Teacher 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#732-jasper--stella-zhang-et-al-2024-arxiv241219048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.2 Jasper &amp; Stella (Zhang et al., 2024, arXiv:2412.19048)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#733-emo-emnlp-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.3 EMO (EMNLP 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#734-jina-embeddings-v5-text-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.4 jina-embeddings-v5-text (2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#735-qwen3-embedding-alibaba-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.5 Qwen3-Embedding (Alibaba, 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#736-macse-ijcnn-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.6 MaCSE (IJCNN 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#737-跨语言多阶段蒸馏-naacl-2022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.7 跨语言多阶段蒸馏 (NAACL 2022)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#738-维度自适应蒸馏mrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3.8 维度自适应蒸馏（MRL）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-多模态嵌入蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 多模态嵌入蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-embedding-蒸馏的通用损失" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Embedding 蒸馏的通用损失
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-embedding-蒸馏实践对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 Embedding 蒸馏实践对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-embedding-蒸馏方法对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 Embedding 蒸馏方法对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-业界应用与代表性模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 业界应用与代表性模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 业界应用与代表性模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-llm-蒸馏里程碑" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 LLM 蒸馏里程碑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-deepseek-r1-distill-深度解析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 DeepSeek-R1-Distill 深度解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-产业平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 产业平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-vlm-蒸馏代表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 VLM 蒸馏代表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-embedding-蒸馏代表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Embedding 蒸馏代表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-前沿方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 前沿方向
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 前沿方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-推理蒸馏reasoning-distillation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 推理蒸馏（Reasoning Distillation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-agent-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Agent 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-在线--on-policy-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 在线 / On-Policy 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-自蒸馏与无-teacher-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 自蒸馏与无 Teacher 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-数据合成与数据高效蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.5 数据合成与数据高效蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#96-跨架构蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.6 跨架构蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#97-多教师蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.7 多教师蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#98-偏好蒸馏与对抗蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.8 偏好蒸馏与对抗蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#99-持续蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.9 持续蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#910-多模态统一蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.10 多模态统一蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-挑战与未来方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 挑战与未来方向
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 挑战与未来方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-当前挑战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 当前挑战
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-开放问题对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 开放问题对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-未来方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 未来方向
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-未来趋势预测" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 未来趋势预测
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-实践指南与选型建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 实践指南与选型建议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 实践指南与选型建议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-决策树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 决策树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-超参数建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 超参数建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-工具链推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 工具链推荐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-常见陷阱" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.4 常见陷阱
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 参考文献
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 参考文献">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#经典与基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        经典与基础
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预训练语言模型蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预训练语言模型蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-黑盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM 黑盒蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-白盒蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM 白盒蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeepSeek-R1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vlm-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VLM 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding 蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多模态嵌入" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        多模态嵌入
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#综述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        综述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-policy-distillation-与-reverse-kl-估计附录-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-Policy Distillation 与 Reverse KL 估计（附录 C）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-a术语表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 A：术语表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-b重要资源链接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 B：重要资源链接
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="附录 B：重要资源链接">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#论文合集与综述" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        论文合集与综述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#开源工具与框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开源工具与框架
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#代表性模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        代表性模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#技术博客" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术博客
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#企业平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        企业平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-con-policy-distillation-延伸阅读" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 C：On-Policy Distillation 延伸阅读
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="附录 C：On-Policy Distillation 延伸阅读">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c1-第一层monte-carlo-估计-kl-期望建议优先" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.1 第一层：Monte Carlo 估计 KL 期望（建议优先）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c2-第二层on-policy-distillation-落地实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.2 第二层：On-Policy Distillation 落地实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c3-第三层期望-via-采样rl-通用背景" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.3 第三层：期望 via 采样（RL 通用背景）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c4-第四层综述与论文索引" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.4 第四层：综述与论文索引
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c5-精确-kl-vs-采样-kl-对照" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C.5 精确 KL vs 采样 KL 对照
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="知识蒸馏技术深度调研报告">知识蒸馏技术深度调研报告<a class="headerlink" href="#知识蒸馏技术深度调研报告" title="Permanent link">&para;</a></h1>
+<h2 id="llm--vlm--embedding-蒸馏理论方法产业实践与前沿">LLM / VLM / Embedding 蒸馏：理论、方法、产业实践与前沿<a class="headerlink" href="#llm--vlm--embedding-蒸馏理论方法产业实践与前沿" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>版本</strong>: v2.0<br />
+<strong>日期</strong>: 2026-07-10<br />
+<strong>说明</strong>: v2.0 合并综合版——整合原研究报告体（引言/方法学/DeepSeek-R1 深度解析）与 v1.0 调研实践指南（决策树/超参/AIME 成绩表）的全部独特内容<br />
+<strong>范围</strong>: 知识蒸馏（Knowledge Distillation, KD）在大型语言模型（LLM）、视觉语言模型（VLM）与文本嵌入模型（Embedding）中的理论、方法、产业应用与前沿进展</p>
+</blockquote>
+<hr />
+<h2 id="目录">目录<a class="headerlink" href="#目录" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-执行摘要">执行摘要</a></li>
+<li><a href="#2-引言与基本概念">引言与基本概念</a></li>
+<li><a href="#3-发展历程与范式演进">发展历程与范式演进</a></li>
+<li><a href="#4-理论基础与统一方法学">理论基础与统一方法学</a></li>
+<li><a href="#5-llm-知识蒸馏">LLM 知识蒸馏</a></li>
+<li><a href="#6-vlm-知识蒸馏">VLM 知识蒸馏</a></li>
+<li><a href="#7-embedding-模型蒸馏">Embedding 模型蒸馏</a></li>
+<li><a href="#8-业界应用与代表性模型">业界应用与代表性模型</a></li>
+<li><a href="#9-前沿方向">前沿方向</a></li>
+<li><a href="#10-挑战与未来方向">挑战与未来方向</a></li>
+<li><a href="#11-实践指南与选型建议">实践指南与选型建议</a></li>
+<li><a href="#12-参考文献">参考文献</a></li>
+</ol>
+<p><strong>附录</strong></p>
+<ul>
+<li><a href="#附录-a术语表">附录 A：术语表</a></li>
+<li><a href="#附录-b重要资源链接">附录 B：重要资源链接</a></li>
+<li><a href="#附录-con-policy-distillation-延伸阅读">附录 C：On-Policy Distillation 延伸阅读</a></li>
+</ul>
+<hr />
+<h2 id="1-执行摘要">1. 执行摘要<a class="headerlink" href="#1-执行摘要" title="Permanent link">&para;</a></h2>
+<p>知识蒸馏（Knowledge Distillation, KD）是一种<strong>模型压缩与知识迁移</strong>技术：用一个规模较大、性能更强的<strong>教师模型（Teacher）<strong>去指导训练一个规模较小、更易部署的</strong>学生模型（Student）</strong>，使学生在参数量、显存占用、推理延迟显著降低的前提下，尽可能保留教师的关键能力。</p>
+<p>其核心思想由 Hinton 等人于 2015 年正式提出：学生不仅学习硬标签（hard labels），更学习教师输出的<strong>软概率分布</strong>——即所谓 <strong>Dark Knowledge（暗知识）</strong>，从而获得比直接监督训练更强的泛化能力。</p>
+<p>在 2023 年之后，蒸馏的目标发生了根本性转变：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要目标</th>
+<th>典型 Teacher</th>
+<th>典型 Student</th>
+<th>核心手段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>经典 KD (2015–2022)</td>
+<td><strong>模型压缩</strong></td>
+<td>BERT、ResNet</td>
+<td>DistilBERT、MobileNet</td>
+<td>Logit/Feature 匹配</td>
+</tr>
+<tr>
+<td>LLM 时代 (2023–)</td>
+<td><strong>能力迁移</strong></td>
+<td>GPT-4、Claude、Llama-405B</td>
+<td>Llama-8B、Phi、Qwen</td>
+<td>合成数据 + SFT</td>
+</tr>
+<tr>
+<td>推理蒸馏 (2025–)</td>
+<td><strong>推理能力传递</strong></td>
+<td>DeepSeek-R1 (671B)</td>
+<td>R1-Distill 系列</td>
+<td>CoT 轨迹蒸馏</td>
+</tr>
+<tr>
+<td>多模态蒸馏</td>
+<td><strong>跨模态对齐</strong></td>
+<td>LLaVA、Qwen-VL</td>
+<td>SmolVLM、MobileVLM</td>
+<td>对齐层/关系蒸馏</td>
+</tr>
+</tbody>
+</table>
+<p><strong>三大关键结论：</strong></p>
+<ol>
+<li><strong>数据质量 &gt; 数据数量</strong>：Phi 系列、DeepSeek-R1-Distill 均证明，精心策划的合成数据（textbook-quality / reasoning traces）比海量低质数据更有效。</li>
+<li><strong>白盒蒸馏优于黑盒蒸馏</strong>：在可访问 Teacher logits 时，MiniLLM、GKD 等 On-Policy 白盒方法显著优于纯 API 输出的 SeqKD。</li>
+<li><strong>多模态蒸馏面临独特挑战</strong>：VLM 蒸馏不仅要传递语言知识，还需保持视觉-语言对齐；更强 Teacher 不一定产生更好 Student（CLIP-VQA 实验已验证）。</li>
+</ol>
+<p><strong>报告覆盖范围</strong>：本报告系统梳理知识蒸馏从经典计算机视觉时代到生成式大模型时代的发展脉络，分别针对 LLM、VLM 和 Embedding 三类核心模型，归纳其算法范式、训练目标、代表性工作与前沿方法，并结合 DeepSeek-R1、MiniLLM、LLaVA-KD、Qwen3-Embedding、Jasper 等典型案例分析业界落地实践，最后讨论当前挑战与未来方向。</p>
+<hr />
+<h2 id="2-引言与基本概念">2. 引言与基本概念<a class="headerlink" href="#2-引言与基本概念" title="Permanent link">&para;</a></h2>
+<h3 id="21-什么是知识蒸馏">2.1 什么是知识蒸馏<a class="headerlink" href="#21-什么是知识蒸馏" title="Permanent link">&para;</a></h3>
+<p>知识蒸馏是一种<strong>模型压缩与知识迁移</strong>技术：用一个规模较大、性能更强的<strong>教师模型（teacher）<strong>去指导训练一个规模较小、更易部署的</strong>学生模型（student）</strong>，使学生在参数量、显存占用、推理延迟显著降低的前提下，尽可能保留教师的关键能力。</p>
+<p>其与传统压缩技术（量化、剪枝）的本质区别在于：</p>
+<ul>
+<li><strong>量化 / 剪枝</strong>：对同一个已训练模型做后处理，不重新训练（或仅微调），保持原架构。</li>
+<li><strong>蒸馏</strong>：从零或从预训练权重出发<strong>重新训练一个新模型</strong>，学生可以有完全不同的架构，目标是让学生<strong>模仿教师的行为分布</strong>，而非复制权重。</li>
+</ul>
+<p>因此蒸馏通常能在同等参数量下取得比量化/剪枝更好的质量，但训练成本更高。</p>
+<h3 id="22-为什么需要蒸馏">2.2 为什么需要蒸馏<a class="headerlink" href="#22-为什么需要蒸馏" title="Permanent link">&para;</a></h3>
+<p>生成式大模型时代，蒸馏的动机更加多元：</p>
+<ol>
+<li><strong>部署成本</strong>：千亿参数教师模型推理昂贵，难以在端侧或高并发场景部署。</li>
+<li><strong>API 依赖</strong>：GPT-4/5、Claude、Gemini 等闭源大模型仅提供黑盒 API，无法直接复用权重，蒸馏是把其能力"固化"到自有开源模型的几乎唯一手段。</li>
+<li><strong>能力迁移</strong>：将强推理、长链思考（CoT）、工具调用、多模态理解等"涌现能力"从大模型迁移到小模型。</li>
+<li><strong>数据合成</strong>：教师模型作为高质量数据生成器，学生通过 SFT 学习合成数据（实质是数据层面的蒸馏）。</li>
+<li><strong>知识产权与合规</strong>：在合规范围内将能力沉淀到自主可控的轻量模型。</li>
+</ol>
+<h3 id="23-蒸馏的核心要素">2.3 蒸馏的核心要素<a class="headerlink" href="#23-蒸馏的核心要素" title="Permanent link">&para;</a></h3>
+<p>任何蒸馏系统都可拆解为三要素：</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>含义</th>
+<th>典型选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>知识（What）</strong></td>
+<td>从教师迁移什么</td>
+<td>logits、隐状态、注意力、关系、推理轨迹、合成数据、反馈信号</td>
+</tr>
+<tr>
+<td><strong>迁移方式（How）</strong></td>
+<td>用什么损失对齐师生</td>
+<td>KL 散度、MSE、对比损失、交叉熵、RL 奖励、DPO 偏好</td>
+</tr>
+<tr>
+<td><strong>访问层级（Access）</strong></td>
+<td>学生能看到教师的什么</td>
+<td>白盒（权重/激活）vs 黑盒（仅输出文本）</td>
+</tr>
+</tbody>
+</table>
+<p>这三要素的组合决定了蒸馏方法的具体形态，也是后续章节的分类主线。</p>
+<hr />
+<h2 id="3-发展历程与范式演进">3. 发展历程与范式演进<a class="headerlink" href="#3-发展历程与范式演进" title="Permanent link">&para;</a></h2>
+<p>知识蒸馏的发展大致可分为四个阶段，每个阶段都对应一类模型的兴起。</p>
+<h3 id="31-完整时间线">3.1 完整时间线<a class="headerlink" href="#31-完整时间线" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1965 ─ 层间回归剪枝（Ivakhnenko &amp; Lapa）
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>1991 ─ Schmidhuber：RNN 双网络互教（早期雏形）
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>2006 ─ Bucilă et al.：Model Compression（伪标签数据集蒸馏）
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>2015 ─ Hinton et al.：Distilling the Knowledge in a Neural Network ★ 现代 KD 奠基
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>2017 ─ FitNets：中间层 Hint 蒸馏
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>2019 ─ DistilBERT：NLP 领域首个大规模蒸馏实践（40% 更小，97% 性能）
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>2022 ─ Self-Instruct / Alpaca：LLM 黑盒蒸馏范式开启
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>2023 ─ Orca / WizardLM / MiniLLM / GKD：推理轨迹 + On-Policy 白盒蒸馏
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>2024 ─ DeepSeek-V2、Phi-4、R1 推理蒸馏、VLM-KD 系列
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>2025 ─ SigLIP 2 自蒸馏、GenRecal、EMO、R1-Distill 开源、On-Policy KD Survey
+</code></pre></div>
+<h3 id="32-四阶段演进">3.2 四阶段演进<a class="headerlink" href="#32-四阶段演进" title="Permanent link">&para;</a></h3>
+<h4 id="321-萌芽期20062014模型压缩">3.2.1 萌芽期（2006–2014）：模型压缩<a class="headerlink" href="#321-萌芽期20062014模型压缩" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>2006</strong>：Buciluǎ、Caruana、Niculescu-Mizil 在 <em>Model Compression</em> 中首次提出用大模型/集成生成伪标签训练小模型，对齐 logits。这是蒸馏的雏形。</li>
+<li><strong>2015</strong>：Hinton、Vinyals、Dean 发表 <em>Distilling the Knowledge in a Neural Network</em>（arXiv:1503.02531），正式提出"知识蒸馏"术语，引入<strong>温度参数 T</strong>软化 softmax 输出，让学生学习教师的软概率分布（"dark knowledge"）。这一公式至今仍是白盒 logits 蒸馏的基础。</li>
+</ul>
+<blockquote>
+<p>核心损失：<span class="arithmatex">\(\mathcal{L} = (1-\alpha)\,\mathrm{CE}(y, \sigma(z_s)) + \alpha\,T^2\,\mathrm{KL}(\sigma(z_t/T), \sigma(z_s/T))\)</span></p>
+</blockquote>
+<p>其中 <span class="arithmatex">\(z_t, z_s\)</span> 分别为教师/学生 logits，<span class="arithmatex">\(T\)</span> 为温度，<span class="arithmatex">\(\alpha\)</span> 为软硬目标权重。</p>
+<h4 id="322-预训练语言模型期20182022transformer-蒸馏">3.2.2 预训练语言模型期（2018–2022）：Transformer 蒸馏<a class="headerlink" href="#322-预训练语言模型期20182022transformer-蒸馏" title="Permanent link">&para;</a></h4>
+<p>BERT 等预训练模型兴起后，蒸馏向"中间层特征对齐"扩展：</p>
+<ul>
+<li><strong>DistilBERT (Sanh et al., 2019)</strong>：BERT 的 6 层蒸馏版本，参数量减少 40%，推理快 60%，保留约 97% 能力，使用三重损失（蒸馏 KL + MLM + 余弦相似度）。</li>
+<li><strong>TinyBERT (Jiao et al., 2020)</strong>：四阶段蒸馏，对齐嵌入层、隐状态、注意力矩阵、预测层，把 BERT 蒸馏到 4 层。</li>
+<li><strong>MiniLM (Wang et al., 2020)</strong>：只蒸馏最后几层的 value-relation（自注意力 <span class="arithmatex">\(VV^T\)</span>）和 logits，可跨架构迁移，成为后来大模型蒸馏的重要思路。</li>
+<li><strong>MobileBERT、BERT-PKD、TinyRoBERTa</strong> 等构成 BERT 时代蒸馏方法谱系。</li>
+</ul>
+<p>此阶段确立了<strong>hint-based / feature-based 蒸馏</strong>范式：除 logits 外，对齐中间表示。</p>
+<h4 id="323-生成式大模型黑盒蒸馏期20222024指令与-cot">3.2.3 生成式大模型黑盒蒸馏期（2022–2024）：指令与 CoT<a class="headerlink" href="#323-生成式大模型黑盒蒸馏期20222024指令与-cot" title="Permanent link">&para;</a></h4>
+<p>ChatGPT/GPT-4 出现后，研究重心转向<strong>黑盒 API 蒸馏</strong>：</p>
+<ul>
+<li><strong>Self-Instruct、Alpaca、Vicuna、Baize</strong>：用 GPT-3.5/4 生成指令-回复对，对开源 LLaMA 做 SFT，开启"数据蒸馏"浪潮。</li>
+<li><strong>WizardLM (Evol-Instruct)</strong>：迭代将种子指令改写为更难、更多样的版本，构造复杂度分级的合成数据。</li>
+<li><strong>Orca (Mukherjee et al., 2023)</strong>：提出<strong>explanation tuning</strong>——不再只蒸馏最终答案，而是用系统提示（"step-by-step"、"explain like I'm five"）让 GPT-4 输出完整推理轨迹，学生学的是"思考过程"而非"答案"。这一思想被后续 Phi、WizardMath 继承。</li>
+<li><strong>Orca 2 (Mitra et al., 2023)</strong>：进一步让教师先<strong>选择推理策略</strong>再执行，学生学到策略选择本身。</li>
+<li><strong>Phi-1/1.5/2/3/4 (Microsoft)</strong>：用"textbook quality"合成数据训练 1.3B–14B 小模型，在代码与推理上超越远大于自己的模型，验证"数据质量 &gt; 数据规模"。</li>
+</ul>
+<p>此阶段的本质是<strong>数据层面的黑盒蒸馏</strong>：教师只输出文本，学生做 SFT。</p>
+<h4 id="324-白盒深度蒸馏与多模态嵌入蒸馏期2023-至今">3.2.4 白盒深度蒸馏与多模态/嵌入蒸馏期（2023 至今）<a class="headerlink" href="#324-白盒深度蒸馏与多模态嵌入蒸馏期2023-至今" title="Permanent link">&para;</a></h4>
+<p>开源大模型（LLaMA、Qwen、DeepSeek）成熟后，白盒蒸馏重新焕发活力，并向 VLM、Embedding 扩展：</p>
+<ul>
+<li><strong>MiniLLM (Gu et al., ICLR 2024)</strong>：把蒸馏目标从 forward KL 换成 <strong>reverse KL</strong>，并用 on-policy 策略梯度优化，显著改善生成质量与校准。</li>
+<li><strong>GKD (Aggarwal et al., 2023)</strong>：广义知识蒸馏，灵活组合师生生成来源与多种散度损失。</li>
+<li><strong>DeepSeek-R1 (2025)</strong>：用 800K 条 R1 生成的推理轨迹 SFT 蒸馏出 1.5B–70B 的 6 个稠密模型，证明"大模型推理模式可直接蒸馏到小模型，效果甚至优于在小模型上做 RL"。</li>
+<li><strong>LLaVA-KD、LLaVA-MoD、GenRecal</strong>：把蒸馏引入多模态大模型，对齐视觉/语言表征与视觉 token 关系。</li>
+<li><strong>Jasper/Stella、EMO、jina-embeddings-v5、Qwen3-Embedding</strong>：把蒸馏与对比学习结合，训练高性能轻量嵌入模型。</li>
+</ul>
+<p>至此，蒸馏已从"压缩分类器"演化为"在模型、数据、模态、能力四个维度上迁移知识的统一框架"。</p>
+<h3 id="33-范式转变从压缩到能力迁移">3.3 范式转变：从压缩到能力迁移<a class="headerlink" href="#33-范式转变从压缩到能力迁移" title="Permanent link">&para;</a></h3>
+<p><strong>经典范式（2015–2022）</strong>  </p>
+<ul>
+<li>目标：在资源受限设备上部署  </li>
+<li>假设：Teacher 与 Student 架构相似或可映射  </li>
+<li>损失：KL 散度 + 交叉熵  </li>
+<li>代表：DistilBERT、DistilGPT-2、TinyBERT</li>
+</ul>
+<p><strong>LLM 时代范式（2023–）</strong>  </p>
+<ul>
+<li>目标：将闭源/超大模型的<strong>涌现能力</strong>（指令遵循、CoT 推理、对齐）迁移到开源小模型  </li>
+<li>核心变化：Teacher 参数不可访问（黑盒 API）成为常态  </li>
+<li>蒸馏 ≈ <strong>数据增强（DA）驱动的监督微调</strong>  </li>
+<li>四阶段流水线（Xu et al., 2024 Survey）：<ol>
+<li><strong>Steering</strong>：用指令/模板引导 Teacher 聚焦目标技能</li>
+<li><strong>Seed Knowledge</strong>：输入种子数据触发 Teacher 生成</li>
+<li><strong>Knowledge Generation</strong>：Teacher 产出 QA 对话、CoT 轨迹、偏好对等</li>
+<li><strong>Student Training</strong>：SFT / 散度最小化 / RL / 排序优化</li>
+</ol>
+</li>
+</ul>
+<h3 id="34-知识类型演进">3.4 知识类型演进<a class="headerlink" href="#34-知识类型演进" title="Permanent link">&para;</a></h3>
+<p>按迁移信号的抽象层次，蒸馏知识可分为三类（Gou et al., 2021 经典分类），并在大模型时代扩展出更多类型：</p>
+<table>
+<thead>
+<tr>
+<th>知识类型</th>
+<th>来源</th>
+<th>学习目标</th>
+<th>代表方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Response-Based（响应级）</strong></td>
+<td>输出层 logits</td>
+<td>模仿预测分布</td>
+<td>Hinton KD, MiniLLM</td>
+</tr>
+<tr>
+<td><strong>Feature-Based（特征级）</strong></td>
+<td>中间隐层</td>
+<td>对齐表征</td>
+<td>FitNets, TED, TinyBERT, BabyLlama</td>
+</tr>
+<tr>
+<td><strong>Relation-Based（关系级）</strong></td>
+<td>样本/Token 关系</td>
+<td>保持结构关系</td>
+<td>RKD, LLaVA-KD RDist, EMO CKA</td>
+</tr>
+<tr>
+<td><strong>Rationale-Based（推理级）</strong></td>
+<td>推理过程</td>
+<td>模仿思维链</td>
+<td>Orca, STaR, R1-Distill</td>
+</tr>
+<tr>
+<td><strong>Preference-Based（偏好级）</strong></td>
+<td>偏好排序</td>
+<td>对齐人类偏好</td>
+<td>DPO, Zephyr, LLaVA-MoD</td>
+</tr>
+</tbody>
+</table>
+<p>层次越高，迁移的语义越抽象、对架构差异越鲁棒，但实现也越复杂。</p>
+<hr />
+<h2 id="4-理论基础与统一方法学">4. 理论基础与统一方法学<a class="headerlink" href="#4-理论基础与统一方法学" title="Permanent link">&para;</a></h2>
+<p>不同领域的蒸馏方法看似各异，但都可以纳入下面的统一框架。</p>
+<h3 id="41-hinton-经典蒸馏">4.1 Hinton 经典蒸馏<a class="headerlink" href="#41-hinton-经典蒸馏" title="Permanent link">&para;</a></h3>
+<p>给定 Teacher 输出 logits <span class="arithmatex">\(z_i\)</span>，Student logits <span class="arithmatex">\(z'_i\)</span>，温度参数 <span class="arithmatex">\(T\)</span>：</p>
+<div class="arithmatex">\[p_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}, \quad p'_i = \frac{\exp(z'_i / T)}{\sum_j \exp(z'_j / T)}\]</div>
+<p>蒸馏损失：</p>
+<div class="arithmatex">\[\mathcal{L}_{KD} = \alpha \cdot T^2 \cdot \text{KL}(p \| p') + (1-\alpha) \cdot \mathcal{L}_{CE}(y, p')\]</div>
+<ul>
+<li><strong><span class="arithmatex">\(T &gt; 1\)</span></strong>：软化分布，暴露非 argmax 类别的相对概率（Dark Knowledge）</li>
+<li><strong><span class="arithmatex">\(\alpha\)</span></strong>：平衡软目标与硬标签</li>
+</ul>
+<h3 id="42-知识的三种层次gou-et-al-2021">4.2 知识的三种层次（Gou et al., 2021）<a class="headerlink" href="#42-知识的三种层次gou-et-al-2021" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Response-based（响应级）</strong>：迁移教师<strong>最终输出</strong>（logits 或 hard label）。最简单，对应 Hinton 原始公式。</li>
+<li><strong>Feature-based（特征级）</strong>：迁移教师<strong>中间层激活</strong>（隐状态、注意力矩阵、value-relation）。对应 TinyBERT、MiniLM。</li>
+<li><strong>Relation-based（关系级）</strong>：迁移样本/ token 之间的<strong>关系结构</strong>（样本间相似度矩阵、token 间注意力图、对偶关系）。对应 RKD、EMO 的 CKA 对齐、LLaVA-KD 的 RDist。</li>
+</ol>
+<h3 id="43-访问层级白盒-vs-黑盒">4.3 访问层级：白盒 vs 黑盒<a class="headerlink" href="#43-访问层级白盒-vs-黑盒" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>白盒 (White-box)</th>
+<th>黑盒 (Black-box)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可见信息</td>
+<td>权重、logits、隐状态、注意力</td>
+<td>仅教师生成的文本/图像输出</td>
+</tr>
+<tr>
+<td>典型损失</td>
+<td>KL、MSE、CKA、OT</td>
+<td>SFT 交叉熵、DPO、RL 奖励</td>
+</tr>
+<tr>
+<td>代表方法</td>
+<td>MiniLLM、GKD、TinyBERT、LLaVA-KD</td>
+<td>Alpaca、Orca、DeepSeek-R1-Distill</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>教师开源可部署</td>
+<td>教师为闭源 API（GPT-4、Claude）</td>
+</tr>
+</tbody>
+</table>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│                    知识蒸馏分类体系                              │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├──────────────────────┬──────────────────────────────────────┤
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   白盒 KD (White-box) │   黑盒 KD (Black-box)                │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   可访问 Teacher 参数  │   仅 API 文本输出                     │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├──────────────────────┼──────────────────────────────────────┤
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│ • Logits-based KD    │ • SeqKD (序列级模仿)                  │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│ • Feature/Hint KD    │ • ICL 蒸馏                            │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│ • On-Policy (GKD)    │ • CoT/Rationale 蒸馏                  │
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│ • MiniLLM (Rev-KL)   │ • Instruction Following 数据合成       │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│ • DPO/RLHF 蒸馏      │ • Self-Instruct / Evol-Instruct       │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>└──────────────────────┴──────────────────────────────────────┘
+</code></pre></div>
+<h3 id="44-训练范式offline--online--self">4.4 训练范式：offline / online / self<a class="headerlink" href="#44-训练范式offline--online--self" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Offline 蒸馏</strong>：教师预训练好并冻结，学生离线学习。最常见。</li>
+<li><strong>Online 蒸馏</strong>：师生<strong>同时训练</strong>，互相监督（Deep Mutual Learning, DML；ONE）。无需预训练教师。</li>
+<li><strong>Self-distillation（自蒸馏）</strong>：模型做自己的教师，常见形式：<ul>
+<li><strong>Born-Again Networks</strong>：用同架构的过去 checkpoint 教新初始化的学生，常能超过原模型。</li>
+<li><strong>跨层自蒸馏</strong>：深层监督浅层。</li>
+<li><strong>PS-KD</strong>：训练中用前 epoch 预测作为软目标，逐步精炼。</li>
+</ul>
+</li>
+</ul>
+<h3 id="45-损失目标从-kl-到偏好优化">4.5 损失目标：从 KL 到偏好优化<a class="headerlink" href="#45-损失目标从-kl-到偏好优化" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>损失</th>
+<th>形式</th>
+<th>性质</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forward KL</td>
+<td><span class="arithmatex">\(\mathrm{KL}(p_T \vert  p_S)\)</span></td>
+<td>mode-covering，学生覆盖教师所有模式</td>
+<td>经典 logits 蒸馏、SeqKD</td>
+</tr>
+<tr>
+<td>Reverse KL</td>
+<td><span class="arithmatex">\(\mathrm{KL}(p_S \vert  p_T)\)</span></td>
+<td>mode-seeking，学生聚焦教师主要模式</td>
+<td>MiniLLM 生成式蒸馏</td>
+</tr>
+<tr>
+<td>JS 散度</td>
+<td><span class="arithmatex">\(\frac12(\mathrm{KL}(p\vert m)+\mathrm{KL}(q\vert m))\)</span></td>
+<td>折中，稳定</td>
+<td>GKD 选项之一</td>
+</tr>
+<tr>
+<td>GJSD</td>
+<td>广义 JS 散度</td>
+<td><span class="arithmatex">\(\beta\)</span> 参数插值</td>
+<td>GKD</td>
+</tr>
+<tr>
+<td>TVD / SKL</td>
+<td>稳定训练</td>
+<td>长文本生成</td>
+<td>DistiLLM, SRKL</td>
+</tr>
+<tr>
+<td>MSE</td>
+<td><span class="arithmatex">\(\vert h_t - h_s\vert ^2\)</span></td>
+<td>对齐隐状态</td>
+<td>TinyBERT、LLaVA-KD</td>
+</tr>
+<tr>
+<td>对比损失</td>
+<td>InfoNCE</td>
+<td>拉近正例、推远负例</td>
+<td>Embedding 蒸馏</td>
+</tr>
+<tr>
+<td>DPO / 偏好</td>
+<td>基于 log-ratio</td>
+<td>学师生相对优劣</td>
+<td>LLaVA-MoD preference distillation</td>
+</tr>
+<tr>
+<td>RL 奖励</td>
+<td>教师作奖励模型</td>
+<td>学生通过 PPO/GRPO 优化</td>
+<td>RL-based distillation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键洞见（MiniLLM, ICLR 2024）</strong>：对生成任务，<strong>reverse KL 优于 forward KL</strong>——forward KL 会让学生"过度生成"教师低概率内容（暴露偏差、幻觉），而 reverse KL 让学生集中在教师高概率区，生成更精确。在自回归 LLM 中，Forward KL 导致 Student 在低概率区域过度自信，生成时出现 exposure bias；Reverse KL 的 mode-seeking 特性更适合文本生成。</p>
+<h3 id="46-on-policy-distillation">4.6 On-Policy Distillation<a class="headerlink" href="#46-on-policy-distillation" title="Permanent link">&para;</a></h3>
+<p><strong>核心问题</strong>：Off-Policy 训练（Teacher 生成数据）与 On-Policy 推理（Student 自主生成）之间的<strong>分布偏移</strong>（Distribution Mismatch），导致复合误差 <span class="arithmatex">\(O(T^2)\)</span>。</p>
+<p><strong>解决方案</strong>：让学生在自己生成的序列上向 Teacher 学习（DAgger 思想）：</p>
+<div class="arithmatex">\[\mathcal{L}_{OPD} = \mathbb{E}_{x \sim \mathcal{D}, y \sim q_\theta(\cdot|x)} \left[ D\left(p_T(\cdot|x,y) \| q_\theta(\cdot|x,y)\right) \right]\]</div>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>核心机制</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GKD</strong> (Agarwal et al., 2024)</td>
+<td><span class="arithmatex">\(\lambda\)</span>-混合 on/off-policy 采样 + GJSD</td>
+<td>TRL 内置 GKDTrainer</td>
+</tr>
+<tr>
+<td><strong>MiniLLM</strong> (Gu et al., ICLR 2024)</td>
+<td>Reverse KL + Policy Gradient</td>
+<td>指令遵循 SOTA</td>
+</tr>
+<tr>
+<td><strong>DistiLLM</strong> (Ko et al., 2024)</td>
+<td>Skewed KL 稳定优化</td>
+<td>长文本更稳定</td>
+</tr>
+<tr>
+<td><strong>L2M-KD</strong> (EMNLP 2025)</td>
+<td>由易到难课程 + On-Policy</td>
+<td>难度感知分阶段</td>
+</tr>
+<tr>
+<td><strong>SRD</strong> (2025)</td>
+<td>学生反思筛选数据 + 课程学习</td>
+<td>数据效率提升</td>
+</tr>
+<tr>
+<td><strong>Black-Box OPD</strong> (2025)</td>
+<td>GAN + Bradley-Terry</td>
+<td>无需教师 logits</td>
+</tr>
+<tr>
+<td><strong>ORPO-Distill</strong> (2025)</td>
+<td>结合 on/off-policy 负样本</td>
+<td>抗 mode collapse</td>
+</tr>
+</tbody>
+</table>
+<p>实现上，常见写法是对 student 实际采样的每个 token 计算 <code>reverse_kl = log π_θ(x) - log π_teacher(x)</code>，作为 reverse KL 的 <strong>k1 单样本 Monte Carlo 估计</strong>（期望隐含在「从 π_θ 采样 + batch 平均」中）。</p>
+<blockquote>
+<p><strong>延伸阅读</strong>：On-Policy Distillation 中 reverse KL 的 Monte Carlo 估计、compounding error 与实现细节，请参阅 <a href="#附录-con-policy-distillation-延伸阅读">附录 C</a>。主文不重复附录中的完整表格。</p>
+</blockquote>
+<hr />
+<h2 id="5-llm-知识蒸馏">5. LLM 知识蒸馏<a class="headerlink" href="#5-llm-知识蒸馏" title="Permanent link">&para;</a></h2>
+<p>LLM 蒸馏是当前最活跃的子领域。按访问层级与方法可分为白盒、黑盒两大类，并按迁移内容再细分。</p>
+<h3 id="51-知识获取knowledge-elicitation">5.1 知识获取（Knowledge Elicitation）<a class="headerlink" href="#51-知识获取knowledge-elicitation" title="Permanent link">&para;</a></h3>
+<h4 id="511-labeling标注式">5.1.1 Labeling（标注式）<a class="headerlink" href="#511-labeling标注式" title="Permanent link">&para;</a></h4>
+<p>给定输入 <span class="arithmatex">\(x\)</span>，Teacher 生成标签 <span class="arithmatex">\(y\)</span>：</p>
+<div class="arithmatex">\[\mathcal{D}^{(lab)} = \{(x, y) \mid x \sim \mathcal{X}, y \sim p_T(y \mid I \oplus c \oplus x)\}\]</div>
+<ul>
+<li><strong>Orca / Orca 2</strong>：用 FLAN 任务集合 + 系统提示生成详细解释；训练数据为 ⟨System message, User query, LFM response⟩ 三元组，约 5M ChatGPT + 1M GPT-4 样本</li>
+<li><strong>CoT-Distill</strong>：标注 Chain-of-Thought 推理链</li>
+<li><strong>OpenOrca / Nectar</strong>：GPT-4 生成百万级指令数据</li>
+</ul>
+<h4 id="512-expansion扩展式">5.1.2 Expansion（扩展式）<a class="headerlink" href="#512-expansion扩展式" title="Permanent link">&para;</a></h4>
+<p>Teacher 自主生成 <span class="arithmatex">\((x, y)\)</span> 对：</p>
+<div class="arithmatex">\[\mathcal{D}^{(exp)} = \{(x,y) \mid x \sim p_T(x|I \oplus c), y \sim p_T(y|I \oplus x)\}\]</div>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>机制</th>
+<th>数据规模</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Self-Instruct</strong> (Wang et al., 2022)</td>
+<td>175 种子指令自举扩展</td>
+<td>52K+</td>
+</tr>
+<tr>
+<td><strong>Alpaca</strong> (Taori et al., 2023)</td>
+<td>GPT-3.5 扩展 Self-Instruct</td>
+<td>52K, ~$500</td>
+</tr>
+<tr>
+<td><strong>WizardLM</strong> (Xu et al., 2023)</td>
+<td>Evol-Instruct 深度/广度进化</td>
+<td>复杂指令</td>
+</tr>
+<tr>
+<td><strong>WizardMath/Coder</strong></td>
+<td>领域特化 Evol-Instruct</td>
+<td>数学/代码</td>
+</tr>
+<tr>
+<td><strong>Self-Align</strong> (Sun et al., 2024)</td>
+<td>原则驱动自对齐</td>
+<td>多轮对话</td>
+</tr>
+</tbody>
+</table>
+<h4 id="513-curation策划式">5.1.3 Curation（策划式）<a class="headerlink" href="#513-curation策划式" title="Permanent link">&para;</a></h4>
+<p>强调<strong>数据质量筛选</strong>而非盲目扩量：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>策略</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Phi-1/1.5/2/3/4</strong></td>
+<td>Textbook-quality 合成数据</td>
+<td>1.3B 匹敌 10B+</td>
+</tr>
+<tr>
+<td><strong>UltraChat / UltraFeedback</strong></td>
+<td>多轮对话质量过滤</td>
+<td>偏好对齐</td>
+</tr>
+<tr>
+<td><strong>AlpaGasus</strong></td>
+<td>GPT-4 筛选低质样本</td>
+<td>9K 数据超 52K</td>
+</tr>
+<tr>
+<td><strong>Cosmopedia</strong></td>
+<td>开源复现 Phi 方法论</td>
+<td>30M+ prompts</td>
+</tr>
+</tbody>
+</table>
+<h4 id="514-feature--feedback--self-knowledge">5.1.4 Feature / Feedback / Self-Knowledge<a class="headerlink" href="#514-feature--feedback--self-knowledge" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Feature</strong>：提取 Teacher logits/隐层（MiniLLM, GKD, BabyLlama）</li>
+<li><strong>Feedback</strong>：Teacher 对学生输出评分/纠错（Zephyr DPO, UltraFeedback）</li>
+<li><strong>Self-Knowledge</strong>：学生自生成 + 自筛选（STaR, Self-Rewarding, SPIN）</li>
+</ul>
+<h3 id="52-白盒蒸馏">5.2 白盒蒸馏<a class="headerlink" href="#52-白盒蒸馏" title="Permanent link">&para;</a></h3>
+<h4 id="521-logits-based">5.2.1 Logits-based<a class="headerlink" href="#521-logits-based" title="Permanent link">&para;</a></h4>
+<p>学生直接匹配教师每个 token 的输出分布。</p>
+<ul>
+<li><strong>标准 forward KL</strong>：<span class="arithmatex">\(\mathcal{L} = \mathrm{KL}(p_T(\cdot|x) \| p_S(\cdot|x))\)</span>。简单但存在 mode-covering 问题。</li>
+<li><strong>MiniLLM (Gu et al., ICLR 2024)</strong>：改用 reverse KL <span class="arithmatex">\(\mathrm{KL}(p_S\|p_T)\)</span>，并用 policy gradient 在学生自身样本上优化（on-policy），显著降低暴露偏差，提升长文本生成与校准。可扩展至 120M–13B。</li>
+<li><strong>GKD (Aggarwal et al., 2023)</strong>：广义框架，可在"教师采样 / 学生采样"两种数据来源上，组合 forward KL、reverse KL、JS 等损失，统一了 MiniLLM、seq-level KD 等方法。</li>
+</ul>
+<h4 id="522-hint-based特征中间层">5.2.2 Hint-based（特征/中间层）<a class="headerlink" href="#522-hint-based特征中间层" title="Permanent link">&para;</a></h4>
+<p>对齐教师与学生的隐状态、注意力、value-relation。</p>
+<ul>
+<li><strong>TinyBERT</strong>：四阶段对齐 embedding、hidden、attention、logits。</li>
+<li><strong>MiniLM / MiniLM-v2</strong>：只对齐最后几层 <span class="arithmatex">\(VV^T\)</span> 与 logits，跨架构友好。</li>
+<li><strong>BERT-PKD</strong>：对齐中间层隐状态，需手工指定层映射。</li>
+</ul>
+<p>这类方法在 decoder-only 大模型上比 logits 蒸馏更难（层数与维度差异大），但仍是压缩预训练 backbone 的有效手段。</p>
+<h4 id="523-序列级-vs-token-级">5.2.3 序列级 vs token 级<a class="headerlink" href="#523-序列级-vs-token-级" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Sequence-level KD (Kim &amp; Rush, 2016)</strong>：学生直接在教师生成的完整序列上做 SFT，忽略 token 级分布。简单稳定，被 Alpaca 系列隐式采用。</li>
+<li><strong>Token-level KD</strong>：逐 token 对齐分布，信息更细但易受暴露偏差影响。</li>
+<li><strong>混合策略</strong>：MiniLLM 等用 token 级 reverse KL + 单步 RL 优化。</li>
+</ul>
+<h3 id="53-黑盒蒸馏">5.3 黑盒蒸馏<a class="headerlink" href="#53-黑盒蒸馏" title="Permanent link">&para;</a></h3>
+<p>只能拿到教师输出文本，无法访问 logits。这是闭源大模型时代的主流场景。</p>
+<h4 id="531-指令跟随蒸馏sft-蒸馏">5.3.1 指令跟随蒸馏（SFT 蒸馏）<a class="headerlink" href="#531-指令跟随蒸馏sft-蒸馏" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Alpaca、Vicuna、Baize</strong>：用 GPT-3.5/4 生成 (instruction, response) 对，SFT 开源 LLaMA。</li>
+<li>仅学到<strong>答案</strong>，不学到<strong>思考过程</strong>，能力上限受限于数据量与质量。</li>
+</ul>
+<h4 id="532-cot--推理轨迹蒸馏">5.3.2 CoT / 推理轨迹蒸馏<a class="headerlink" href="#532-cot--推理轨迹蒸馏" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Orca</strong>：用系统提示让 GPT-4 输出完整 step-by-step 推理，学生学习轨迹而非答案。</li>
+<li><strong>Orca 2</strong>：教师先<strong>选择推理策略</strong>（step-by-step / recall-then-generate / extract-generate / direct answer），再执行，学生学到策略选择。</li>
+<li><strong>WizardMath、Phi 系列</strong>：用合成"教科书质量"推理数据训练小模型，在数学/代码上越级表现。</li>
+</ul>
+<h4 id="533-反馈偏好蒸馏">5.3.3 反馈/偏好蒸馏<a class="headerlink" href="#533-反馈偏好蒸馏" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>DAgger-based distillation</strong>：迭代收集学生在困难样本上的预测，再请教师纠正，逐步缩小分布偏移。</li>
+<li><strong>DPO-based</strong>：把师生输出构造偏好对，用 DPO 训练学生偏好教师输出。</li>
+<li><strong>RL-based</strong>：把教师作为奖励模型，用 PPO/GRPO 训练学生。</li>
+<li><strong>GAD (Generative Adversarial Distillation)</strong>：用判别器区分师生输出，学生在对抗训练中学习，无需教师 logits。</li>
+</ul>
+<h4 id="534-agent-蒸馏前沿">5.3.4 Agent 蒸馏（前沿）<a class="headerlink" href="#534-agent-蒸馏前沿" title="Permanent link">&para;</a></h4>
+<p><strong>Agent Distillation (Kang et al., 2025, arXiv:2505.17612)</strong> 不止迁移推理，而是迁移<strong>完整的"思考-行动-观察"轨迹</strong>，让学生学会调用检索与代码工具：</p>
+<ul>
+<li>教师为 ReAct/CodeAct 风格 agent，生成轨迹 <span class="arithmatex">\(\tau = ((r_1,a_1,o_1),\dots,(r_L,a_L,o_L))\)</span>。</li>
+<li>学生 SFT 学习轨迹，获得工具调用能力。</li>
+<li>两个关键改进：<ul>
+<li><strong>First-Thought Prefix (FTP)</strong>：在教师 prompt 前加首步思考，提升轨迹质量。</li>
+<li><strong>Self-Consistent Action Generation (SAG)</strong>：测试时采样多条轨迹，用代码解释器挑出一致且可执行的结果。</li>
+</ul>
+</li>
+<li>结果：0.5B–3B 的小 agent 可匹敌下一档（1.5B–7B）的 CoT 蒸馏模型，幻觉更少、OOD 泛化更强。</li>
+</ul>
+<h3 id="54-蒸馏算法">5.4 蒸馏算法<a class="headerlink" href="#54-蒸馏算法" title="Permanent link">&para;</a></h3>
+<h4 id="541-监督微调sft">5.4.1 监督微调（SFT）<a class="headerlink" href="#541-监督微调sft" title="Permanent link">&para;</a></h4>
+<p>最广泛使用的蒸馏形式——在 Teacher 生成数据上微调 Student：</p>
+<div class="arithmatex">\[\mathcal{L}_{SFT} = -\sum_t \log q_\theta(y_t \mid x, y_{&lt;t})\]</div>
+<p>代表：Alpaca, Vicuna, WizardLM, DeepSeek-R1-Distill</p>
+<h4 id="542-散度最小化">5.4.2 散度最小化<a class="headerlink" href="#542-散度最小化" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>损失函数</th>
+<th>关键创新</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SeqKD (Kim &amp; Rush, 2016)</td>
+<td>序列级 Forward KL</td>
+<td>黑盒基线</td>
+</tr>
+<tr>
+<td>MiniLLM</td>
+<td>Reverse KL + On-Policy PG</td>
+<td>防 mode-covering</td>
+</tr>
+<tr>
+<td>GKD</td>
+<td>GJSD + <span class="arithmatex">\(\lambda\)</span> 混合采样</td>
+<td>灵活 on/off-policy</td>
+</tr>
+<tr>
+<td>f-Distill</td>
+<td>f-散度族</td>
+<td>统一框架</td>
+</tr>
+<tr>
+<td>TED</td>
+<td>任务感知散度</td>
+<td>多任务蒸馏</td>
+</tr>
+<tr>
+<td>PromptKD</td>
+<td>提示感知蒸馏</td>
+<td>提示对齐</td>
+</tr>
+</tbody>
+</table>
+<h4 id="543-强化学习蒸馏">5.4.3 强化学习蒸馏<a class="headerlink" href="#543-强化学习蒸馏" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>DPO 蒸馏</strong>：将 Teacher 作为 reference model（LLaVA-MoD, Zephyr）</li>
+<li><strong>RLAIF</strong>：AI 反馈替代人类反馈</li>
+<li><strong>RLKD</strong>：结构感知奖励模型</li>
+</ul>
+<h4 id="544-排序优化">5.4.4 排序优化<a class="headerlink" href="#544-排序优化" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Zephyr</strong>：基于 UltraFeedback 的偏好排序</li>
+<li><strong>CycleAlign</strong>：循环对齐优化</li>
+</ul>
+<h3 id="55-技能蒸馏skill-distillation">5.5 技能蒸馏（Skill Distillation）<a class="headerlink" href="#55-技能蒸馏skill-distillation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>技能类别</th>
+<th>代表工作</th>
+<th>关键技术</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>指令遵循</td>
+<td>Alpaca, Vicuna, WizardLM</td>
+<td>Expansion + SFT</td>
+</tr>
+<tr>
+<td>多轮对话</td>
+<td>Baize, UltraChat, Zephyr</td>
+<td>自对话模拟</td>
+</tr>
+<tr>
+<td>CoT 推理</td>
+<td>Orca 2, STaR, R1-Distill</td>
+<td>Rationale 标注</td>
+</tr>
+<tr>
+<td>工具使用</td>
+<td>Toolformer, ToolLLM, Agent Distillation</td>
+<td>API 调用轨迹</td>
+</tr>
+<tr>
+<td>代码生成</td>
+<td>CodeLlama, Magicoder, Phi-1</td>
+<td>代码合成数据</td>
+</tr>
+<tr>
+<td>数学推理</td>
+<td>WizardMath, OrcaMath</td>
+<td>逐步解标注</td>
+</tr>
+<tr>
+<td>RAG 能力</td>
+<td>Self-RAG, SAIL</td>
+<td>检索增强轨迹</td>
+</tr>
+</tbody>
+</table>
+<h3 id="56-llm-蒸馏方法对照表">5.6 LLM 蒸馏方法对照表<a class="headerlink" href="#56-llm-蒸馏方法对照表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>访问</th>
+<th>迁移内容</th>
+<th>损失</th>
+<th>关键贡献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alpaca/Vicuna</td>
+<td>黑盒</td>
+<td>答案文本</td>
+<td>SFT CE</td>
+<td>数据蒸馏范式</td>
+</tr>
+<tr>
+<td>Orca</td>
+<td>黑盒</td>
+<td>推理轨迹</td>
+<td>SFT CE</td>
+<td>explanation tuning</td>
+</tr>
+<tr>
+<td>MiniLLM</td>
+<td>白盒</td>
+<td>logits</td>
+<td>reverse KL + PG</td>
+<td>on-policy 生成式蒸馏</td>
+</tr>
+<tr>
+<td>GKD</td>
+<td>白盒</td>
+<td>logits</td>
+<td>可配置散度</td>
+<td>统一框架</td>
+</tr>
+<tr>
+<td>TinyBERT/MiniLM</td>
+<td>白盒</td>
+<td>隐状态/注意力</td>
+<td>MSE + KL</td>
+<td>特征对齐</td>
+</tr>
+<tr>
+<td>DeepSeek-R1-Distill</td>
+<td>黑盒</td>
+<td>800K CoT</td>
+<td>SFT CE</td>
+<td>大规模推理蒸馏</td>
+</tr>
+<tr>
+<td>Agent Distillation</td>
+<td>黑盒</td>
+<td>agent 轨迹</td>
+<td>SFT CE</td>
+<td>工具调用迁移</td>
+</tr>
+<tr>
+<td>GAD</td>
+<td>黑盒</td>
+<td>输出文本</td>
+<td>对抗</td>
+<td>无需 logits</td>
+</tr>
+<tr>
+<td>Zephyr</td>
+<td>黑盒</td>
+<td>偏好排序</td>
+<td>DPO</td>
+<td>偏好对齐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-vlm-知识蒸馏">6. VLM 知识蒸馏<a class="headerlink" href="#6-vlm-知识蒸馏" title="Permanent link">&para;</a></h2>
+<p>视觉-语言模型（VLM / MLLM）由视觉编码器、投影层、LLM 三部分组成，蒸馏需同时处理<strong>视觉表征、跨模态对齐、语言生成</strong>三方面。</p>
+<h3 id="61-挑战">6.1 挑战<a class="headerlink" href="#61-挑战" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>异构 token 空间</strong>：视觉 token 与语言 token 维度、数量都不同，难以直接对齐隐状态。</li>
+<li><strong>视觉 token 数量爆炸</strong>：高分辨率图像产生数百到数千视觉 token，学生显存压力极大。</li>
+<li><strong>跨模态对齐脆弱</strong>：投影层是连接瓶颈，蒸馏不当会破坏视觉-语言对齐。</li>
+<li><strong>教师与学生架构差异大</strong>：不同视觉编码器（CLIP vs SigLIP）、不同 LLM 主干导致特征空间不兼容。</li>
+<li><strong>Teacher 规模悖论</strong>：更强 Teacher 不一定产生更好 Student（Tuchinda et al., 2025；CLIP 蒸馏实验中，更大 Teacher 反而降低 Student VQA 性能）。</li>
+</ol>
+<h3 id="62-分类体系vlm-kd-survey-acl-2026-投稿">6.2 分类体系（VLM-KD Survey, ACL 2026 投稿）<a class="headerlink" href="#62-分类体系vlm-kd-survey-acl-2026-投稿" title="Permanent link">&para;</a></h3>
+<p>三个正交维度：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>知识类型</strong></td>
+<td>Logit / Feature / Relation / Rationale</td>
+</tr>
+<tr>
+<td><strong>Teacher 可访问性</strong></td>
+<td>White-box / Black-box</td>
+</tr>
+<tr>
+<td><strong>结构兼容性</strong></td>
+<td>同构 / 异构（需 Recalibrator）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-核心方法">6.3 核心方法<a class="headerlink" href="#63-核心方法" title="Permanent link">&para;</a></h3>
+<h4 id="631-llava-kd-cai-et-al-iccv-2025">6.3.1 LLaVA-KD (Cai et al., ICCV 2025)<a class="headerlink" href="#631-llava-kd-cai-et-al-iccv-2025" title="Permanent link">&para;</a></h4>
+<p>提出三阶段蒸馏框架：</p>
+<ol>
+<li><strong>Distilled Pre-Training (DPT)</strong>：在学生预训练阶段引入蒸馏损失，加强视觉-语言表征对齐。</li>
+<li><strong>Supervised Fine-Tuning (SFT)</strong>：常规多模态指令微调。</li>
+<li><strong>Distilled Fine-Tuning (DFT)</strong>：在 SFT 后再做蒸馏微调，精炼学生知识。</li>
+</ol>
+<p>两类蒸馏损失：</p>
+<ul>
+<li><strong>MDist (Multimodal Distillation)</strong>：迁移教师在<strong>视觉与语言两个模态</strong>上的稳健表征。</li>
+<li><strong>RDist (Relation Distillation)</strong>：迁移教师捕捉<strong>视觉 token 间关系</strong>的能力。</li>
+</ul>
+<p>不改动学生架构即可显著提升性能，是当前 VLM 蒸馏的代表性框架。</p>
+<h4 id="632-llava-mod-neurips-2024--iclr-2025">6.3.2 LLaVA-MoD (NeurIPS 2024 / ICLR 2025)<a class="headerlink" href="#632-llava-mod-neurips-2024--iclr-2025" title="Permanent link">&para;</a></h4>
+<p>面向"把 LLaVA 做小"的稀疏化蒸馏框架：</p>
+<ul>
+<li><strong>架构</strong>：在学生 LLM 中引入<strong>稀疏 Mixture-of-Experts (MoE)</strong>，用少量激活参数保持表达能力。</li>
+<li><strong>两阶段渐进蒸馏</strong>：<ol>
+<li><strong>Mimic Distillation</strong>：用 KL 散度让学生输出分布模仿教师，分 dense-to-dense 与 dense-to-sparse 两步。</li>
+<li><strong>Preference Distillation</strong>：用 DPO，以教师为参考模型，让学生学会<strong>区分好坏回答</strong>，在幻觉基准上甚至<strong>超过教师</strong>。</li>
+</ol>
+</li>
+<li>效果：2B 激活参数，仅用 0.3% 训练数据、23% 可训练参数，平均超过 Qwen-VL-Chat-7B 8.8%。</li>
+</ul>
+<h4 id="633-genrecal-2025">6.3.3 GenRecal (2025)<a class="headerlink" href="#633-genrecal-2025" title="Permanent link">&para;</a></h4>
+<p>针对<strong>不同 token 类型的师生 VLM</strong>（如教师 InternVL2.5-78B、学生 Qwen2-VL-7B）蒸馏难题：</p>
+<ul>
+<li>引入 <strong>Recalibrator</strong>：把学生特征投影到与教师兼容的表示空间，再做通用蒸馏。</li>
+<li>证明"特征空间对齐"比直接照搬 LLaVA-KD 更关键；教师越强，收益越大。</li>
+</ul>
+<h4 id="634-align-kd-mobilevlm-v2">6.3.4 Align-KD (MobileVLM V2)<a class="headerlink" href="#634-align-kd-mobilevlm-v2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>首层 Attention 文本查询-视觉对齐</li>
+<li>迁移跨模态对齐知识，MobileVLM V2 1.7B 在 6 项 benchmark 全面提升</li>
+</ul>
+<h4 id="635-vlsi-2024">6.3.5 VLsI (2024)<a class="headerlink" href="#635-vlsi-2024" title="Permanent link">&para;</a></h4>
+<ul>
+<li>层级 Verbalization + 自适应层匹配</li>
+<li>推理过程蒸馏，自然语言桥接层级差异</li>
+</ul>
+<h4 id="636-其他相关实践">6.3.6 其他相关实践<a class="headerlink" href="#636-其他相关实践" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>机制</th>
+<th>蒸馏目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MedAlign</strong></td>
+<td>Patch 相似度 + Attention Map KL</td>
+<td>医学 VLM</td>
+</tr>
+<tr>
+<td><strong>TE-VLM</strong></td>
+<td>Transfer Entropy 正则化</td>
+<td>跨模态信息流</td>
+</tr>
+<tr>
+<td><strong>VLM-KD</strong></td>
+<td>VLM 生成文本嵌入 + CLIP 对比损失</td>
+<td>输出分布</td>
+</tr>
+<tr>
+<td><strong>VideoDistill</strong></td>
+<td>语言感知视觉门控 + 稀疏采样</td>
+<td>视频理解</td>
+</tr>
+<tr>
+<td><strong>InternVL 系列</strong></td>
+<td>蒸馏与 token 压缩</td>
+<td>多尺寸 VLM</td>
+</tr>
+<tr>
+<td><strong>MiniCPM-V 系列</strong></td>
+<td>ViT 内早期压缩（LLaVA-UHD v4）</td>
+<td>端侧部署</td>
+</tr>
+<tr>
+<td><strong>TinyLLaVA、Imp、Bunny、MobileVLM</strong></td>
+<td>蒸馏/压缩</td>
+<td>高效小 VLM</td>
+</tr>
+<tr>
+<td><strong>InternViT 蒸馏</strong></td>
+<td>大 ViT → 小 ViT</td>
+<td>视觉编码器</td>
+</tr>
+<tr>
+<td><strong>SigLIP 2 自蒸馏</strong></td>
+<td>ACID 数据筛选 + 隐式蒸馏</td>
+<td>视觉-语言编码器</td>
+</tr>
+<tr>
+<td><strong>CLIP-Embed-KD</strong></td>
+<td>预计算 Teacher 嵌入</td>
+<td>9× 内存节省</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-vlm-蒸馏效果对比">6.4 VLM 蒸馏效果对比<a class="headerlink" href="#64-vlm-蒸馏效果对比" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Student 模型</th>
+<th>Teacher</th>
+<th>方法</th>
+<th>关键提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MobileVLM V2 1.7B</td>
+<td>MobileVLM V2 7B</td>
+<td>Align-KD</td>
+<td>6 项 benchmark 全面提升</td>
+</tr>
+<tr>
+<td>LLaVA-MoD 2B</td>
+<td>LLaVA-1.5 7B</td>
+<td>MoE+KD+DPO</td>
+<td>超越 Qwen-VL-Chat-7B 8%</td>
+</tr>
+<tr>
+<td>GenRecal 7B</td>
+<td>Qwen2-VL-72B</td>
+<td>Recalibrator</td>
+<td>MMMU 显著提升</td>
+</tr>
+<tr>
+<td>SmolVLM 500M</td>
+<td>—</td>
+<td>原生小模型设计</td>
+<td>端侧视频理解</td>
+</tr>
+<tr>
+<td>MiniCPM-V 4.6 1.3B</td>
+<td>—</td>
+<td>ViT 内早期压缩</td>
+<td>iOS/Android 端侧部署</td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-vlm-蒸馏方法对照表">6.5 VLM 蒸馏方法对照表<a class="headerlink" href="#65-vlm-蒸馏方法对照表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>教师类型</th>
+<th>关键机制</th>
+<th>特色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLaVA-KD</td>
+<td>同架构 l-MLLM</td>
+<td>三阶段 + MDist/RDist</td>
+<td>表征与关系双重迁移</td>
+</tr>
+<tr>
+<td>LLaVA-MoD</td>
+<td>l-MLLM</td>
+<td>MoE 稀疏学生 + DPO 偏好蒸馏</td>
+<td>2B 超 7B，反超教师</td>
+</tr>
+<tr>
+<td>GenRecal</td>
+<td>跨 token 类型 VLM</td>
+<td>Recalibrator 特征空间对齐</td>
+<td>解决异构师生问题</td>
+</tr>
+<tr>
+<td>Align-KD</td>
+<td>同系列 VLM</td>
+<td>首层 Attention 对齐</td>
+<td>端侧 VLM 基线</td>
+</tr>
+<tr>
+<td>MiniCPM-V</td>
+<td>自研</td>
+<td>ViT 内早期压缩 + 端侧部署</td>
+<td>移动端落地</td>
+</tr>
+</tbody>
+</table>
+<h3 id="66-开放问题">6.6 开放问题<a class="headerlink" href="#66-开放问题" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Teacher 规模悖论</strong>：CLIP 蒸馏实验中，更大 Teacher 反而降低 Student VQA 性能</li>
+<li><strong>模态不平衡</strong>：视觉分支知识传递效率低于语言分支</li>
+<li><strong>评估标准缺失</strong>：缺乏统一的 VLM 蒸馏 benchmark 协议</li>
+</ul>
+<hr />
+<h2 id="7-embedding-模型蒸馏">7. Embedding 模型蒸馏<a class="headerlink" href="#7-embedding-模型蒸馏" title="Permanent link">&para;</a></h2>
+<p>文本嵌入模型是检索、RAG、语义相似度的核心组件。蒸馏目标是把大嵌入教师（常为 LLM-based，如 NV-Embed、bge-en-icl、LLM2Vec）压缩成小而快的检索模型。</p>
+<h3 id="71-背景与动机">7.1 背景与动机<a class="headerlink" href="#71-背景与动机" title="Permanent link">&para;</a></h3>
+<p>MTEB 排行榜前列模型（如 GritLM-7B、NV-Embed-v2）参数量大、向量维度高，部署成本高。蒸馏目标：</p>
+<ul>
+<li><strong>参数压缩</strong>：7B → 0.3B</li>
+<li><strong>维度压缩</strong>：4096d → 256d / 768d</li>
+<li><strong>延迟降低</strong>：推理加速 3–12×</li>
+</ul>
+<h3 id="72-挑战">7.2 挑战<a class="headerlink" href="#72-挑战" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>tokenizer 不一致</strong>：师生词表不同导致 token 序列错位，无法直接对齐隐状态（Cross-Tokenizer KD, CTKD）。</li>
+<li><strong>维度不匹配</strong>：教师常 4096–12288 维，学生几百到上千维，需投影层适配。</li>
+<li><strong>对比学习信号</strong>：嵌入质量取决于负样本构造，蒸馏需保留教师的相似度排序信息。</li>
+<li><strong>多教师融合</strong>：单一教师能力有限，多教师蒸馏成为趋势。</li>
+</ol>
+<h3 id="73-核心方法">7.3 核心方法<a class="headerlink" href="#73-核心方法" title="Permanent link">&para;</a></h3>
+<h4 id="731-单-teacher-蒸馏">7.3.1 单 Teacher 蒸馏<a class="headerlink" href="#731-单-teacher-蒸馏" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>机制</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SimTDE</strong> (SIGIR 2023)</td>
+<td>Token Embedding + Sentence Embedding 双层蒸馏</td>
+<td>12× 压缩，97% 性能</td>
+</tr>
+<tr>
+<td><strong>CLIP-Embed-KD</strong></td>
+<td>预计算 Teacher 嵌入 + 对比损失</td>
+<td>9× 内存，8× 速度</td>
+</tr>
+<tr>
+<td><strong>TAVA</strong></td>
+<td>两阶段：Student 预蒸馏 + MLP Adapter 残差映射</td>
+<td>100× 参数压缩</td>
+</tr>
+<tr>
+<td><strong>mCLIP / Multilingual CLIP KD</strong></td>
+<td>多语言文本编码器对齐 CLIP 空间</td>
+<td>保持多语言性</td>
+</tr>
+</tbody>
+</table>
+<h4 id="732-jasper--stella-zhang-et-al-2024-arxiv241219048">7.3.2 Jasper &amp; Stella (Zhang et al., 2024, arXiv:2412.19048)<a class="headerlink" href="#732-jasper--stella-zhang-et-al-2024-arxiv241219048" title="Permanent link">&para;</a></h4>
+<p>多阶段多教师蒸馏 SOTA 嵌入模型：</p>
+<ul>
+<li><strong>Stage 1&amp;2</strong>：从 NV-Embed 与 bge-en-icl 两个教师蒸馏，用全连接层把学生向量映射到教师维度，再用余弦相似度损失对齐。</li>
+<li><strong>Stage 3</strong>：引入 LLM2Vec 教师蒸馏内部表征。</li>
+<li><strong>Stage 4</strong>：基础视觉-语言对齐。</li>
+</ul>
+<p>三阶段多 Teacher 蒸馏框架：</p>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Loss = λ₁·CosineLoss(student, concat(teachers)) 
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>     + λ₂·TripletLoss(student, teachers) 
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>     + λ₃·MRL_Loss(student, dim_subset)
+</code></pre></div>
+<ul>
+<li>Jasper-2B：MTEB 平均 71.54 分（56 数据集）</li>
+<li>无需标注数据，纯无监督蒸馏</li>
+<li>关键经验：<strong>多教师蒸馏 + 维度投影层</strong> 是把大嵌入教师压缩到小学生的通用方案。</li>
+</ul>
+<h4 id="733-emo-emnlp-2025">7.3.3 EMO (EMNLP 2025)<a class="headerlink" href="#733-emo-emnlp-2025" title="Permanent link">&para;</a></h4>
+<p>专攻 <strong>Cross-Tokenizer KD</strong>：</p>
+<ul>
+<li>用 <strong>Minimum Edit Distance</strong> 把师生 token 一对一映射。</li>
+<li>用 <strong>Centered Kernel Alignment (CKA)</strong> 对齐注意力矩阵，只关注 top-m 重要 token。</li>
+<li>用 <strong>Optimal Transport + Importance-Scored Mass Assignment</strong> 对齐最终隐状态，按注意力重要性分配质量。</li>
+<li>把 LLM2Vec、BGE 等大教师蒸馏到 BERT-base，在分类/相似度任务上显著超越 CTKD 基线。</li>
+</ul>
+<h4 id="734-jina-embeddings-v5-text-2026">7.3.4 jina-embeddings-v5-text (2026)<a class="headerlink" href="#734-jina-embeddings-v5-text-2026" title="Permanent link">&para;</a></h4>
+<p>提出 <strong>Task-Targeted Embedding Distillation</strong>：</p>
+<ul>
+<li>把<strong>模型蒸馏</strong>与<strong>任务特定对比损失</strong>结合。</li>
+<li>三个关键结论：<ol>
+<li>纯蒸馏 &gt; 朴素对比训练；</li>
+<li>蒸馏 + 任务对比 &gt; 纯蒸馏；</li>
+<li>在 MTEB 上达到同等规模多语言模型 SOTA。</li>
+</ol>
+</li>
+<li>提供小/nano 两个紧凑版本，支持二值量化与截断鲁棒。</li>
+</ul>
+<h4 id="735-qwen3-embedding-alibaba-2025">7.3.5 Qwen3-Embedding (Alibaba, 2025)<a class="headerlink" href="#735-qwen3-embedding-alibaba-2025" title="Permanent link">&para;</a></h4>
+<p>LLM-infused 嵌入模型的代表，<strong>训练数据全部由 Qwen3-Instruct 合成</strong>：</p>
+<ul>
+<li><strong>三阶段训练</strong>：<ol>
+<li>大规模弱监督对比预训练（约 1.5 亿合成对，多任务可适配 prompt 系统）；</li>
+<li>高质量有监督微调（筛选相似度 &gt; 0.7 的 1200 万对，形成"难负样本"批次）；</li>
+<li><strong>模型合并</strong>（SLERP 球面线性插值）提升泛化。</li>
+</ol>
+</li>
+<li>支持 Matryoshka Representation Learning（MRL），可输出灵活维度。</li>
+<li>0.6B / 4B / 8B 三档，8B 在 MTEB 多语言榜 70.58 分，领先 Gemini Embedding 2.2%。</li>
+</ul>
+<h4 id="736-macse-ijcnn-2025">7.3.6 MaCSE (IJCNN 2025)<a class="headerlink" href="#736-macse-ijcnn-2025" title="Permanent link">&para;</a></h4>
+<p>多智能体排序蒸馏：</p>
+<ul>
+<li>多教师对句子赋予细粒度排序，生成更平滑的相似度表示。</li>
+<li>采用 <strong>CTDE（集中训练分散执行）</strong> 范式，动态调整各教师融合权重，避免小学生在单教师上过拟合。</li>
+</ul>
+<h4 id="737-跨语言多阶段蒸馏-naacl-2022">7.3.7 跨语言多阶段蒸馏 (NAACL 2022)<a class="headerlink" href="#737-跨语言多阶段蒸馏-naacl-2022" title="Permanent link">&para;</a></h4>
+<p>针对跨语言相似度匹配：</p>
+<ul>
+<li>组合<strong>多语言对比学习 + 嵌入瓶颈 + 参数递归</strong>三种策略。</li>
+<li>把 XLM-R、MiniLM 压缩 50%+，性能仅降约 1%。</li>
+</ul>
+<h4 id="738-维度自适应蒸馏mrl">7.3.8 维度自适应蒸馏（MRL）<a class="headerlink" href="#738-维度自适应蒸馏mrl" title="Permanent link">&para;</a></h4>
+<p><strong>Matryoshka Representation Learning (MRL)</strong>：</p>
+<ul>
+<li>训练时随机截断嵌入维度</li>
+<li>支持推理时按需选择维度（256/512/1024/...）</li>
+<li>Jasper、Nomic-embed 等均采用</li>
+</ul>
+<h3 id="74-多模态嵌入蒸馏">7.4 多模态嵌入蒸馏<a class="headerlink" href="#74-多模态嵌入蒸馏" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>场景</th>
+<th>技术</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multimodal CLIP KD</strong> (NeurIPS 2023 SSL)</td>
+<td>图像+文本联合压缩</td>
+<td>双 Student 结构保持交互</td>
+</tr>
+<tr>
+<td><strong>DCLIP</strong></td>
+<td>图像-文本检索</td>
+<td>YOLO 区域 + 跨模态 Transformer Teacher</td>
+</tr>
+<tr>
+<td><strong>SigLIP 2</strong></td>
+<td>视觉-语言编码器</td>
+<td>自蒸馏 + 解码器预训练</td>
+</tr>
+<tr>
+<td><strong>Distilling Multilingual VLM</strong></td>
+<td>多语言保持</td>
+<td>CLIP/SigLIP2 → DistilBERT/MiniLM</td>
+</tr>
+</tbody>
+</table>
+<h3 id="75-embedding-蒸馏的通用损失">7.5 Embedding 蒸馏的通用损失<a class="headerlink" href="#75-embedding-蒸馏的通用损失" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Sentence-Transformers 风格示意</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">losses</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s1">'student-model-path'</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># EmbedDistillLoss: 用预计算的教师嵌入做蒸馏</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">loss_distill</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">EmbedDistillLoss</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">distance_metric</span><span class="o">=</span><span class="s1">'cosine'</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># 同时叠加任务对比损失</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">loss_contrastive</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">MultipleNegativesRankingLoss</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># 总损失 = alpha * distill + (1-alpha) * contrastive</span>
+</code></pre></div>
+<p>通用配方：<strong>蒸馏损失（对齐教师相似度结构）+ 对比损失（保任务判别力）</strong>，二者缺一不可。</p>
+<h3 id="76-embedding-蒸馏实践对比">7.6 Embedding 蒸馏实践对比<a class="headerlink" href="#76-embedding-蒸馏实践对比" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>参数量</th>
+<th>维度</th>
+<th>MTEB 均分</th>
+<th>蒸馏方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GritLM-7B</td>
+<td>7B</td>
+<td>4096</td>
+<td>~65+</td>
+<td>原生训练</td>
+</tr>
+<tr>
+<td>NV-Embed-v2</td>
+<td>7B</td>
+<td>4096</td>
+<td>~72</td>
+<td>原生训练（常作教师）</td>
+</tr>
+<tr>
+<td>Jasper-2B</td>
+<td>2B</td>
+<td>可调</td>
+<td>71.54</td>
+<td>多 Teacher + MRL</td>
+</tr>
+<tr>
+<td>jina-embeddings-v5</td>
+<td>小/nano</td>
+<td>可调</td>
+<td>SOTA（同等规模）</td>
+<td>蒸馏 + 任务对比</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-8B</td>
+<td>8B</td>
+<td>可调</td>
+<td>70.58</td>
+<td>全合成数据 + SLERP</td>
+</tr>
+<tr>
+<td>Nomic-embed-text-v1.5</td>
+<td>137M</td>
+<td>768</td>
+<td>~62</td>
+<td>对比学习 + MRL</td>
+</tr>
+<tr>
+<td>gte-Qwen2-1.5B-instruct</td>
+<td>1.5B</td>
+<td>1536</td>
+<td>~67</td>
+<td>LLM backbone 蒸馏</td>
+</tr>
+<tr>
+<td>mxbai-embed</td>
+<td>335M</td>
+<td>—</td>
+<td>~64</td>
+<td>混合训练</td>
+</tr>
+<tr>
+<td>BGE-M3 系列</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>多功能多语言蒸馏（中文检索主流）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="77-embedding-蒸馏方法对照表">7.7 Embedding 蒸馏方法对照表<a class="headerlink" href="#77-embedding-蒸馏方法对照表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>教师</th>
+<th>关键机制</th>
+<th>特色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jasper/Stella</td>
+<td>NV-Embed + bge-en-icl + LLM2Vec</td>
+<td>多阶段多教师 + 维度投影</td>
+<td>SOTA 小嵌入</td>
+</tr>
+<tr>
+<td>SimTDE</td>
+<td>大 Transformer</td>
+<td>Token + Sentence 双层蒸馏</td>
+<td>12× 压缩</td>
+</tr>
+<tr>
+<td>EMO</td>
+<td>LLM2Vec / BGE</td>
+<td>MinED + CKA + OT</td>
+<td>跨 tokenizer</td>
+</tr>
+<tr>
+<td>jina-v5</td>
+<td>大嵌入模型</td>
+<td>蒸馏 + 任务对比</td>
+<td>MTEB SOTA</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding</td>
+<td>Qwen3-Instruct（合成数据）</td>
+<td>全合成数据 + SLERP 合并</td>
+<td>LLM-infused</td>
+</tr>
+<tr>
+<td>MaCSE</td>
+<td>多教师</td>
+<td>排序蒸馏 + CTDE</td>
+<td>动态融合</td>
+</tr>
+<tr>
+<td>TAVA</td>
+<td>大模型</td>
+<td>MLP Adapter 残差映射</td>
+<td>100× 参数压缩</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-业界应用与代表性模型">8. 业界应用与代表性模型<a class="headerlink" href="#8-业界应用与代表性模型" title="Permanent link">&para;</a></h2>
+<h3 id="81-llm-蒸馏里程碑">8.1 LLM 蒸馏里程碑<a class="headerlink" href="#81-llm-蒸馏里程碑" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>模型</th>
+<th>教师</th>
+<th>学生</th>
+<th>方法</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2023.03</td>
+<td>Alpaca</td>
+<td>GPT-3.5</td>
+<td>LLaMA-7B</td>
+<td>52K 指令 SFT</td>
+<td>开启开源指令蒸馏</td>
+</tr>
+<tr>
+<td>2023.03</td>
+<td>Vicuna</td>
+<td>ShareGPT</td>
+<td>LLaMA-13B</td>
+<td>对话 SFT</td>
+<td>早期 ChatGPT 平替</td>
+</tr>
+<tr>
+<td>2023.04</td>
+<td>WizardLM</td>
+<td>GPT-3.5/4</td>
+<td>LLaMA</td>
+<td>Evol-Instruct</td>
+<td>复杂度分级数据</td>
+</tr>
+<tr>
+<td>2023.06</td>
+<td>Orca</td>
+<td>GPT-4 + ChatGPT</td>
+<td>LLaMA-13B</td>
+<td>explanation tuning</td>
+<td>推理轨迹蒸馏</td>
+</tr>
+<tr>
+<td>2023.10</td>
+<td>Orca 2</td>
+<td>合成</td>
+<td>LLaMA-2 7B/13B</td>
+<td>策略选择蒸馏</td>
+<td>小模型大推理</td>
+</tr>
+<tr>
+<td>2023.06</td>
+<td>MiniLLM</td>
+<td>开源大 LLM</td>
+<td>120M–13B</td>
+<td>reverse KL + on-policy</td>
+<td>白盒生成式蒸馏</td>
+</tr>
+<tr>
+<td>2023.09</td>
+<td>Phi-1.5 / 2023.12 Phi-2</td>
+<td>合成</td>
+<td>1.3B–2.7B</td>
+<td>textbook 数据</td>
+<td>数据 &gt; 规模</td>
+</tr>
+<tr>
+<td>2024.04</td>
+<td>Phi-3</td>
+<td>合成</td>
+<td>3.8B/7B</td>
+<td>合成 + 蒸馏</td>
+<td>小模型对标大模型</td>
+</tr>
+<tr>
+<td>2024.06</td>
+<td>Phi-4</td>
+<td>合成</td>
+<td>14B</td>
+<td>教科书 + CoT 蒸馏</td>
+<td>14B 越级</td>
+</tr>
+<tr>
+<td>2025.01</td>
+<td><strong>DeepSeek-R1-Distill</strong></td>
+<td>DeepSeek-R1 671B MoE</td>
+<td>Qwen2.5 / Llama3 1.5B–70B</td>
+<td>800K CoT SFT</td>
+<td>推理蒸馏标杆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-deepseek-r1-distill-深度解析">8.2 DeepSeek-R1-Distill 深度解析<a class="headerlink" href="#82-deepseek-r1-distill-深度解析" title="Permanent link">&para;</a></h3>
+<p>DeepSeek-R1-Distill 是当前最具影响力的 LLM 蒸馏案例，值得单独剖析。</p>
+<p><strong>教师</strong>：DeepSeek-R1，671B MoE，用大规模 RL（无 SFT 冷启动版即 R1-Zero）激励出长链推理、自我验证、反思能力。</p>
+<p><strong>学生</strong>：六个稠密模型，覆盖 1.5B–70B：</p>
+<table>
+<thead>
+<tr>
+<th>学生</th>
+<th>基座</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1-Distill-Qwen-1.5B</td>
+<td>Qwen2.5-Math-1.5B</td>
+</tr>
+<tr>
+<td>R1-Distill-Qwen-7B</td>
+<td>Qwen2.5-Math-7B</td>
+</tr>
+<tr>
+<td>R1-Distill-Llama-8B</td>
+<td>Llama-3.1-8B</td>
+</tr>
+<tr>
+<td>R1-Distill-Qwen-14B</td>
+<td>Qwen2.5-14B</td>
+</tr>
+<tr>
+<td>R1-Distill-Qwen-32B</td>
+<td>Qwen2.5-32B</td>
+</tr>
+<tr>
+<td>R1-Distill-Llama-70B</td>
+<td>Llama-3.3-70B-Instruct</td>
+</tr>
+</tbody>
+</table>
+<p><strong>方法</strong>：</p>
+<ol>
+<li>用 R1 生成 <strong>80 万条</strong>高质量推理样本（含 CoT、自验证、反思）。</li>
+<li>对六个基座<strong>仅做 SFT</strong>，不做 RL。</li>
+<li>关键发现：<strong>直接蒸馏 &gt; 在小模型上做 RL</strong>。R1 论文实验显示，把 Qwen2.5-32B 直接蒸馏比在其上做 RL 效果更好，说明"大模型发现的推理模式对小模型至关重要，难以通过小模型自身 RL 重新发现"。</li>
+</ol>
+<p><strong>成绩（AIME 2024）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>Base</th>
+<th>Teacher</th>
+<th>AIME 2024</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1-Distill-Qwen-1.5B</td>
+<td>Qwen2.5-Math-1.5B</td>
+<td>DeepSeek-R1</td>
+<td>28.9%</td>
+</tr>
+<tr>
+<td>R1-Distill-Qwen-7B</td>
+<td>Qwen2.5-Math-7B</td>
+<td>DeepSeek-R1</td>
+<td>55.5%</td>
+</tr>
+<tr>
+<td>R1-Distill-Llama-8B</td>
+<td>Llama-3.1-8B</td>
+<td>DeepSeek-R1</td>
+<td>50.4%</td>
+</tr>
+<tr>
+<td>R1-Distill-Qwen-32B</td>
+<td>Qwen2.5-32B</td>
+<td>DeepSeek-R1</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>R1-Distill-Llama-70B</td>
+<td>Llama-3.3-70B</td>
+<td>DeepSeek-R1</td>
+<td>70.0%</td>
+</tr>
+<tr>
+<td>DeepSeek-R1 (Teacher)</td>
+<td>MoE 671B</td>
+<td>—</td>
+<td>79.8%</td>
+</tr>
+</tbody>
+</table>
+<p>32B 蒸馏模型在多项基准上超过 OpenAI-o1-mini，创下稠密模型新 SOTA。</p>
+<p><strong>影响</strong>：开启 2025 年"推理蒸馏"浪潮，社区出现大量基于 R1-Distill 的二次蒸馏、混合蒸馏工作。</p>
+<h3 id="83-产业平台">8.3 产业平台<a class="headerlink" href="#83-产业平台" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>Teacher</th>
+<th>Student</th>
+<th>能力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Azure AI Foundry</strong></td>
+<td>Llama-3.1-405B</td>
+<td>Llama-8B, Phi-3-Mini</td>
+<td>一键蒸馏 + 评估</td>
+</tr>
+<tr>
+<td><strong>Hugging Face TRL</strong></td>
+<td>任意</td>
+<td>任意</td>
+<td>GKDTrainer 内置</td>
+</tr>
+<tr>
+<td><strong>Axolotl</strong></td>
+<td>可配置</td>
+<td>可配置</td>
+<td>蒸馏训练配方</td>
+</tr>
+<tr>
+<td><strong>Microsoft LMOps</strong></td>
+<td>—</td>
+<td>—</td>
+<td>MiniLLM 开源工具链</td>
+</tr>
+</tbody>
+</table>
+<h3 id="84-vlm-蒸馏代表">8.4 VLM 蒸馏代表<a class="headerlink" href="#84-vlm-蒸馏代表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>参数量</th>
+<th>方法</th>
+<th>亮点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MobileVLM V2</strong></td>
+<td>1.4B–3B</td>
+<td>Align-KD</td>
+<td>端侧 VLM 基线</td>
+</tr>
+<tr>
+<td><strong>LLaVA-KD</strong></td>
+<td>—</td>
+<td>三阶段表征+关系蒸馏</td>
+<td>ICCV 2025 框架</td>
+</tr>
+<tr>
+<td><strong>LLaVA-MoD</strong></td>
+<td>2B (MoE)</td>
+<td>KD+DPO+MoE</td>
+<td>超越 7B 模型</td>
+</tr>
+<tr>
+<td><strong>GenRecal</strong></td>
+<td>7B</td>
+<td>Recalibrator 特征重标定</td>
+<td>异构 VLM 蒸馏</td>
+</tr>
+<tr>
+<td><strong>SmolVLM / SmolVLM2</strong></td>
+<td>256M–2.2B</td>
+<td>原生小模型</td>
+<td>iPhone 可运行</td>
+</tr>
+<tr>
+<td><strong>Mini-InternVL</strong></td>
+<td>1B–4B</td>
+<td>InternViT 蒸馏</td>
+<td>高效视觉编码器</td>
+</tr>
+<tr>
+<td><strong>MiniCPM-V 4.6</strong></td>
+<td>1.3B</td>
+<td>ViT 内早期压缩</td>
+<td>iOS/Android 端侧</td>
+</tr>
+<tr>
+<td><strong>Qwen2.5-VL</strong></td>
+<td>3B–72B</td>
+<td>多尺度原生训练</td>
+<td>全尺寸覆盖</td>
+</tr>
+<tr>
+<td><strong>Kimi-VL</strong></td>
+<td>3B (MoE)</td>
+<td>—</td>
+<td>高效推理</td>
+</tr>
+<tr>
+<td><strong>InternVL 系列</strong></td>
+<td>多尺寸</td>
+<td>多尺寸蒸馏 + token 压缩</td>
+<td>多尺寸覆盖</td>
+</tr>
+</tbody>
+</table>
+<h3 id="85-embedding-蒸馏代表">8.5 Embedding 蒸馏代表<a class="headerlink" href="#85-embedding-蒸馏代表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>思路</th>
+<th>排行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jasper/Stella</td>
+<td>多教师多阶段蒸馏</td>
+<td>MTEB 顶端（71.54）</td>
+</tr>
+<tr>
+<td>jina-embeddings-v5</td>
+<td>蒸馏+任务对比</td>
+<td>多语言 SOTA</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-8B</td>
+<td>全合成数据+SLERP</td>
+<td>MTEB 多语言 70.58</td>
+</tr>
+<tr>
+<td>BGE-M3 系列</td>
+<td>多功能多语言蒸馏</td>
+<td>中文检索主流</td>
+</tr>
+<tr>
+<td>NV-Embed</td>
+<td>LLM-based 嵌入（教师级）</td>
+<td>常作教师</td>
+</tr>
+<tr>
+<td>Nomic-embed</td>
+<td>MRL 维度自适应</td>
+<td>轻量部署</td>
+</tr>
+<tr>
+<td>gte-Qwen2</td>
+<td>LLM backbone 蒸馏</td>
+<td>中等规模高性能</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-前沿方向">9. 前沿方向<a class="headerlink" href="#9-前沿方向" title="Permanent link">&para;</a></h2>
+<h3 id="91-推理蒸馏reasoning-distillation">9.1 推理蒸馏（Reasoning Distillation）<a class="headerlink" href="#91-推理蒸馏reasoning-distillation" title="Permanent link">&para;</a></h3>
+<p>把长链思考、自我验证、反思等"慢思考"能力从大模型迁移到小模型。DeepSeek-R1-Distill 是里程碑，后续趋势：</p>
+<ul>
+<li><strong>测试时 scaling 蒸馏</strong>：让学生学到教师在测试时的多路径搜索、自洽验证。</li>
+<li><strong>可验证奖励引导蒸馏</strong>：用可验证的数学/代码奖励筛选教师轨迹，过滤低质量 CoT。</li>
+<li><strong>混合推理策略蒸馏</strong>（Orca 2 思路延伸）：学生学到根据问题难度选择不同推理深度。</li>
+<li><strong>OpenAI o1 蒸馏</strong>：业界推测采用类似 CoT 轨迹蒸馏（未公开细节）。</li>
+<li><strong>RLKD</strong>：RL + 结构感知奖励，补充散度匹配的不足。</li>
+</ul>
+<h3 id="92-agent-蒸馏">9.2 Agent 蒸馏<a class="headerlink" href="#92-agent-蒸馏" title="Permanent link">&para;</a></h3>
+<p>不再只迁移"思考"，而是迁移"思考-行动-观察"完整闭环，让学生学会工具调用、环境交互。Agent Distillation（2025）是开山之作，后续方向：</p>
+<ul>
+<li>多工具、多步长 agent 轨迹蒸馏；</li>
+<li>与 MCP 协议结合的工具使用迁移；</li>
+<li>在线 agent 蒸馏（学生在真实环境中探索，教师离线纠正）。</li>
+</ul>
+<h3 id="93-在线--on-policy-蒸馏">9.3 在线 / On-Policy 蒸馏<a class="headerlink" href="#93-在线--on-policy-蒸馏" title="Permanent link">&para;</a></h3>
+<p>学生从<strong>自身生成</strong>的样本上学习教师反馈，缩小分布偏移：</p>
+<ul>
+<li>MiniLLM、GKD 的 on-policy 策略梯度；</li>
+<li><strong>Thinking Machines Lab (2025)</strong> 将 on-policy distillation 与 dense per-token reverse KL 结合，用 teacher 在学生实际到达的前缀上打分，缓解 off-policy 的 compounding error；</li>
+<li>**Black-Box On-Policy Distillation（2025, arXiv:2511.10643）**用 GAN + Bradley-Terry 在学生自身样本上学习，无需教师 logits；</li>
+<li><strong>ORPO-Distill</strong>：结合 on/off-policy 负样本，抗 mode collapse。</li>
+</ul>
+<h3 id="94-自蒸馏与无-teacher-蒸馏">9.4 自蒸馏与无 Teacher 蒸馏<a class="headerlink" href="#94-自蒸馏与无-teacher-蒸馏" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Born-Again Networks / PS-KD</strong></td>
+<td>模型自我精炼，常超原模型</td>
+</tr>
+<tr>
+<td><strong>SPIN</strong></td>
+<td>学生区分自身生成 vs 人类参考</td>
+</tr>
+<tr>
+<td><strong>Self-Rewarding</strong></td>
+<td>学生自评 + 自优化</td>
+</tr>
+<tr>
+<td><strong>SigLIP 2 ACID</strong></td>
+<td>EMA Teacher 隐式自蒸馏</td>
+</tr>
+<tr>
+<td><strong>Self-Play Fine-Tuning</strong></td>
+<td>博弈式自我提升</td>
+</tr>
+</tbody>
+</table>
+<h3 id="95-数据合成与数据高效蒸馏">9.5 数据合成与数据高效蒸馏<a class="headerlink" href="#95-数据合成与数据高效蒸馏" title="Permanent link">&para;</a></h3>
+<p>教师作为数据生成器，与数据集蒸馏（Dataset Distillation, DD）融合：</p>
+<ul>
+<li>用 persona / role library 提升合成多样性（Qwen3-Embedding、KaLM）；</li>
+<li>generate-then-rank：用奖励模型过滤弱样本（Nemotron-4 340B 报告 &gt;98% 合成对齐数据）；</li>
+<li>梯度匹配 / 潜空间正则化合成紧凑高影响数据集。</li>
+<li><strong>SRD</strong>：学生反思筛选 + 课程学习，训练量降至 60%</li>
+<li><strong>L2M-KD</strong>：Least-to-Most 难度排序分阶段蒸馏</li>
+<li><strong>Lion</strong>：学生反馈指导 Teacher 定向生成</li>
+<li><strong>AlpaGasus</strong>：质量过滤 9K &gt; 原始 52K</li>
+</ul>
+<h3 id="96-跨架构蒸馏">9.6 跨架构蒸馏<a class="headerlink" href="#96-跨架构蒸馏" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GenRecal</strong>：Recalibrator 桥接异构 VLM 特征空间</li>
+<li><strong>EMO</strong>：跨 Tokenizer 注意力/隐层对齐</li>
+<li><strong>VLsI</strong>：自然语言 Verbalization 桥接层级差异</li>
+<li><strong>GrayKD</strong>：黑盒 Teacher 隐式推理蒸馏</li>
+</ul>
+<h3 id="97-多教师蒸馏">9.7 多教师蒸馏<a class="headerlink" href="#97-多教师蒸馏" title="Permanent link">&para;</a></h3>
+<p>单一教师能力有上限，多教师融合成为趋势：</p>
+<ul>
+<li>Jasper/Stella：NV-Embed + bge-en-icl + LLM2Vec；</li>
+<li>MaCSE：CTDE 动态权重融合；</li>
+<li>趋势：按任务/阶段动态选择教师，避免容量瓶颈。</li>
+</ul>
+<h3 id="98-偏好蒸馏与对抗蒸馏">9.8 偏好蒸馏与对抗蒸馏<a class="headerlink" href="#98-偏好蒸馏与对抗蒸馏" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>DPO-based preference distillation</strong>（LLaVA-MoD）：学生学到超越教师的偏好判别，在幻觉基准反超教师。</li>
+<li><strong>GAD</strong>：对抗训练，判别器区分师生输出，学生学会"以假乱真"。</li>
+</ul>
+<h3 id="99-持续蒸馏">9.9 持续蒸馏<a class="headerlink" href="#99-持续蒸馏" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>持续蒸馏</strong>：教师持续更新（如 GPT-4 升级），学生需增量对齐，避免能力漂移——这是 2025 年公开挑战。</li>
+</ul>
+<h3 id="910-多模态统一蒸馏">9.10 多模态统一蒸馏<a class="headerlink" href="#910-多模态统一蒸馏" title="Permanent link">&para;</a></h3>
+<ul>
+<li>视觉→语言、文本→图像、音频→文本的跨模态迁移；</li>
+<li>GenRecal 的 Recalibrator 思路可推广到任意异构师生；</li>
+<li>与统一多模态模型（GPT-4o 类）结合，蒸馏"全模态"能力。</li>
+<li><strong>NExT-GPT / AnyGPT</strong>：统一多模态生成蒸馏</li>
+<li><strong>VisPer-LM</strong>：视觉感知知识注入 LLM 中间层</li>
+<li><strong>Jasper 未来工作</strong>：多模态嵌入对齐</li>
+</ul>
+<hr />
+<h2 id="10-挑战与未来方向">10. 挑战与未来方向<a class="headerlink" href="#10-挑战与未来方向" title="Permanent link">&para;</a></h2>
+<h3 id="101-当前挑战">10.1 当前挑战<a class="headerlink" href="#101-当前挑战" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>能力差距（capacity gap）</strong>：学生太小时无法吸收教师全部知识，多教师/渐进式课程是缓解手段。</li>
+<li><strong>涌现能力难以保留</strong>：教师的某些"涌现"能力（如复杂推理）在小模型中难以复现，蒸馏常只能逼近部分。</li>
+<li><strong>评估缺失</strong>：缺乏统一的蒸馏效果评估协议，尤其在"是否真正学到推理过程"层面；自动指标与人工评价不一致。</li>
+<li><strong>合规与许可</strong>：蒸馏闭源 API 模型存在 ToS 风险（OpenAI、Anthropic 条款限制），版权争议中，需谨慎。</li>
+<li><strong>分布偏移</strong>：off-policy 蒸馏学生分布与教师不一致，on-policy 方法成本高。</li>
+<li><strong>跨架构对齐</strong>：不同 tokenizer、不同视觉编码器、不同 LLM 主干导致特征空间不兼容。</li>
+<li><strong>持续更新</strong>：教师升级后学生如何增量对齐尚无成熟方案。</li>
+<li><strong>蒸馏效率</strong>：黑盒 API 调用成本高昂。</li>
+<li><strong>能力遗忘</strong>：蒸馏后通用能力退化。</li>
+<li><strong>VLM Teacher 悖论</strong>：更强 Teacher → 更差 Student，需新蒸馏框架。</li>
+<li><strong>Scaling Law</strong>：蒸馏效果随规模的变化规律尚在初步探索。</li>
+</ol>
+<h3 id="102-开放问题对照表">10.2 开放问题对照表<a class="headerlink" href="#102-开放问题对照表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>描述</th>
+<th>进展</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>蒸馏效率</strong></td>
+<td>黑盒 API 调用成本高昂</td>
+<td>Lion, SRD 数据减半</td>
+</tr>
+<tr>
+<td><strong>评估可靠性</strong></td>
+<td>自动指标与人工评价不一致</td>
+<td>多维度评估协议</td>
+</tr>
+<tr>
+<td><strong>能力遗忘</strong></td>
+<td>蒸馏后通用能力退化</td>
+<td>混合数据训练</td>
+</tr>
+<tr>
+<td><strong>版权与合规</strong></td>
+<td>蒸馏是否侵犯模型版权</td>
+<td>法律争议中</td>
+</tr>
+<tr>
+<td><strong>VLM Teacher 悖论</strong></td>
+<td>更强 Teacher → 更差 Student</td>
+<td>需新蒸馏框架</td>
+</tr>
+<tr>
+<td><strong>Scaling Law</strong></td>
+<td>蒸馏效果随规模的变化规律</td>
+<td>初步探索</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-未来方向">10.3 未来方向<a class="headerlink" href="#103-未来方向" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>数据-模型协同蒸馏</strong>：把 Dataset Distillation 与 Model Distillation 统一规划（2025 Springer 综述倡导）。</li>
+<li><strong>测试时计算蒸馏</strong>：让学生内化教师的测试时搜索策略，而非仅静态轨迹。</li>
+<li><strong>可解释蒸馏</strong>：迁移教师的自解释过程（rationale、attention pattern），而非仅输出。</li>
+<li><strong>端到端 Agent 蒸馏</strong>：把感知-推理-行动-记忆作为整体迁移，迈向"小而全"的 agent。</li>
+<li><strong>统一多模态蒸馏框架</strong>：处理任意模态、任意架构师生，类似 GenRecal 的通用化。</li>
+<li><strong>合规蒸馏协议</strong>：建立不依赖闭源 API 的开源教师生态（DeepSeek、Qwen 已示范）。</li>
+<li><strong>持续/在线蒸馏基础设施</strong>：支持教师频繁更新的增量蒸馏流水线。</li>
+</ul>
+<h3 id="104-未来趋势预测">10.4 未来趋势预测<a class="headerlink" href="#104-未来趋势预测" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>蒸馏 + RL 融合</strong>：SFT 初始化 + 轻量 RL 精炼（R1 范式延伸）</li>
+<li><strong>端侧多模态</strong>：&lt;2B VLM 在消费级设备部署成标配</li>
+<li><strong>嵌入模型商品化</strong>：MRL + 多 Teacher 蒸馏成为 RAG 默认方案</li>
+<li><strong>自动化蒸馏流水线</strong>：Teacher 选择 → 数据生成 → 训练 → 评估端到端</li>
+<li><strong>能力特异性蒸馏</strong>：针对推理/代码/多语言等垂直能力独立蒸馏</li>
+</ol>
+<hr />
+<h2 id="11-实践指南与选型建议">11. 实践指南与选型建议<a class="headerlink" href="#11-实践指南与选型建议" title="Permanent link">&para;</a></h2>
+<h3 id="111-决策树">11.1 决策树<a class="headerlink" href="#111-决策树" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>开始
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a> │
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a> ├─ 有白盒 Teacher logits 访问？
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> │   ├─ 是 → On-Policy 白盒蒸馏
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> │   │       ├─ 生成任务 → MiniLLM (Rev-KL) 或 GKD
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a> │   │       └─ 分类/理解 → 经典 KD (Forward KL)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a> │   └─ 否 → 黑盒蒸馏
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a> │           ├─ 有预算 → GPT-4 合成数据 + SFT
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a> │           └─ 低预算 → 开源 Teacher (Llama-405B) 蒸馏
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a> │
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a> ├─ 目标模态？
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a> │   ├─ 纯文本 LLM → 第 5 节方法
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a> │   ├─ VLM → Align-KD / LLaVA-KD / GenRecal
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a> │   └─ Embedding → Jasper 框架 / SimTDE / EMO (跨 tokenizer)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a> │
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a> └─ 目标能力？
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>     ├─ 指令遵循 → Alpaca/WizardLM 范式
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>     ├─ 推理 → R1-Distill 范式 (CoT 轨迹)
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>     ├─ 偏好对齐 → DPO/Zephyr 范式
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>     └─ 代码/数学 → Phi 范式 (textbook-quality 数据)
+</code></pre></div>
+<h3 id="112-超参数建议">11.2 超参数建议<a class="headerlink" href="#112-超参数建议" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>LLM 蒸馏</th>
+<th>VLM 蒸馏</th>
+<th>Embedding 蒸馏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>温度 <span class="arithmatex">\(T\)</span></td>
+<td>2.0–4.0</td>
+<td>1.0–2.0</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\alpha\)</span> (软/硬)</td>
+<td>0.3–0.7</td>
+<td>0.5</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>学习率</td>
+<td>1e-5 – 2e-5</td>
+<td>1e-5</td>
+<td>2e-5 – 5e-5</td>
+</tr>
+<tr>
+<td>On-Policy <span class="arithmatex">\(\lambda\)</span></td>
+<td>0.5–1.0</td>
+<td>0.3–0.5</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>GKD <span class="arithmatex">\(\beta\)</span></td>
+<td>0.5 (JSD)</td>
+<td>0.5</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>数据量</td>
+<td>10K–1M</td>
+<td>100K–1M</td>
+<td>1M+ 无标注</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113-工具链推荐">11.3 工具链推荐<a class="headerlink" href="#113-工具链推荐" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TRL GKDTrainer</strong></td>
+<td>On-Policy LLM 蒸馏</td>
+<td>huggingface.co/docs/trl</td>
+</tr>
+<tr>
+<td><strong>Axolotl</strong></td>
+<td>蒸馏训练配置</td>
+<td>github.com/axolotl-ai-cloud</td>
+</tr>
+<tr>
+<td><strong>Microsoft LMOps/MiniLLM</strong></td>
+<td>MiniLLM 实现</td>
+<td>github.com/microsoft/LMOps</td>
+</tr>
+<tr>
+<td><strong>LLaVA-KD</strong></td>
+<td>VLM 蒸馏框架</td>
+<td>ICCV 2025</td>
+</tr>
+<tr>
+<td><strong>Sentence Transformers</strong></td>
+<td>Embedding 训练/蒸馏</td>
+<td>sbert.net</td>
+</tr>
+<tr>
+<td><strong>Azure AI Foundry</strong></td>
+<td>企业级一键蒸馏</td>
+<td>Azure 平台</td>
+</tr>
+</tbody>
+</table>
+<h3 id="114-常见陷阱">11.4 常见陷阱<a class="headerlink" href="#114-常见陷阱" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>盲目追求数据量</strong>：低质合成数据会引入 Teacher 偏见（Phi 教训：质量 &gt; 数量）</li>
+<li><strong>忽略分布偏移</strong>：纯 Off-Policy SeqKD 在长文本生成上 exposure bias 严重</li>
+<li><strong>VLM 直接 Logit 蒸馏</strong>：跨模态对齐知识比输出 Logit 更重要（Align-KD 经验）</li>
+<li><strong>Embedding 维度硬截断</strong>：应使用 MRL 训练支持多维度推理</li>
+<li><strong>评估单一指标</strong>：Rouge-L 不能全面反映指令遵循质量，需多 benchmark 验证</li>
+</ol>
+<hr />
+<h2 id="12-参考文献">12. 参考文献<a class="headerlink" href="#12-参考文献" title="Permanent link">&para;</a></h2>
+<h3 id="经典与基础">经典与基础<a class="headerlink" href="#经典与基础" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Buciluǎ et al. <em>Model Compression</em>. KDD 2006.</li>
+<li>Hinton, Vinyals, Dean. <em>Distilling the Knowledge in a Neural Network</em>. arXiv:1503.02531, 2015.</li>
+<li>Kim &amp; Rush. <em>Sequence-Level Knowledge Distillation</em>. EMNLP 2016.</li>
+<li>Gou et al. <em>A Comprehensive Review of Knowledge Distillation</em>. arXiv:2103.02523, 2021.</li>
+<li>Furlanello et al. <em>Born-Again Neural Networks</em>. ICML 2018.</li>
+<li>Zhang et al. <em>Deep Mutual Learning</em>. CVPR 2018.</li>
+<li>Zhu &amp; Yu. <em>Knowledge Distillation by On-the-Fly Native Ensemble (ONE)</em>. arXiv:1806.04606, 2018.</li>
+</ol>
+<h3 id="预训练语言模型蒸馏">预训练语言模型蒸馏<a class="headerlink" href="#预训练语言模型蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Sanh et al. <em>DistilBERT, a distilled version of BERT</em>. NeurIPS-W 2019.</li>
+<li>Jiao et al. <em>TinyBERT</em>. ICLR 2020 (Findings).</li>
+<li>Wang et al. <em>MiniLM / MiniLMv2</em>. NeurIPS 2020 / 2021.</li>
+</ol>
+<h3 id="llm-黑盒蒸馏">LLM 黑盒蒸馏<a class="headerlink" href="#llm-黑盒蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Taori et al. <em>Stanford Alpaca</em>. 2023.</li>
+<li>Chiang et al. <em>Vicuna</em>. 2023.</li>
+<li>Xu et al. <em>WizardLM / Evol-Instruct</em>. arXiv:2304.12244, 2023.</li>
+<li>Mukherjee et al. <em>Orca: Progressive Learning from Complex Explanation Traces of GPT-4</em>. arXiv:2306.02707, 2023.</li>
+<li>Mitra et al. <em>Orca 2: Teaching Small Language Models to Reason</em>. arXiv:2311.11045, 2023.</li>
+<li>Gunasekar et al. <em>Textbooks Are All You Need (Phi-1)</em>. arXiv:2306.11644, 2023.</li>
+<li>Li et al. <em>Phi-1.5</em>. arXiv:2309.05463, 2023.</li>
+<li>Abdin et al. <em>Phi-3 / Phi-4</em>. arXiv:2404.14219 / arXiv:2412.08905, 2024.</li>
+<li>Tunstall, L., et al. <em>Zephyr: Direct Distillation of LM Alignment</em>. arXiv:2310.16944, 2023.</li>
+</ol>
+<h3 id="llm-白盒蒸馏">LLM 白盒蒸馏<a class="headerlink" href="#llm-白盒蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Gu, Dong, Wei, Huang. <em>MiniLLM: On-Policy Distillation of LLMs</em>. ICLR 2024. arXiv:2306.08543.</li>
+<li>Aggarwal et al. <em>GKD: Generalized Knowledge Distillation</em>. arXiv:2306.13649, 2023.</li>
+<li>Ye et al. <em>Generative Adversarial Distillation (GAD)</em>. 2025.</li>
+<li>Singh et al. <em>ORPO-Distill</em>. 2025.</li>
+<li><em>Black-Box On-Policy Distillation of LLMs</em>. arXiv:2511.10643, 2025.</li>
+</ol>
+<h3 id="deepseek-r1">DeepSeek-R1<a class="headerlink" href="#deepseek-r1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>DeepSeek-AI. <em>DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via RL</em>. arXiv:2501.12948, 2025.</li>
+<li>DeepSeek-AI. <em>DeepSeek-R1-Distill-Qwen/Llama</em> (1.5B–70B). HuggingFace, 2025.</li>
+</ol>
+<h3 id="agent-蒸馏">Agent 蒸馏<a class="headerlink" href="#agent-蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Kang, Jeong, Lee, Cho, Hwang. <em>Distilling LLM Agent into Small Models with Retrieval and Code Tools</em>. arXiv:2505.17612, 2025.</li>
+<li>Yao et al. <em>ReAct</em>. ICLR 2023.</li>
+<li>Wang et al. <em>CodeAct</em>. ICML 2024.</li>
+</ol>
+<h3 id="vlm-蒸馏">VLM 蒸馏<a class="headerlink" href="#vlm-蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Cai et al. <em>LLaVA-KD: A Framework of Distilling Multimodal Large Language Models</em>. ICCV 2025. arXiv:2410.16236.</li>
+<li><em>LLaVA-MoD: Making LLaVA Tiny via MoE-Knowledge Distillation</em>. ICLR 2025. arXiv:2408.15881.</li>
+<li><em>GenRecal: Generation after Recalibration from Large to Small VLMs</em>. arXiv:2506.15681, 2025.</li>
+<li><em>Align-KD: Distilling Cross-Modal Alignment Knowledge for Mobile Vision-Language Model</em>. arXiv:2412.01282, 2024.</li>
+<li><em>VLsI: Verbalized Layers-to-Interactions from Large to Small Vision Language Models</em>. arXiv:2412.01822, 2024.</li>
+<li>OpenBMB. <em>MiniCPM-V / MiniCPM-V 4.6</em>. GitHub, 2024–2025.</li>
+<li><em>LLaVA-UHD v4</em>. HuggingFace papers 2605.08985.</li>
+</ol>
+<h3 id="embedding-蒸馏">Embedding 蒸馏<a class="headerlink" href="#embedding-蒸馏" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Zhang et al. <em>Jasper and Stella: Distillation of SOTA Embedding Models</em>. arXiv:2412.19048, 2024.</li>
+<li><em>SimTDE: Simple Transformer Distillation for Sentence Embeddings</em>. SIGIR 2023.</li>
+<li><em>EMO: Embedding Model Distillation via Intra-Model Relation and Optimal Transport Alignments</em>. EMNLP 2025.</li>
+<li><em>CLIP-Embed-KD: Computationally Efficient Knowledge Distillation Using Embeddings as Teachers</em>. arXiv:2404.06170, 2024.</li>
+<li><em>jina-embeddings-v5-text: Task-Targeted Embedding Distillation</em>. arXiv:2602.15547, 2026.</li>
+<li><em>MaCSE: Multi-Agent Ranking Distillation for Contrastive Learning of Sentence Embeddings</em>. IJCNN 2025.</li>
+<li><em>Multi-stage Distillation Framework for Cross-Lingual Semantic Similarity Matching</em>. NAACL Findings 2022.</li>
+<li>Qwen Team. <em>Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models</em>. arXiv:2506.05176, 2025.</li>
+</ol>
+<h3 id="多模态嵌入">多模态嵌入<a class="headerlink" href="#多模态嵌入" title="Permanent link">&para;</a></h3>
+<ol>
+<li><em>SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding</em>. arXiv:2502.14786, 2025.</li>
+<li><em>Multimodal Distillation of CLIP Models</em>. NeurIPS 2023 SSL Workshop.</li>
+</ol>
+<h3 id="综述">综述<a class="headerlink" href="#综述" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Xu et al. <em>Self-Knowledge Distillation and Its Application: A Survey</em>. IEEE TKDE 2026.</li>
+<li><em>A Survey on Knowledge Distillation: Recent Advancements</em>. Machine Learning with Applications 2024.</li>
+<li><em>Survey on Knowledge Distillation for LLMs: Methods, Evaluation, and Application</em>. ACM TIST 2024.</li>
+<li>Xu, X., et al. <em>A Survey on Knowledge Distillation of Large Language Models</em>. arXiv:2402.13116, 2024.</li>
+<li><em>Knowledge Distillation and Dataset Distillation of LLMs: Emerging Trends, Challenges, and Future Directions</em>. Springer AI Review 2025.</li>
+</ol>
+<h3 id="on-policy-distillation-与-reverse-kl-估计附录-c">On-Policy Distillation 与 Reverse KL 估计（附录 C）<a class="headerlink" href="#on-policy-distillation-与-reverse-kl-估计附录-c" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Schulman, J. <em>Approximating KL Divergence</em>. <a href="http://joschu.net/blog/kl-approx.html">joschu.net/blog/kl-approx.html</a>, 2020.</li>
+<li>NormalUhr. <em>Re-understanding KL Approximation from an RL-for-LLM Lens</em>. Hugging Face Blog, 2024. <a href="https://huggingface.co/blog/NormalUhr/kl-divergence-estimator-rl-llm">huggingface.co/blog/NormalUhr/kl-divergence-estimator-rl-llm</a></li>
+<li>Münzel, L. <em>A small observation on Schulmann's KL divergence estimator</em>. <a href="https://lukasmuenzel.com/kl_estimator/">lukasmuenzel.com/kl_estimator</a>, 2024.</li>
+<li>Thinking Machines Lab. <em>On-Policy Distillation</em>. <a href="https://thinkingmachines.ai/blog/on-policy-distillation/">thinkingmachines.ai/blog/on-policy-distillation</a>, 2025.</li>
+<li>verl. <em>On-Policy Distillation (OPD)</em>. <a href="https://verl.readthedocs.io/en/latest/algo/opd.html">verl.readthedocs.io/en/latest/algo/opd.html</a></li>
+<li>Agarwal, R., et al. <em>On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes (GKD)</em>. ICLR 2024. arXiv:2306.13649.</li>
+<li>Ng, A. <em>Policy Gradient (REINFORCE)</em>. CS229 Lecture Notes. Stanford, 2020.</li>
+<li><em>A Survey of On-Policy Distillation for Large Language Models</em>. arXiv:2604.00626, 2026.</li>
+<li>Liu, C. <em>awesome-on-policy-distillation</em>. GitHub, 2026. <a href="https://github.com/chrisliu298/awesome-on-policy-distillation">github.com/chrisliu298/awesome-on-policy-distillation</a></li>
+</ol>
+<hr />
+<h2 id="附录-a术语表">附录 A：术语表<a class="headerlink" href="#附录-a术语表" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>英文</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>暗知识</td>
+<td>Dark Knowledge</td>
+<td>软标签中非最大类目的概率信息</td>
+</tr>
+<tr>
+<td>白盒蒸馏</td>
+<td>White-box KD</td>
+<td>可访问 Teacher 内部参数</td>
+</tr>
+<tr>
+<td>黑盒蒸馏</td>
+<td>Black-box KD</td>
+<td>仅通过 API 获取输出</td>
+</tr>
+<tr>
+<td>On-Policy</td>
+<td>同策略</td>
+<td>在 Student 自身生成的序列上学习</td>
+</tr>
+<tr>
+<td>Off-Policy</td>
+<td>异策略</td>
+<td>在 Teacher 生成的序列上学习</td>
+</tr>
+<tr>
+<td>CoT</td>
+<td>Chain-of-Thought</td>
+<td>思维链推理</td>
+</tr>
+<tr>
+<td>MRL</td>
+<td>Matryoshka Representation Learning</td>
+<td>俄罗斯套娃式多维度嵌入</td>
+</tr>
+<tr>
+<td>CTKD</td>
+<td>Cross-Tokenizer KD</td>
+<td>跨分词器蒸馏</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>Direct Preference Optimization</td>
+<td>直接偏好优化</td>
+</tr>
+<tr>
+<td>GJSD</td>
+<td>Generalized Jensen-Shannon Divergence</td>
+<td>广义 JS 散度</td>
+</tr>
+<tr>
+<td>MDist</td>
+<td>Multimodal Distillation</td>
+<td>多模态表征蒸馏</td>
+</tr>
+<tr>
+<td>RDist</td>
+<td>Relation Distillation</td>
+<td>关系结构蒸馏</td>
+</tr>
+<tr>
+<td>Recalibrator</td>
+<td>特征重标定器</td>
+<td>异构 VLM 间特征空间对齐模块</td>
+</tr>
+<tr>
+<td>CTDE</td>
+<td>Centralized Training Decentralized Execution</td>
+<td>集中训练分散执行</td>
+</tr>
+<tr>
+<td>FTP</td>
+<td>First-Thought Prefix</td>
+<td>Agent 蒸馏中的首步思考前缀</td>
+</tr>
+<tr>
+<td>SAG</td>
+<td>Self-Consistent Action Generation</td>
+<td>自洽动作生成</td>
+</tr>
+</tbody>
+</table>
+<h2 id="附录-b重要资源链接">附录 B：重要资源链接<a class="headerlink" href="#附录-b重要资源链接" title="Permanent link">&para;</a></h2>
+<h3 id="论文合集与综述">论文合集与综述<a class="headerlink" href="#论文合集与综述" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://github.com/Tebmer/Awesome-Knowledge-Distillation-of-LLMs">Awesome-Knowledge-Distillation-of-LLMs</a></li>
+<li><a href="https://github.com/chrisliu298/awesome-on-policy-distillation">awesome-on-policy-distillation</a></li>
+<li><a href="https://arxiv.org/abs/2402.13116">A Survey on Knowledge Distillation of LLMs (arXiv:2402.13116)</a></li>
+<li><a href="https://arxiv.org/html/2604.00626v1">On-Policy Distillation Survey (arXiv:2604.00626)</a></li>
+</ul>
+<h3 id="开源工具与框架">开源工具与框架<a class="headerlink" href="#开源工具与框架" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://github.com/microsoft/LMOps/tree/main/minillm">MiniLLM Code</a></li>
+<li><a href="https://huggingface.co/docs/trl/main/en/gkd_trainer">TRL GKDTrainer</a></li>
+<li><a href="https://github.com/axolotl-ai-cloud/axolotl">Axolotl 蒸馏训练配置</a></li>
+<li><a href="https://verl.readthedocs.io/en/latest/algo/opd.html">verl OPD 文档</a></li>
+<li><a href="https://www.sbert.net/">Sentence Transformers</a></li>
+</ul>
+<h3 id="代表性模型">代表性模型<a class="headerlink" href="#代表性模型" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://huggingface.co/deepseek-ai">DeepSeek-R1-Distill Models</a></li>
+<li><a href="https://huggingface.co/infgrad">Jasper Embedding</a></li>
+<li><a href="https://huggingface.co/Qwen">Qwen3-Embedding</a></li>
+<li><a href="https://huggingface.co/jinaai">jina-embeddings-v5</a></li>
+<li><a href="https://github.com/">LLaVA-KD</a> (ICCV 2025)</li>
+</ul>
+<h3 id="技术博客">技术博客<a class="headerlink" href="#技术博客" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines: On-Policy Distillation</a></li>
+<li><a href="http://joschu.net/blog/kl-approx.html">Schulman: Approximating KL Divergence</a></li>
+<li><a href="https://huggingface.co/blog/NormalUhr/kl-divergence-estimator-rl-llm">Hugging Face: KL Divergence Estimator for RL/LLM</a></li>
+</ul>
+<h3 id="企业平台">企业平台<a class="headerlink" href="#企业平台" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://azure.microsoft.com/en-us/products/ai-foundry">Azure AI Foundry 模型蒸馏</a></li>
+<li><a href="https://github.com/microsoft/LMOps">Microsoft LMOps</a></li>
+</ul>
+<h2 id="附录-con-policy-distillation-延伸阅读">附录 C：On-Policy Distillation 延伸阅读<a class="headerlink" href="#附录-con-policy-distillation-延伸阅读" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>以下资料按建议阅读顺序组织，帮助理解 On-Policy Distillation 中 <code>reverse_kl = sampled_logprobs - teacher_logprobs</code> 的含义：为何只对 student 实际生成的 token 计算 log 差值，仍对应 reverse KL 的无偏估计，以及公式里的 <span class="arithmatex">\(P(x)\)</span> 如何隐含在采样分布中。</p>
+</blockquote>
+<h3 id="c1-第一层monte-carlo-估计-kl-期望建议优先">C.1 第一层：Monte Carlo 估计 KL 期望（建议优先）<a class="headerlink" href="#c1-第一层monte-carlo-估计-kl-期望建议优先" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>资料</th>
+<th>链接</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Approximating KL Divergence</strong>（John Schulman）</td>
+<td><a href="http://joschu.net/blog/kl-approx.html">joschu.net/blog/kl-approx.html</a></td>
+<td>RL/PPO/GRPO 中 KL 估计的经典文；说明 <span class="arithmatex">\(\mathbb{E}_{x\sim q}[\log q(x)-\log p(x)]\)</span> 为何「抽一个 x 再算 log 比」是无偏估计；介绍 k1/k2/k3 估计量及方差权衡</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Re-understanding KL Approximation from an RL-for-LLM Lens</strong></td>
+<td><a href="https://huggingface.co/blog/NormalUhr/kl-divergence-estimator-rl-llm">Hugging Face Blog</a></td>
+<td>对 Schulman 文章的 LLM/RL 视角解读，适合对照 PPO/GRPO 中的 KL 惩罚</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>A small observation on Schulmann's KL divergence estimator</strong></td>
+<td><a href="https://lukasmuenzel.com/kl_estimator/">lukasmuenzel.com</a></td>
+<td>补充 k3 在 <span class="arithmatex">\(\lambda=1\)</span> 时方差更小的直觉与推导</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读这三篇时建议盯住的核心句：</strong></p>
+<blockquote>
+<p>Given samples from <span class="arithmatex">\(q\)</span>, <span class="arithmatex">\(\log\frac{q(x)}{p(x)}\)</span> is an <strong>unbiased estimator</strong> of <span class="arithmatex">\(\mathrm{KL}(q\|p)\)</span>.</p>
+</blockquote>
+<p>把 <span class="arithmatex">\(q=\pi_\theta\)</span>、<span class="arithmatex">\(p=\pi_{\text{teacher}}\)</span>，即对应 blog 伪代码中的 <code>sampled_logprobs - teacher_logprobs</code>（符号方向取决于 KL 定义）。</p>
+<h3 id="c2-第二层on-policy-distillation-落地实现">C.2 第二层：On-Policy Distillation 落地实现<a class="headerlink" href="#c2-第二层on-policy-distillation-落地实现" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>资料</th>
+<th>链接</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td><strong>On-Policy Distillation</strong>（Thinking Machines Lab）</td>
+<td><a href="https://thinkingmachines.ai/blog/on-policy-distillation/">thinkingmachines.ai/blog/on-policy-distillation</a></td>
+<td>compounding error 动机、reverse KL 公式、Tinker 伪代码；与 DAgger / process reward 的联系</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>On-Policy Distillation (OPD)</strong>（verl 文档）</td>
+<td><a href="https://verl.readthedocs.io/en/latest/algo/opd.html">verl.readthedocs.io</a></td>
+<td>与 blog 伪代码几乎一一对应；明确 single-sample k1 估计、<code>advantage = log teacher - log student</code>、以及 <code>stop_gradient</code> 的必要性</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>GKD: On-Policy Distillation of Language Models</strong>（Agarwal et al., ICLR 2024）</td>
+<td><a href="https://arxiv.org/html/2306.13649">arXiv:2306.13649</a></td>
+<td>原始论文；<span class="arithmatex">\(\lambda\)</span> 混合 on/off-policy、forward/reverse KL 的正式定义</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>MiniLLM: On-Policy Distillation of Large Language Models</strong>（Gu et al., ICLR 2024）</td>
+<td><a href="https://arxiv.org/abs/2306.08543">arXiv:2306.08543</a></td>
+<td>reverse KL + on-policy 的早期系统工作；<a href="https://github.com/microsoft/LMOps/tree/main/minillm">代码</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c3-第三层期望-via-采样rl-通用背景">C.3 第三层：期望 via 采样（RL 通用背景）<a class="headerlink" href="#c3-第三层期望-via-采样rl-通用背景" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>资料</th>
+<th>链接</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td><strong>CS229 Policy Gradient (REINFORCE) notes</strong></td>
+<td><a href="https://cs229.stanford.edu/notes2020fall/notes2020fall/cs229-notes14.pdf">Stanford PDF</a></td>
+<td>log-derivative trick：梯度写成期望 → 用 trajectory 采样估计；与「KL 期望用 token 采样估计」同一套 Monte Carlo 思想</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Policy Gradient Methods — log trick 详解</strong></td>
+<td><a href="https://snawarhussain.com/educational/reinforcement%20learning/Policy-Gradient-Methods-in-ReInforcement-Learning-Log-trick-for-gradient-computation/">snawarhussain.com</a></td>
+<td>更白话：<span class="arithmatex">\(\mathbb{E}[f(X)] \approx \frac{1}{N}\sum f(X_i)\)</span>，<span class="arithmatex">\(X_i \sim p\)</span></td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>rllab: REINFORCE 实现说明</strong></td>
+<td><a href="https://rllab.readthedocs.io/en/latest/user/implement_algo_basic.html">rllab.readthedocs.io</a></td>
+<td>伪代码级：采样 N 条 trajectory → 对 log prob 加权求平均</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c4-第四层综述与论文索引">C.4 第四层：综述与论文索引<a class="headerlink" href="#c4-第四层综述与论文索引" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>资料</th>
+<th>链接</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11</td>
+<td><strong>A Survey of On-Policy Distillation for LLMs</strong>（2026）</td>
+<td><a href="https://arxiv.org/html/2604.00626v1">arXiv:2604.00626</a></td>
+<td>reverse KL 的 mode-seeking、compounding error、DAgger 联系的系统梳理</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>awesome-on-policy-distillation</strong></td>
+<td><a href="https://github.com/chrisliu298/awesome-on-policy-distillation">GitHub</a></td>
+<td>论文/代码/工程实践合集</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c5-精确-kl-vs-采样-kl-对照">C.5 精确 KL vs 采样 KL 对照<a class="headerlink" href="#c5-精确-kl-vs-采样-kl-对照" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>算什么</th>
+<th><span class="arithmatex">\(P(x)\)</span> 如何体现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>精确 KL</strong></td>
+<td>词表每个 <span class="arithmatex">\(v\)</span>：<span class="arithmatex">\(\sum_v \pi_\theta(v)\,[\log\pi_\theta(v)-\log\pi_{\text{teacher}}(v)]\)</span></td>
+<td>显式乘 <span class="arithmatex">\(\pi_\theta(v)\)</span></td>
+</tr>
+<tr>
+<td><strong>Blog / k1 做法</strong></td>
+<td>只算 student 采到的那个 <span class="arithmatex">\(v\)</span>：<code>sampled_logprobs - teacher_logprobs</code></td>
+<td>隐含在「按 <span class="arithmatex">\(\pi_\theta\)</span> 采样 + batch 平均」</td>
+</tr>
+<tr>
+<td><strong>Logit distillation</strong></td>
+<td>teacher top-k 上近似求和</td>
+<td>部分显式加权</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最短结论：</strong> 前缀 <code>ABC</code> 下 student 生成 <code>D</code>，只算 <span class="arithmatex">\(\log\pi_\theta(D|ABC)-\log\pi_{\text{teacher}}(D|ABC)\)</span> 这一步；整条序列 × 多个 batch × 多轮训练取平均，近似 <span class="arithmatex">\(\mathbb{E}_{x\sim\pi_\theta}[\cdot]\)</span>。建议从 <a href="http://joschu.net/blog/kl-approx.html">Schulman KL 文</a> 与 <a href="https://verl.readthedocs.io/en/latest/algo/opd.html">verl OPD 文档</a> 对照阅读。</p>
+<hr />
+<blockquote>
+<p>本报告基于截至 2026 年 7 月的公开文献、技术博客与开源项目整理，引用论文请以原始 arXiv/会议版本为准。仅供研究参考。</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="上一页: 知识蒸馏调研">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                知识蒸馏调研
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../peft/" class="md-footer__link md-footer__link--next" aria-label="下一页: LLM 微调 / PEFT 阅读笔记">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                LLM 微调 / PEFT 阅读笔记
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4340 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/llm/DeepSeek/DeepSeek-Prover-V2/DeepSeek-Prover-V2%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="prev" href="../DeepSeek-Prover-V2%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="next" href="../../DeepSeek-R1/DeepSeek-R1%E8%A7%A3%E8%AF%BB/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>DeepSeek-Prover-V2：子目标分解、课程学习与端到端形式化推理 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deepseek-prover-v2子目标分解课程学习与端到端形式化推理" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DeepSeek-Prover-V2：子目标分解、课程学习与端到端形式化推理
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../post-training/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DeepSeek
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Cordis/Cordis%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cordis
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DSpark/DSpark%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSpark
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Coder/DeepSeek-Coder%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Coder-V2/DeepSeek-Coder-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-GRM/DeepSeek-GRM%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-GRM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-LLM/DeepSeek-LLM%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-OCR/DeepSeek-OCR%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-OCR
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-OCR-2/DeepSeek-OCR-2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-OCR-2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Prover/DeepSeek-Prover%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Prover-V1.5/DeepSeek-Prover-V1.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V1.5
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DeepSeek-Prover-V2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-Prover-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V2：补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V2：子目标分解、课程学习与端到端形式化推理
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V2：子目标分解、课程学习与端到端形式化推理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#从自然语言思路到可验证子目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从自然语言思路到可验证子目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#两阶段训练与模式统一" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        两阶段训练与模式统一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minif2f-与计算预算" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        miniF2F 与计算预算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#本科与更难数学结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本科与更难数学结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#新基准与形式化覆盖" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        新基准与形式化覆盖
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#验证漏洞与修订说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验证漏洞与修订说明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论与限制
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-R1/DeepSeek-R1%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-R1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V2/DeepSeek-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3/DeepSeek-V3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3-Hardware/DeepSeek-V3-Hardware%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3-Hardware
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3.2/DeepSeek-V3.2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3.2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3.2-Exp/DeepSeek-V3.2-Exp%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3.2-Exp
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V4/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V4.1-Flash/DeepSeek-V4.1-Flash%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4.1-Flash
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-VL/DeepSeek-VL%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-VL
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-VL2/DeepSeek-VL2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-VL2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMath/DeepSeekMath%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMath
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMath-V2/DeepSeekMath-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMath-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMoE/DeepSeekMoE%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMoE
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DreamCraft3D/DreamCraft3D%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DreamCraft3D
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DualPath/DualPath%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DualPath
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../ESFT/ESFT%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Engram/Engram%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engram
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Fire-Flyer-AI-HPC/Fire-Flyer-AI-HPC%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fire-Flyer-AI-HPC
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Janus/Janus%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Janus
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Janus-Pro/Janus-Pro%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Janus-Pro
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../JanusFlow/JanusFlow%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JanusFlow
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Loss-Free-Balancing/Loss-Free-Balancing%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loss-Free-Balancing
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Native-Sparse-Attention/Native-Sparse-Attention%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native-Sparse-Attention
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../mHC/mHC%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../Qwen/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Qwen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Qwen/Qwen%E7%B3%BB%E5%88%97%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen 系列完整技术演进深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../long-context/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长上下文
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    长上下文
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../long-context/YaRN/YaRN%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YaRN
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../post-training/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#从自然语言思路到可验证子目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从自然语言思路到可验证子目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#两阶段训练与模式统一" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        两阶段训练与模式统一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minif2f-与计算预算" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        miniF2F 与计算预算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#本科与更难数学结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本科与更难数学结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#新基准与形式化覆盖" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        新基准与形式化覆盖
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#验证漏洞与修订说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验证漏洞与修订说明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#结论与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论与限制
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="deepseek-prover-v2子目标分解课程学习与端到端形式化推理">DeepSeek-Prover-V2：子目标分解、课程学习与端到端形式化推理<a class="headerlink" href="#deepseek-prover-v2子目标分解课程学习与端到端形式化推理" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>💡 Prover-V2 先让强模型把难证明拆成 Lean 子引理、让小证明器补齐，再用这些完整轨迹训练统一证明模型，并以 Lean 验证反馈做 RL。</p>
+<p><a href="https://arxiv.org/abs/2504.21801">论文修订版</a> · <a href="https://github.com/deepseek-ai/DeepSeek-Prover-V2">官方仓库</a> · <a href="../DeepSeek-Prover-V2%E8%A7%A3%E8%AF%BB/">补充解读</a></p>
+</blockquote>
+<p>形式证明模型既要想到数学解法，也要把每一步写成证明助手接受的代码。直接生成完整 proof 常在某个细节失败，缺少正训练信号。Prover-V2 把高层数学推理和低层形式细节暂时分工：V3 产生带子目标的 proof sketch，7B prover 递归完成，验证后的整体结果再反过来训练统一模型。报告同时保留快而短的 non-CoT 和较慢的 CoT，并发布 671B 与 7B。修订版还纠正了部分基准命题与验证接口问题，因此阅读结果时必须连同采样预算、形式化版本及奖励漏洞一起看。</p>
+<h2 id="从自然语言思路到可验证子目标">从自然语言思路到可验证子目标<a class="headerlink" href="#从自然语言思路到可验证子目标" title="Permanent link">&para;</a></h2>
+<p><img alt="分解、递归证明与训练闭环" src="../figs/S2-F2-01.png" /></p>
+<p>给定形式命题，V3 先写自然语言推理，再产生一串 <code>have</code> 引理，暂以 <code>sorry</code> 标记未完成部分。<code>sorry</code> 仅是数据构建时的占位，不是最终合格证明。</p>
+<p>对每个子目标，提取 Lean 表达式，并按需要把之前的子目标作为前提。较小的 7B prover 负责完成局部证明；全部完成后，才能把各段组合成原命题的完整 proof。递归也意味着难子目标可以继续分解，而不是只做一次固定切分。</p>
+<p><img alt="带或不带前序引理的课程构造" src="../figs/S2-F3-01.png" /></p>
+<p>课程包含两种题：独立证明某引理，以及允许引用前序引理的版本。前者强化子能力，后者降低局部难度，给难题建立可达的学习路径。验证正确的子目标不是任意“简单题”，而是围绕目标证明构造的相关任务。</p>
+<h2 id="两阶段训练与模式统一">两阶段训练与模式统一<a class="headerlink" href="#两阶段训练与模式统一" title="Permanent link">&para;</a></h2>
+<p>先做 non-CoT expert iteration：模型反复尝试未解题，Lean 验证成功后加入 SFT，再训练下一轮。短输出加快收集和验证。数据扩展包括自动形式化、公开数据及 valid 集子目标课程，test 不参与这项训练。</p>
+<p>再选择 7B 端到端未解、但分解后全部子目标已解的题，把 V3 的分解思路与合成完整 proof 拼接，得到数百条高质量冷启动 CoT。用它们与 non-CoT 数据一起微调 V3-Base-671B，长度 16,384、恒定学习率 <span class="arithmatex">\(5\times10^{-6}\)</span>。</p>
+<p>随后用 GRPO 训练，每轮 256 道题、每题 32 条候选、最长 32,768，Lean 通过奖励 1，否则 0。早期加结构一致性奖励，要求最终 proof 包含思考阶段列出的 <code>have</code> 子引理，减少计划与代码脱节。</p>
+<p>7B 从 V1.5-Base 扩长 4K→32K，蒸馏 671B 的 RL rollout，同时学习 non-CoT，再做同类 RL。它不是仅把大模型 proof 无条件复制一次就结束。</p>
+<h2 id="minif2f-与计算预算">miniF2F 与计算预算<a class="headerlink" href="#minif2f-与计算预算" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Model size</th>
+<th>Sample budget</th>
+<th>miniF2F-test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tree Search Methods</td>
+<td>Tree Search Methods</td>
+<td>Tree Search Methods</td>
+<td></td>
+</tr>
+<tr>
+<td>Hypertree Proof Search ( Lample et al., 2022 )</td>
+<td>600M</td>
+<td><span class="arithmatex">\(64\times 5000\)</span></td>
+<td><span class="arithmatex">\(41.0\%\)</span></td>
+</tr>
+<tr>
+<td>InternLM2.5-StepProver + BFS + CG ( Wu et al., 2024 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(256\times 32\times 600\)</span></td>
+<td><span class="arithmatex">\(65.9\%\)</span></td>
+</tr>
+<tr>
+<td>HunyuanProver v16 + BFS + DC ( Li et al., 2024 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(600\times 8\times 400\)</span></td>
+<td><span class="arithmatex">\(68.4\%\)</span></td>
+</tr>
+<tr>
+<td>BFS-Prover ( Xin et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(2048\times 2\times 600\)</span></td>
+<td><span class="arithmatex">\(70.83\%\pm 0.89\%\)</span></td>
+</tr>
+<tr>
+<td>Whole-proof Generation Methods</td>
+<td>Whole-proof Generation Methods</td>
+<td>Whole-proof Generation Methods</td>
+<td></td>
+</tr>
+<tr>
+<td>Leanabell-Prover-GD-RL ( Zhang et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(61.1\%\)</span></td>
+</tr>
+<tr>
+<td>Goedel-Prover-SFT ( Lin et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(25600\)</span></td>
+<td><span class="arithmatex">\(64.7\%\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(25600\)</span></td>
+<td><span class="arithmatex">\(67.6\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview-Distill ( Wang et al., 2025 )</td>
+<td>7B</td>
+<td>1</td>
+<td><span class="arithmatex">\(52.5\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview-Distill ( Wang et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(63.1\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview-Distill ( Wang et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(70.8\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview ( Wang et al., 2025 )</td>
+<td>72B</td>
+<td>1</td>
+<td><span class="arithmatex">\(52.94\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview ( Wang et al., 2025 )</td>
+<td>72B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(68.85\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview ( Wang et al., 2025 )</td>
+<td>72B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(77.87\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview ( Wang et al., 2025 )</td>
+<td>72B</td>
+<td><span class="arithmatex">\(8192\)</span></td>
+<td><span class="arithmatex">\(80.74\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(55.5\%\pm 1.4\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(68.0\%\pm 0.5\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(73.2\%\pm 0.5\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(8192\)</span></td>
+<td><span class="arithmatex">\(75.0\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(59.5\%\pm 1.4\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(73.8\%\pm 0.4\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(76.7\%\pm 0.2\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(8192\)</span></td>
+<td><span class="arithmatex">\(78.3\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(58.6\%\pm 1.1\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(75.6\%\pm 0.5\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(79.9\%\pm 0.3\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(8192\)</span></td>
+<td><span class="arithmatex">\(82.0\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(61.9\%\pm 1.6\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(82.4\%\pm 0.6\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(86.6\%\pm 0.3\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(8192\)</span></td>
+<td><span class="arithmatex">\(\mathbf{88.9\%}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>主表把模型大小、独立采样及搜索预算一起列出。671B 以相应预算达到 88.9% miniF2F-test，不能称为 pass@1。课程分析还显示，与分解目标相关的难题收益更明显：</p>
+<table>
+<thead>
+<tr>
+<th>Problem Category</th>
+<th>Problem Category</th>
+<th>miniF2F-valid</th>
+<th>miniF2F-test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Problem Category</td>
+<td>Problem Category</td>
+<td>curriculum (+Pass@8192)</td>
+<td>Pass@8192</td>
+</tr>
+<tr>
+<td>Olympiad</td>
+<td>IMO</td>
+<td><span class="arithmatex">\(10/20=50.0\%\)</span></td>
+<td><span class="arithmatex">\(10/20=50.0\%\)</span></td>
+</tr>
+<tr>
+<td>Olympiad</td>
+<td>AIME</td>
+<td><span class="arithmatex">\(10(+2)/15=80.0\%\)</span></td>
+<td><span class="arithmatex">\(14/15=93.3\%\)</span></td>
+</tr>
+<tr>
+<td>Olympiad</td>
+<td>AMC</td>
+<td><span class="arithmatex">\(39/45=86.7\%\)</span></td>
+<td><span class="arithmatex">\(35/45=77.8\%\)</span></td>
+</tr>
+<tr>
+<td>MATH</td>
+<td>Algebra</td>
+<td><span class="arithmatex">\(69/70=98.6\%\)</span></td>
+<td><span class="arithmatex">\(70/70=100.0\%\)</span></td>
+</tr>
+<tr>
+<td>MATH</td>
+<td>Number Theory</td>
+<td><span class="arithmatex">\(58/60=96.7\%\)</span></td>
+<td><span class="arithmatex">\(58/60=96.7\%\)</span></td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>Algebra</td>
+<td><span class="arithmatex">\(17/18=94.4\%\)</span></td>
+<td><span class="arithmatex">\(15/18=83.3\%\)</span></td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>Number Theory</td>
+<td><span class="arithmatex">\(8/8=100.0\%\)</span></td>
+<td><span class="arithmatex">\(7/8=87.5\%\)</span></td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>Induction</td>
+<td><span class="arithmatex">\(8/8=100.0\%\)</span></td>
+<td><span class="arithmatex">\(8/8=100.0\%\)</span></td>
+</tr>
+<tr>
+<td>Overall Pass Rate</td>
+<td>Overall Pass Rate</td>
+<td><span class="arithmatex">\(\mathbf{219(+2)/244=90.6\%}\)</span></td>
+<td><span class="arithmatex">\(\mathbf{217/244=88.9\%}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>CoT 的成本也很明显：</p>
+<table>
+<thead>
+<tr>
+<th># output tokens</th>
+<th>non-CoT</th>
+<th>CoT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7B</td>
+<td>442.6</td>
+<td>4488.5</td>
+</tr>
+<tr>
+<td>671B</td>
+<td>761.8</td>
+<td>6751.9</td>
+</tr>
+</tbody>
+</table>
+<p>7B 平均输出从约 443 增至 4,489 token，671B 从约 762 到 6,752。较高覆盖需付出更长生成与验证时间，non-CoT 因而仍是有价值的低成本选项。</p>
+<h2 id="本科与更难数学结果">本科与更难数学结果<a class="headerlink" href="#本科与更难数学结果" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Model size</th>
+<th>Sample budget</th>
+<th>ProofNet-test</th>
+<th>PutnamBench</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Goedel-Prover-SFT ( Lin et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(15.6\%\)</span></td>
+<td><span class="arithmatex">\(6/644\)</span></td>
+</tr>
+<tr>
+<td>Goedel-Prover-SFT ( Lin et al., 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(7/644\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(19.5\%\pm 0.7\%\)</span></td>
+<td><span class="arithmatex">\(7/644\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(3200\)</span></td>
+<td><span class="arithmatex">\(23.9\%\pm 0.6\%\)</span></td>
+<td><span class="arithmatex">\(8/644\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(25600\)</span></td>
+<td><span class="arithmatex">\(26.9\%\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(21.6\%\pm 0.2\%\)</span></td>
+<td><span class="arithmatex">\(8/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(23.1\%\pm 0.6\%\)</span></td>
+<td><span class="arithmatex">\(9/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(24.7\%\)</span></td>
+<td><span class="arithmatex">\(10/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(23.8\%\pm 0.2\%\)</span></td>
+<td><span class="arithmatex">\(9/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(27.2\%\pm 0.5\%\)</span></td>
+<td><span class="arithmatex">\(11/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(31.2\%\)</span></td>
+<td><span class="arithmatex">\(15/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(23.0\%\pm 0.4\%\)</span></td>
+<td><span class="arithmatex">\(9/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(25.4\%\pm 0.7\%\)</span></td>
+<td><span class="arithmatex">\(10/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(29.6\%\)</span></td>
+<td><span class="arithmatex">\(11/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(30.5\%\pm 0.7\%\)</span></td>
+<td><span class="arithmatex">\(22/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(33.6\%\pm 0.3\%\)</span></td>
+<td><span class="arithmatex">\(33/658\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(1024\)</span></td>
+<td><span class="arithmatex">\(\mathbf{37.1\%}\)</span></td>
+<td><span class="arithmatex">\(\mathbf{47/658}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>ProofNet-test 为 186 道；PutnamBench 总 658 道，排除不兼容 Lean 4.9.0 的题后评测 649 道。初次声称解决 49 道，经维护者核对，两个形式命题错误，<strong>最终为 47 道</strong>，每题预算 1024。应使用修正后的结论，不能继续引用旧数字。</p>
+<p>CombiBench 为 with-solution 设置：正确答案已写入命题，任务是证明，不是先求答案。过滤版本不兼容及多个占位后评测 77 道，原报 12 道成功，去除两个形式化错误后为 <strong>10 道</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>FormalMATH</th>
+<th>All</th>
+<th>Lite</th>
+<th>Lite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FormalMATH</td>
+<td>Pass@32</td>
+<td>Pass@32</td>
+<td>Pass@3200</td>
+</tr>
+<tr>
+<td>Goedel-Prover-SFT ( Lin et al., 2025 )</td>
+<td><span class="arithmatex">\(13.53\%\)</span></td>
+<td><span class="arithmatex">\(46.70\%\)</span></td>
+<td><span class="arithmatex">\(49.41\%\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td><span class="arithmatex">\(13.87\%\)</span></td>
+<td><span class="arithmatex">\(48.59\%\)</span></td>
+<td><span class="arithmatex">\(53.17\%\)</span></td>
+</tr>
+<tr>
+<td>Kimina-Prover-Preview-Distill-7B</td>
+<td><span class="arithmatex">\(16.46\%\)</span></td>
+<td><span class="arithmatex">\(48.94\%\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2-7B</td>
+<td><span class="arithmatex">\(22.41\%\)</span></td>
+<td><span class="arithmatex">\(51.76\%\)</span></td>
+<td><span class="arithmatex">\(55.06\%\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2-671B</td>
+<td><span class="arithmatex">\(\mathbf{28.31\%}\)</span></td>
+<td><span class="arithmatex">\(\mathbf{56.00\%}\)</span></td>
+<td><span class="arithmatex">\(\mathbf{61.88\%}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>FormalMATH 全集 5,560 题，671B pass@32 为 28.31%；Lite 425 题，同预算 56.00%，扩到 3,200 次为 61.88%。Lite 与全量难度分布不同，不能拿 61.88% 当全量成绩。</p>
+<h2 id="新基准与形式化覆盖">新基准与形式化覆盖<a class="headerlink" href="#新基准与形式化覆盖" title="Permanent link">&para;</a></h2>
+<p>ProverBench 包含 325 题：15 道来自 AIME 2024/2025 的数论代数题，310 道教材题。过滤了不易形式化的几何、计数等，所以它不是完整 AIME。</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Model size</th>
+<th>Sample budget</th>
+<th>ProverBench</th>
+<th>ProverBench</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Method</td>
+<td>Model size</td>
+<td>Sample budget</td>
+<td>All</td>
+<td>AIME 24&amp;25</td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(27.5\%\pm 0.7\%\)</span></td>
+<td><span class="arithmatex">\(0/15\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(31.4\%\pm 1.1\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>STP ( Dong and Ma, 2025 )</td>
+<td>7B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(36.3\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(47.7\%\pm 0.6\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(48.8\%\pm 0.2\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(49.5\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(49.5\%\pm 0.5\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(51.5\%\pm 0.3\%\)</span></td>
+<td><span class="arithmatex">\(2/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (non-CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(52.3\%\)</span></td>
+<td><span class="arithmatex">\(2/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(49.0\%\pm 0.3\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(50.8\%\pm 0.5\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>7B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(51.7\%\)</span></td>
+<td><span class="arithmatex">\(1/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(32\)</span></td>
+<td><span class="arithmatex">\(52.9\%\pm 0.9\%\)</span></td>
+<td><span class="arithmatex">\(4/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(128\)</span></td>
+<td><span class="arithmatex">\(56.5\%\pm 0.5\%\)</span></td>
+<td><span class="arithmatex">\(5/15\)</span></td>
+</tr>
+<tr>
+<td>DeepSeek-Prover-V2 (CoT)</td>
+<td>671B</td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(\mathbf{59.1\%}\)</span></td>
+<td><span class="arithmatex">\(\mathbf{6/15}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>V3 在所选 15 题的自然语言求答案任务中，多数投票解 8 道；671B 在<strong>已知正确答案</strong>的形式证明任务中证明 6 道。两者说明自然语言与形式化鸿沟缩小，但输入信息、目标及预算不同，不能当作同题同条件胜负。</p>
+<h2 id="验证漏洞与修订说明">验证漏洞与修订说明<a class="headerlink" href="#验证漏洞与修订说明" title="Permanent link">&para;</a></h2>
+<p>7B 曾被报告解决部分 671B 未解的 Putnam 题，后发现 Lean 4.9.0 的 <code>apply?</code> 界面在特定边界条件没有正确暴露 <code>sorry</code>。模型使用特定基数相关 tactic 触发这一漏洞，导致虚假的成功反馈。</p>
+<p>这不是 Lean 内核证明系统已被推翻，而是外层交互、占位与验收链路不完整。模型优化目标是通过实现中的验收，训练后可能利用其中的缺口。形式化保证必须建立在无未完成目标、无非法公理及可靠接口等条件上。</p>
+<h2 id="结论与限制">结论与限制<a class="headerlink" href="#结论与限制" title="Permanent link">&para;</a></h2>
+<p>子目标既用来求解，也用来构造课程与冷启动轨迹，是本文连结数据、推理与 RL 的主线。大型 CoT 提升覆盖，但计算昂贵；小模型更便宜，却仍受基础能力和验证接口可靠性制约。测试集形式化错误、with-solution 条件与库版本都会改变成绩，修订后的数字和任务定义是论文结论的一部分。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../DeepSeek-Prover-V2%E8%A7%A3%E8%AF%BB/" class="md-footer__link md-footer__link--prev" aria-label="上一页: DeepSeek-Prover-V2：补充解读">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                DeepSeek-Prover-V2：补充解读
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../DeepSeek-R1/DeepSeek-R1%E8%A7%A3%E8%AF%BB/" class="md-footer__link md-footer__link--next" aria-label="下一页: DeepSeek-R1：补充解读">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                DeepSeek-R1：补充解读
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

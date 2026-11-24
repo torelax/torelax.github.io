@@ -1,0 +1,4924 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/QA-LoRA/zh/">
+      
+      
+        <link rel="prev" href="../en/">
+      
+      
+        <link rel="next" href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>QA-LoRA · 中英对照 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#qa-lora大型语言模型的量化感知低秩适配" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              QA-LoRA · 中英对照
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_14" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_14" id="__nav_4_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_14_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    QA-LoRA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA 论文研读：分组适配与量化模型的等价合并
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提议的方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提议的方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="提议的方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基线低秩适配和低比特量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基线：低秩适配和低比特量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#目标高效适配和部署" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目标：高效适配和部署
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#解决方案具有低秩适配的分组量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解决方案：具有低秩适配的分组量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        简介
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提议的方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提议的方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="提议的方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基线低秩适配和低比特量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基线：低秩适配和低比特量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#目标高效适配和部署" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目标：高效适配和部署
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#解决方案具有低秩适配的分组量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解决方案：具有低秩适配的分组量化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="qa-lora大型语言模型的量化感知低秩适配">QA-LoRA：大型语言模型的量化感知低秩适配<a class="headerlink" href="#qa-lora大型语言模型的量化感知低秩适配" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>原文：<a href="https://arxiv.org/html/2309.14717v2">arXiv:2309.14717v2</a>，作者及机构信息见下。
+中文全译稿：以机器初译为底稿，统一技术术语，并校订摘要和关键方法段落；覆盖主文、附录、表格、图注和脚注。参考文献保留原始书目，原图内部文字保留英文。英文转写见 <a href="../en/">en.md</a>，方法分析另见 <a href="../QA-LoRA%E8%AF%A6%E8%A7%A3/">QA-LoRA详解.md</a>。</p>
+</blockquote>
+<h2 id="作者与机构">作者与机构<a class="headerlink" href="#作者与机构" title="Permanent link">&para;</a></h2>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Yuhui Xu Lingxi Xie Xiaotao Gu Xin Chen Heng Chang Affiliation: Hengheng Zhang Zhengsu Chen Xiaopeng Zhang Qi Tian Affiliation: Huawei Inc. Email: {xyh6666,198808xc,guxt1994,chenxin061}@gmail.com Email: {changh.heng,imhmhm,chenzhengsu1,zxphistory}@gmail.com Email: tian.qi1@huawei.com</p>
+<h2 id="摘要">摘要<a class="headerlink" href="#摘要" title="Permanent link">&para;</a></h2>
+<p>近年来，大型语言模型（LLM）发展迅速。尽管它们在许多语言理解任务中能力很强，沉重的计算负担仍大幅限制了其应用，尤其是在需要部署到边缘设备时。本文提出量化感知低秩适配（QA-LoRA）算法。</p>
+<p>其动机在于量化与适配的自由度不平衡；解决办法是使用组级算子，在增加量化自由度的同时减少适配自由度。QA-LoRA 只需几行代码即可实现，并为原始 LoRA 提供两种能力：微调时，将 LLM 权重量化为低精度（例如 INT4）以降低时间和显存开销；微调后，将 LLM 权重与辅助权重自然整合为一个量化模型，而不损失精度。我们将 QA-LoRA 应用于 LLaMA 和 LLaMA 2 模型系列，并在不同微调数据集和下游场景中验证其有效性。代码将公开于官方仓库。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="简介">简介<a class="headerlink" href="#简介" title="Permanent link">&para;</a></h2>
+<p>最近，大型语言模型（LLM）（Brown et al., 2020；Scao et al., 2022；Zhang et al., 2022；Touvron et al., 2023a；Chowdhery et al., 2022；OpenAI, 2023；Zeng et al., 2023）在广泛的语言理解任务中表现出了前所未有的性能（Wei et al., 2023） al., 2022a）并成为最先进聊天系统的基础（Bubeck et al., 2023）。现实世界应用的多样性需要一个可以对LLM进行微调以适应不同场景并量化部署到边缘设备（例如手机）的管道，而关键问题是摆脱LLM大量参数带来的繁重计算负担。</p>
+<p>为此目的有两条研究路线。第一个是参数高效微调（PEFT）（Houlsby et al., 2019；Li &amp; Liang, 2021；Liu et al., 2021；He et al., 2022；Hu et al., 2021），它引入了少量可学习参数，同时保持大多数预训练参数不变。其中，低秩适配（LoRA）（Hu et al., 2021）是一种流行的 PEFT 算法，提出对低秩矩阵进行微调以补充预训练的权重。尽管性能与全参数微调相当，但 LoRA 的内存使用量仍然很大，特别是当基础 LLM 很大时（例如 LLaMA-65B）。第二个研究参数量化（Yao et al., 2022；Dettmers et al., 2022；Wei et al., 2022b；Frantar et al., 2023；Lin et al., 2023；Xiao et al., 2023；Dettmers et al., 2023b），其中训练的权重被量化为低位整数或浮点数。尽管这些方法可以减轻计算负担，但它们经常报告精度不令人满意，尤其是当量化位宽较低时。</p>
+<p>因此，将 PEFT 与量化相结合是一个重要的课题。一个简单的解决方案是在 PEFT 之后执行训练后量化 (PTQ)，但它的精度并不令人满意，尤其是当量化位宽较低时。先进的方法是存在的，但它们要么在微调阶段计算成本昂贵（Liu et al., 2023），要么在微调后无法保持量化属性（Dettmers et al., 2023a）。在本文中，我们提出了一种简单而有效的量化感知低秩适配方法（QA-LoRA）。我们的想法是基于量化和适应的不平衡自由度。具体来说，预训练权重矩阵的每一列仅伴随一对缩放和零参数，但伴随有更多的 LoRA 参数。这种不平衡不仅会导致较大的量化误差（从而损害LLM的准确性），而且还使得辅助权重难以集成到主模型中。 QA-LoRA 通过引入分组算子来解决这个问题，这些算子增加了低位量化的自由度（每个组单独量化）并降低了 LoRA 的自由度（每个组共享自适应参数）。 QA-LoRA 具有双重好处：（i）由于 LLM 的权重被量化为低位整数，因此具有高效的微调阶段； (ii) 轻量级、微调的模型，无需经常导致准确性损失的 PTQ。</p>
+<p>QA-LoRA易于实现，适用场景广泛。我们在 LLaMA 和 LLAMA2 模型系列上评估 QA-LoRA（Touvron 等人，2023a；Touvron 等人，2023b），并在各种语言理解基准上对其进行验证。图 1 比较了 QA-LoRA 的 MMLU 基准和直接基线 QLoRA（Dettmers 等人，2023a）在有和没有 PTQ 的情况下的 <span class="arithmatex">\(5\)</span> 射击精度，两种方法都在 Alpaca 数据集上进行了微调。在不同规模的 LLM 之上，QA-LoRA 始终优于带 PTQ 的 QLoRA（当量化位宽较低时，优势变得更加明显），并且与不带 PTQ 的 QLoRA 相当。请注意，在推理过程中，QA-LoRA 与带 PTQ 的 QLoRA 具有完全相同的复杂度，并且比不带 PTQ 的 QLoRA 高效得多。因此，QA-LoRA 是一种有效且现成的方法，用于 LLM 的联合量化和自适应。</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>图 1：基于 LLaMA 模型系列的不同量化位宽的 <span class="arithmatex">\(5\)</span> 射击 MMLU 精度 (%) 的比较。 QLoRA ( NF4 &amp; FP16 ) 是指在 INT4 中预训练权重和 FP16 中具有适配器权重的原始 QLoRA 模型，QLoRA ( INT4 ) 是指对合并的 QLoRA 模型执行训练后量化（到 INT4 中）。所有模型都在 Alpaca 数据集上进行了微调。完整结果如表 1 所示。</p>
+<h2 id="相关工作">相关工作<a class="headerlink" href="#相关工作" title="Permanent link">&para;</a></h2>
+<p>大语言模型（LLM）（Devlin et al., 2019；Brown et al., 2020；Zhao et al., 2023a；Hadi et al., 2023）已成为自然语言处理的主导范式，在各种任务上取得了最先进的性能（Zhao et al., 2023b；Zhou et al., 2023），并成为聊天的基础系统（OpenAI，2023）。然而，它们在现实场景中的部署受到推理过程中高计算和内存要求的阻碍（Chang et al., 2023）。为了解决这个问题，人们提出了各种方法，包括蒸馏（Liu等，2023）、量化（Yao等，2022；Dettmers等，2022；Wei等，2022b；Frantar等，2023；Lin等，2023；Xiao等，2023）、剪枝（ Frantar 和 Alistarh，2023；Ma 等，2023；Sun 等，2023）等（Weng，2023）。本文主要关注LLM的量化。</p>
+<p>使用适配器微调法学硕士。参数高效微调（PEFT）是法学硕士的一个重要主题。最流行的方法之一是低秩适配（LoRA）（Hu et al., 2021；Valipour et al., 2022），其中关键的见解是将适配器权重分解为两个低秩（因此参数高效）矩阵的乘法。 LoRA 声称其性能可与全量微调相媲美，同时使用的可学习参数要少得多。同时，LLM的适配器还有其他分支，例如串联适配器（Houlsby et al., 2019）和并行适配器（He et al., 2022）。请参阅（Mangrulkar 等人，2022 年；Hu 等人，2023 年）对这些适配器的回顾。</p>
+<p>LLM 的量化。量化是一种压缩技术，可减少 LLM 的参数和/或激活的位宽，以提高其效率和可扩展性（Xiao 等人，2023；Dettmers 等人，2022；Dettmers 等人，2023a）。现有方法主要侧重于在推理阶段保留或恢复量化 LLM 的准确性（Zhu et al., 2023），其中关键是减少内存占用和计算成本，而无需重新训练 LLM。主要挑战之一是处理参数分布中的异常值（Xiao et al., 2023），这在量化时可能会导致重大错误。为了解决这个问题，一些方法提出使用自适应或动态量化方案，根据参数调整量化​​范围或精度（Xiao等人，2023；Dettmers等人，2022）。其他方法使用复杂的分组或聚类技术将参数划分为不同的组，并对每个组应用不同的量化策略（Park 等人，2022；Yao 等人，2022；Wu 等人，2023）。</p>
+<p>联合适应和量化。本文旨在实现参数高效的自适应和计算高效的调整和部署的目标，这可以进一步提高LLM的效率和可扩展性，并减轻量化误差的负面影响。然而，这也带来了额外的挑战，例如通过离散值传播梯度和优化量化参数。为了克服这些挑战，有损量化方法提出使用随机舍入（Shen et al., 2020）或学习舍入（Esser et al., 2019）来逼近梯度并更新参数，但将这些方法应用于LLM通常很困难。其他方法建议使用转回层（Wortsman et al., 2023）或混合精度推理（Dettmers et al., 2023a）在量化和全/半精度值之间交替，这通常会导致推理速度较低。</p>
+<p>据我们所知，最相关的工作是 QLoRA (Dettmers et al., 2023a)，它将预训练的权重压缩到 NF4 中并添加了 LoRA。然而，QLoRA 将自适应权重添加回预训练权重，并再次将其转换为 FP16，因此部署的模型仍然很慢。我们通过提出的 QA-LoRA 方法解决了这个问题。</p>
+<h2 id="提议的方法">提议的方法<a class="headerlink" href="#提议的方法" title="Permanent link">&para;</a></h2>
+<h3 id="基线低秩适配和低比特量化">基线：低秩适配和低比特量化<a class="headerlink" href="#基线低秩适配和低比特量化" title="Permanent link">&para;</a></h3>
+<p>我们遵循 LoRA 中使用的符号系统（Hu et al., 2021），该系统假设预训练的权重形成矩阵 <span class="arithmatex">\(\mathbf{W}\)</span> ，特征形成向量 <span class="arithmatex">\(\mathbf{x}\)</span> 。该定义很容易应用于广泛的场景，并扩展到 <span class="arithmatex">\(\mathbf{x}\)</span> 是一组向量（例如，特征矩阵）。设 <span class="arithmatex">\(\mathbf{W}\)</span> 的大小为 <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{out}}\)</span> ， <span class="arithmatex">\(\mathbf{x}\)</span> 的长度为 <span class="arithmatex">\(D_{\mathrm{in}}\)</span> ，因此计算很容易写为 <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}\)</span> ，其中 <span class="arithmatex">\(\mathbf{y}\)</span> 是长度为 <span class="arithmatex">\(D_{\mathrm{out}}\)</span> 的输出向量。</p>
+<p>LoRA 的核心思想是引入一对矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 和 <span class="arithmatex">\(\mathbf{B}\)</span> 来补充 <span class="arithmatex">\(\mathbf{W}\)</span> 。 <span class="arithmatex">\(\mathbf{A}\)</span> 和 <span class="arithmatex">\(\mathbf{B}\)</span> 的大小分别为 <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}\)</span> 和 <span class="arithmatex">\(D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> ，因此它们的乘法 <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> 的大小与 <span class="arithmatex">\(\mathbf{W}\)</span> 相同。中间维度 <span class="arithmatex">\(D_{\mathrm{int}}\)</span> 通常设置为一个较小的值（即 <span class="arithmatex">\(D_{\mathrm{int}}\ll\min\{D_{\mathrm{in}},D_{\mathrm{out}}\}\)</span> ），使 <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> 与 <span class="arithmatex">\(\mathbf{W}\)</span> 相比成为低秩矩阵。微调时，我们计算 <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}+s\cdot(\mathbf{A}\mathbf{B})^{\top}\mathbf{x}\)</span> ，其中 <span class="arithmatex">\(s\)</span> 为权重调整系数，<span class="arithmatex">\(\mathbf{W}\)</span> 固定，而 <span class="arithmatex">\(\mathbf{A}\)</span> 和 <span class="arithmatex">\(\mathbf{B}\)</span> 可以调整，达到参数高效微调的目标。微调后，计算被重新表述为 <span class="arithmatex">\(\mathbf{y}=(\mathbf{W}+s\cdot\mathbf{A}\mathbf{B})^{\top}\mathbf{x}\)</span> ，其中 <span class="arithmatex">\(\mathbf{W}\)</span> 替换为 <span class="arithmatex">\(\mathbf{W}^{\prime}=\mathbf{W}+s\cdot\mathbf{A}\mathbf{B}\)</span> 以实现快速推理。</p>
+<p>降低计算成本的另一个有效方法在于低位量化。在本文中我们只考虑权重的量化。特别是，我们应用了一种名为最小-最大量化的简单方法。从数学上讲，给定位宽 <span class="arithmatex">\(N\)</span> 和预训练的权重矩阵 <span class="arithmatex">\(\mathbf{W}\)</span> ，我们计算 <span class="arithmatex">\(\mathbf{W}\)</span> 所有元素的最小值和最大值，分别表示为 <span class="arithmatex">\(\min(\mathbf{W})\)</span> 和 <span class="arithmatex">\(\max(\mathbf{W})\)</span> 。然后，通过计算将<span class="arithmatex">\(\mathbf{W}\)</span>量化为<span class="arithmatex">\(\tilde{\mathbf{W}}\)</span></p>
+<div class="arithmatex">\[
+\tilde{\mathbf{W}}=\alpha\cdot\hat{\mathbf{W}}+\beta\doteq\alpha\cdot\left\lfloor\frac{\mathbf{W}-\beta}{\alpha}\right\rceil+\beta,
+\]</div>
+<p>其中 <span class="arithmatex">\(\alpha=(\max(\mathbf{W})-\min(\mathbf{W}))/(2^{N}-1)\)</span> 和 <span class="arithmatex">\(\beta=\min(\mathbf{W})\)</span> 分别称为缩放因子和零因子； <span class="arithmatex">\(\left\lfloor\cdot\right\rceil\)</span>表示整数舍入运算。 <span class="arithmatex">\(\hat{\mathbf{W}}\)</span> 中的所有元素都在 <span class="arithmatex">\(\{0,1,\ldots,2^{N}-1\}\)</span> 集合中，因此存储为 <span class="arithmatex">\(B\)</span> 位整数。计算结果 <span class="arithmatex">\(\mathbf{y}=\mathbf{W}^{\top}\mathbf{x}\)</span> 近似为 <span class="arithmatex">\(\mathbf{y}=\tilde{\mathbf{W}}^{\top}\mathbf{x}=\alpha\cdot\left\lfloor\frac{\mathbf{W}-\beta}{\alpha}\right\rceil^{\top}\mathbf{x}+\beta\mathbf{x}\)</span> 。量化带来了双重好处，即减少了 <span class="arithmatex">\(\mathbf{W}\)</span> 的存储空间（例如从 FP16 到 INT4），并且 <span class="arithmatex">\(\mathbf{W}^{\top}\mathbf{x}\)</span> 的计算速度变得更快。代价是 <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> 是 <span class="arithmatex">\(\mathbf{W}\)</span> 的近似值，这可能会损害语言理解的准确性。</p>
+<p>为了减少<span class="arithmatex">\(\mathbf{W}\)</span>和<span class="arithmatex">\(\tilde{\mathbf{W}}\)</span>之间的量化损失，一个有效的策略是对<span class="arithmatex">\(\mathbf{W}\)</span>的每一列进行单独的量化。设 <span class="arithmatex">\(\mathbf{W}=[w_{i,j}]_{D_{\mathrm{in}}\times D_{\mathrm{out}}}\)</span> ，其中 <span class="arithmatex">\(i\in\{1,\ldots,D_{\mathrm{in}}\}\)</span> 和 <span class="arithmatex">\(j\in\{1,\ldots,D_{\mathrm{out}}\}\)</span> 是迭代变量。令 <span class="arithmatex">\(\alpha_{j}\)</span> 和 <span class="arithmatex">\(\beta_{j}\)</span> 为在 <span class="arithmatex">\(j\)</span> 第 <span class="arithmatex">\(\mathbf{w}_{j}\)</span> 列上计算的缩放因子和零因子。因此，等式 1 更新为 <span class="arithmatex">\(\tilde{\mathbf{W}}=[\tilde{\mathbf{w}}_{j}]_{D_{\mathrm{out}}}=\left[\alpha_{j}\cdot\left\lfloor\frac{\mathbf{w}_{j}-\beta_{j}}{\alpha_{j}}\right\rceil+\beta_{j}\right]_{D_{\mathrm{out}}}\)</span> ，并且计算重写为 <span class="arithmatex">\(\mathbf{y}=\tilde{\mathbf{W}}^{\top}\mathbf{x}=\left[\alpha_{j}\cdot\left\lfloor\frac{\mathbf{w}_{j}-\beta_{j}}{\alpha_{j}}\right\rceil^{\top}\mathbf{x}+\beta_{j}\mathbf{x}\right]_{D_{\mathrm{out}}}\)</span> 。与原始（整体）量化相比，计算成本不变，而缩放和零因子的存储成本从 <span class="arithmatex">\(2\)</span> 增加到 <span class="arithmatex">\(2D_{\mathrm{out}}\)</span> 浮点数。与存储全精度 <span class="arithmatex">\(\mathbf{W}\)</span> 所降低的成本相比，这可以忽略不计。</p>
+<p><img alt="Figure S3.F2" src="../figs/S3-F2-01.png" /></p>
+<p>图 2：QA-LoRA 目标的图示。与之前的适应方法 LoRA 和 QLoRA 相比，我们的方法在微调和推理阶段的计算效率都很高。更重要的是，它不会遭受准确性损失，因为不需要训练后量化。我们在图中显示了 INT4 量化，但 QA-LoRA 被推广到 INT3 和 INT2 。</p>
+<h3 id="目标高效适配和部署">目标：高效适配和部署<a class="headerlink" href="#目标高效适配和部署" title="Permanent link">&para;</a></h3>
+<p>如图 2 所示，我们旨在实现两个目标。首先，在微调阶段，预训练的权重 <span class="arithmatex">\(\mathbf{W}\)</span> 被量化为低位表示，以便 LLM 可以在尽可能少的 GPU 上进行微调。其次，在微调阶段之后，微调和合并的权重 <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> 仍然处于量化形式，以便可以以计算效率部署 LLM。</p>
+<p>我们注意到 QLoRA（Dettmers 等人，2023a）是最近提出的 LoRA 变体，它实现了第一个目标。这个想法是在微调阶段将 <span class="arithmatex">\(\mathbf{W}\)</span> 从 FP16 量化为 NF4（高度压缩的浮点数类型）。我们从 QLoRA 了解到，量化和自适应的联合优化是容易处理的，因为 <span class="arithmatex">\(\mathbf{W}\)</span> 和 <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> 之间的精度损失由低秩权重 <span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span> 补偿。微调后，必须将侧权重 <span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span> 添加回 <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> ，再次成为 FP16 中的最终权重 <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> 。事实上，我们可以对 <span class="arithmatex">\(\mathbf{W}^{\prime}\)</span> 执行训练后量化（PTQ），但这种策略可能会导致精度的显着损失，尤其是当位宽较低时。详细请参考实验。此外，NF4还没有算子级的优化，很难加速微调和推理阶段。简而言之，QLoRA 带来的唯一好处是降低了微调的内存成本。</p>
+<h3 id="解决方案具有低秩适配的分组量化">解决方案：具有低秩适配的分组量化<a class="headerlink" href="#解决方案具有低秩适配的分组量化" title="Permanent link">&para;</a></h3>
+<p>从上面的分析来看，实现第二个目标的关键在于<span class="arithmatex">\(\tilde{\mathbf{W}}\)</span>（即量化后的<span class="arithmatex">\(\mathbf{W}\)</span>）和<span class="arithmatex">\(s\cdot\mathbf{A}\mathbf{B}\)</span>可以在不使用高精度数（例如FP16）的情况下进行合并。我们首先注意到，这在原始设置中是不可能的，即，<span class="arithmatex">\(\mathbf{W}\)</span> 以列方式量化为 <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span>，而 <span class="arithmatex">\(\mathbf{A}\)</span> 和 <span class="arithmatex">\(\mathbf{B}\)</span> 都是不受约束的。</p>
+<p>我们用数学语言写下条件。从<span class="arithmatex">\(\mathbf{W}^{\prime}=\tilde{\mathbf{W}}+s\cdot\mathbf{A}\mathbf{B}\)</span>开始，我们为所有<span class="arithmatex">\((i,j)\)</span>提供了<span class="arithmatex">\(w_{i,j}^{\prime}=\tilde{w}_{i,j}+s\cdot\sum_{k}a_{i,k}b_{k,j}\)</span>。这里，对于任何 <span class="arithmatex">\(j\)</span> ，所有 <span class="arithmatex">\(\tilde{w}_{i,j}\)</span> 都使用相同的缩放比例和零因子集表示，即，存在 <span class="arithmatex">\(\alpha_{j}\)</span> 和 <span class="arithmatex">\(\beta_{j}\)</span> ，因此 <span class="arithmatex">\(\tilde{w}_{i,j}=\alpha_{j}\times\hat{w}_{i,j}+\beta_{j}\)</span> ， <span class="arithmatex">\(\hat{w}_{i,j}\in\{0,1,\ldots,2^{N}-1\}\)</span> 。每个 <span class="arithmatex">\(\tilde{w}_{i,j}\)</span> 与 <span class="arithmatex">\(s\cdot\sum_{k}a_{i,k}b_{k,j}\)</span>（简写为 <span class="arithmatex">\(c_{i,j}\)</span> ）相加后，如果要保留该属性进行量化，就必须保证对于任何 <span class="arithmatex">\(j\)</span> ， <span class="arithmatex">\(c_{i,j}\)</span> 的所有可能值形成一个算术集，其公差为 <span class="arithmatex">\(\alpha_{j}\)</span> <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup> 。这在连续和基于梯度的优化中是很棘手的，除非我们要求 <span class="arithmatex">\(c_{i,j}\)</span> 是一个常数，即对于任何 <span class="arithmatex">\(j\)</span> ， <span class="arithmatex">\(c_{1,j}=\ldots=c_{i,j}=\ldots,c_{D_{\mathrm{in}},j}\)</span> 。这相当于将 <span class="arithmatex">\(\mathbf{A}\)</span> 的所有行向量设置为相同，即 <span class="arithmatex">\(\mathbf{a}_{1}\equiv\ldots\equiv\mathbf{a}_{i}\equiv\ldots\equiv\mathbf{a}_{D_{\mathrm{in}}}\)</span> ，其中 <span class="arithmatex">\(\equiv\)</span> 表示两个向量之间的逐元素等价。</p>
+<p>上述策略虽然易于处理，但在实践中会导致准确性显着下降。特别是，由于 <span class="arithmatex">\(\mathbf{A}\)</span> 的所有行都是相同的向量，因此我们有 <span class="arithmatex">\(\mathrm{rank}(\mathbf{A})=1\)</span> ，因此有 <span class="arithmatex">\(\mathrm{rank}(\mathbf{A}\mathbf{B})=1\)</span> ，而 <span class="arithmatex">\(\mathbf{A}\mathbf{B}\)</span> 的排名与新数据中微调 <span class="arithmatex">\(\tilde{\mathbf{W}}\)</span> 的能力相关（Hu et al., 2021 ; Valipour et al., 2022 ; Dettmers et al., 2022 ）等人，2023a）。为了解决这个问题，一个简单的想法是放松量化和适应的限制。</p>
+<p>我们将 <span class="arithmatex">\(\mathbf{W}\)</span> 的每一列划分为 <span class="arithmatex">\(L\)</span> 组，为了便于实现，我们将 <span class="arithmatex">\(L\)</span> 设置为 <span class="arithmatex">\(D_{\mathrm{in}}\)</span> 的除数。我们没有完全量化 <span class="arithmatex">\(\mathbf{W}\)</span> 的每一列，而是使用一对单独的缩放因子和零因子进行量化，即，针对 <span class="arithmatex">\(j\)</span> 列中的 <span class="arithmatex">\(D_{\mathrm{in}}/L\)</span> 元素计算第 <span class="arithmatex">\(l\)</span> 组因子 <span class="arithmatex">\(\alpha_{l,j}\)</span> 和 <span class="arithmatex">\(\beta_{l,j}\)</span> 。相应地，我们只要求同一组内的<span class="arithmatex">\(\mathbf{A}\)</span>的行向量具有相同的值即可。在我们的实现中，这是通过在输入向量 <span class="arithmatex">\(\mathbf{x}\)</span> 的每组内进行求和来实现的。这种无参数操作将 <span class="arithmatex">\(\mathbf{x}\)</span> 的维度从 <span class="arithmatex">\(D_{\mathrm{in}}\)</span> 减少到 <span class="arithmatex">\(L\)</span> ，因此我们可以将 <span class="arithmatex">\(\mathbf{A}\)</span> 设置为 <span class="arithmatex">\(L\times D_{\mathrm{int}}\)</span> 矩阵，而无需进一步的约束。</p>
+<p>⬇</p>
+<h1 id="_1"><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>D_in，</p>
+<p>D_输出，</p>
+<p>D_int：</p>
+<p>的</p>
+<p>输入，</p>
+<p>输出，</p>
+<p>和</p>
+<p>低等级</p>
+<p>适应</p>
+<p>尺寸</p>
+<h1 id="_2"><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h1>
+<p>L:</p>
+<p>的</p>
+<p>量化</p>
+<p>组</p>
+<p>数字</p>
+<p>的</p>
+<p>重量</p>
+<p>W</p>
+<p>（D_in</p>
+<p>//</p>
+<p>L</p>
+<p>是</p>
+<p>的</p>
+<p>组</p>
+<p>尺寸）</p>
+<h1 id="_3"><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h1>
+<p>s:</p>
+<p>的</p>
+<p>系数</p>
+<p>为了</p>
+<p>适应；</p>
+<p>N:</p>
+<p>的</p>
+<p>一点</p>
+<p>宽度</p>
+<p>的</p>
+<p>量化</p>
+<p>QA = nn.AvgPool1d(D_in//L)</p>
+<p>劳拉_A</p>
+<p>=</p>
+<p>恩</p>
+<p>.</p>
+<p>参数</p>
+<p>(</p>
+<p>火炬</p>
+<p>.</p>
+<p>空的</p>
+<p>((</p>
+<p>D_int</p>
+<p>,</p>
+<p>L</p>
+<p>)))</p>
+<p>劳拉_B</p>
+<p>=</p>
+<p>恩</p>
+<p>.</p>
+<p>参数</p>
+<p>(</p>
+<p>火炬</p>
+<p>.</p>
+<p>空的</p>
+<p>((</p>
+<p>D_输出</p>
+<p>,</p>
+<p>D_int</p>
+<p>)))</p>
+<p>定义</p>
+<p>qalora_转发</p>
+<p>(</p>
+<p>x</p>
+<p>,</p>
+<p>W</p>
+<p>,</p>
+<p>劳拉_A</p>
+<p>,</p>
+<p>劳拉_B</p>
+<p>):</p>
+<p>W_波浪号</p>
+<p>=</p>
+<p>预量化</p>
+<p>(</p>
+<p>W</p>
+<p>,</p>
+<p>阿尔法</p>
+<p>,</p>
+<p>贝塔</p>
+<p>)</p>
+<p>结果</p>
+<p>=</p>
+<p>x</p>
+<p>@</p>
+<p>W_波浪号</p>
+<p>结果</p>
+<p>+=</p>
+<p>(</p>
+<p>QA(x)*(D_in//L)</p>
+<p>)</p>
+<p>@</p>
+<p>劳拉_A</p>
+<p>.</p>
+<p>转置</p>
+<p>(0,1)</p>
+<p>@</p>
+<p>劳拉_B</p>
+<p>.</p>
+<p>转置</p>
+<p>(0,1)</p>
+<p>*</p>
+<p>s</p>
+<p>返回</p>
+<p>结果</p>
+<p>定义</p>
+<p>预量化</p>
+<p>(</p>
+<p>W</p>
+<p>,</p>
+<p>阿尔法</p>
+<p>,</p>
+<p>贝塔</p>
+<p>):</p>
+<p>W_帽子</p>
+<p>=</p>
+<p>火炬</p>
+<p>.</p>
+<p>圆形</p>
+<p>(</p>
+<p>W</p>
+<p>/</p>
+<p>阿尔法</p>
+<p>)</p>
+<p>+</p>
+<p>贝塔</p>
+<p>返回</p>
+<p>阿尔法</p>
+<p>*</p>
+<p>(</p>
+<p>W_帽子</p>
+<p>-</p>
+<p>贝塔</p>
+<p>)</p>
+<p>定义</p>
+<p>与量化合并</p>
+<p>(</p>
+<p>贝塔</p>
+<p>,</p>
+<p>劳拉_A</p>
+<p>,</p>
+<p>劳拉_B</p>
+<p>):</p>
+<p>测试版_新</p>
+<p>=</p>
+<p>贝塔</p>
+<p>-</p>
+<p>s</p>
+<p>*</p>
+<p>(</p>
+<p>劳拉_B</p>
+<p>@</p>
+<p>劳拉_A</p>
+<p>).</p>
+<p>转置</p>
+<p>(0,1)</p>
+<p>/</p>
+<p>阿尔法</p>
+<p>返回</p>
+<p>测试版_新</p>
+<p>算法 1 类似 PyTorch 风格的 QA-LoRA 伪代码</p>
+<p>所提出的方法被称为量化感知低秩适配（QA-LoRA）。与基线LoRA和QLoRA相比，它是通过插入/修改几行代码来实现的，如算法1所示。与LoRA相比，QA-LoRA在时间和内存消耗上具有优势。与 QLoRA 相比，QA-LoRA 需要额外存储 <span class="arithmatex">\(L\times D_{\mathrm{out}}\)</span> 的缩放和零因子对，但将 <span class="arithmatex">\(\mathbf{A}\)</span> 的参数数量从 <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}\)</span> 减少到 <span class="arithmatex">\(L\times D_{\mathrm{int}}\)</span> - 由于我们经常设置 <span class="arithmatex">\(L\ll D_{\mathrm{in}}\)</span> ，因此上述变化可以忽略不计。与 QLoRA 相比，QA-LoRA 的主要优势在于推理阶段更快、更准确。我们在表 2 中比较了 LoRA、QLoRA 和 QA-LoRA 的计算成本。</p>
+<p>QA-LoRA 的见解：平衡。 QA-LoRA 与 QLoRA 的变体非常相似，其中 NF4 量化被 INT4 <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> 取代。在此版本中，量化参数（<span class="arithmatex">\(D_{\mathrm{out}}\)</span> 缩放和零因子对）的数量远小于自适应参数（<span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> 参数）。这导致量化和适应的自由度之间的显着不平衡。我们引入了分组操作，将量化参数数量从 <span class="arithmatex">\(D_{\mathrm{out}}\)</span> 增加到 <span class="arithmatex">\(L\times D_{\mathrm{out}}\)</span> ，同时减少自适应参数数量从 <span class="arithmatex">\(D_{\mathrm{in}}\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> 到 <span class="arithmatex">\(L\times D_{\mathrm{int}}+D_{\mathrm{int}}\times D_{\mathrm{out}}\)</span> 。正如我们将在实验中看到的，中等的 <span class="arithmatex">\(L\)</span> 可以在保持计算效率的同时实现令人满意的语言理解准确性。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>方法</td>
+<td>数据集</td>
+<td>#位</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+</tr>
+<tr>
+<td>方法</td>
+<td>数据集</td>
+<td></td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>–</td>
+<td>16</td>
+<td>32.4</td>
+<td>26.6</td>
+<td>31.4</td>
+<td>37.2</td>
+<td>32.1</td>
+<td>33.3</td>
+<td>29.8</td>
+<td>37.8</td>
+<td>38.0</td>
+<td>34.6</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>羊驼毛</td>
+<td>4+16</td>
+<td>38.1</td>
+<td>31.1</td>
+<td>41.6</td>
+<td>46.9</td>
+<td>39.4</td>
+<td>36.1</td>
+<td>31.9</td>
+<td>42.0</td>
+<td>44.5</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>35.7</td>
+<td>30.9</td>
+<td>38.0</td>
+<td>44.0</td>
+<td>37.1</td>
+<td>33.8</td>
+<td>31.3</td>
+<td>37.4</td>
+<td>42.2</td>
+<td>36.0</td>
+</tr>
+<tr>
+<td>PEQA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>34.9</td>
+<td>28.9</td>
+<td>37.5</td>
+<td>40.1</td>
+<td>34.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>36.9</td>
+<td>31.4</td>
+<td>40.3</td>
+<td>44.9</td>
+<td>38.3</td>
+<td>36.6</td>
+<td>32.4</td>
+<td>44.8</td>
+<td>44.9</td>
+<td>39.4</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>31.5</td>
+<td>28.9</td>
+<td>31.8</td>
+<td>36.8</td>
+<td>32.2</td>
+<td>31.6</td>
+<td>30.1</td>
+<td>35.6</td>
+<td>39.8</td>
+<td>34.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>36.0</td>
+<td>34.1</td>
+<td>42.0</td>
+<td>42.3</td>
+<td>38.3</td>
+<td>35.6</td>
+<td>30.5</td>
+<td>41.5</td>
+<td>42.7</td>
+<td>37.4</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>24.1</td>
+<td>22.1</td>
+<td>22.5</td>
+<td>23.7</td>
+<td>23.2</td>
+<td>23.4</td>
+<td>26.2</td>
+<td>26.4</td>
+<td>28.4</td>
+<td>25.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>26.4</td>
+<td>25.5</td>
+<td>25.6</td>
+<td>28.7</td>
+<td>26.5</td>
+<td>27.3</td>
+<td>26.1</td>
+<td>26.1</td>
+<td>30.3</td>
+<td>27.5</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>局域网v2</td>
+<td>4+16</td>
+<td>40.9</td>
+<td>32.5</td>
+<td>47.8</td>
+<td>49.5</td>
+<td>42.6</td>
+<td>41.4</td>
+<td>35.0</td>
+<td>49.8</td>
+<td>52.0</td>
+<td>44.3</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>39.7</td>
+<td>32.5</td>
+<td>46.4</td>
+<td>48.1</td>
+<td>41.6</td>
+<td>36.5</td>
+<td>33.7</td>
+<td>46.9</td>
+<td>50.3</td>
+<td>41.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>44.0</td>
+<td>35.3</td>
+<td>52.3</td>
+<td>52.6</td>
+<td>45.9</td>
+<td>43.9</td>
+<td>38.0</td>
+<td>54.3</td>
+<td>53.0</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>36.7</td>
+<td>30.2</td>
+<td>38.4</td>
+<td>40.1</td>
+<td>36.5</td>
+<td>32.2</td>
+<td>31.7</td>
+<td>42.7</td>
+<td>42.8</td>
+<td>36.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>41.4</td>
+<td>35.1</td>
+<td>52.0</td>
+<td>50.2</td>
+<td>44.4</td>
+<td>41.3</td>
+<td>36.0</td>
+<td>52.8</td>
+<td>50.2</td>
+<td>44.7</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>24.1</td>
+<td>22.5</td>
+<td>22.3</td>
+<td>23.8</td>
+<td>23.3</td>
+<td>23.9</td>
+<td>25.3</td>
+<td>26.2</td>
+<td>25.3</td>
+<td>25.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>34.1</td>
+<td>30.0</td>
+<td>37.2</td>
+<td>39.8</td>
+<td>35.2</td>
+<td>31.8</td>
+<td>38.1</td>
+<td>34.5</td>
+<td>38.5</td>
+<td>33.2</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>–</td>
+<td>16</td>
+<td>40.6</td>
+<td>36.7</td>
+<td>48.9</td>
+<td>48.0</td>
+<td>43.3</td>
+<td>44.0</td>
+<td>35.9</td>
+<td>53.2</td>
+<td>52.9</td>
+<td>46.3</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>羊驼毛</td>
+<td>4+16</td>
+<td>45.2</td>
+<td>38.3</td>
+<td>55.0</td>
+<td>54.6</td>
+<td>48.1</td>
+<td>46.0</td>
+<td>37.3</td>
+<td>55.8</td>
+<td>55.1</td>
+<td>48.4</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>44.7</td>
+<td>38.0</td>
+<td>54.4</td>
+<td>54.0</td>
+<td>47.6</td>
+<td>45.4</td>
+<td>37.4</td>
+<td>55.7</td>
+<td>54.3</td>
+<td>48.0</td>
+</tr>
+<tr>
+<td>PEQA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>43.0</td>
+<td>37.7</td>
+<td>53.6</td>
+<td>49.0</td>
+<td>45.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>44.3</td>
+<td>38.0</td>
+<td>55.1</td>
+<td>55.5</td>
+<td>47.9</td>
+<td>48.4</td>
+<td>38.3</td>
+<td>54.9</td>
+<td>55.2</td>
+<td>49.2</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>43.5</td>
+<td>36.2</td>
+<td>52.3</td>
+<td>52.6</td>
+<td>45.9</td>
+<td>43.6</td>
+<td>36.1</td>
+<td>53.0</td>
+<td>52.7</td>
+<td>46.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>43.9</td>
+<td>37.3</td>
+<td>53.1</td>
+<td>54.3</td>
+<td>46.9</td>
+<td>44.3</td>
+<td>38.8</td>
+<td>53.4</td>
+<td>53.8</td>
+<td>47.3</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>27.7</td>
+<td>27.6</td>
+<td>31.8</td>
+<td>29.7</td>
+<td>29.0</td>
+<td>29.0</td>
+<td>27.1</td>
+<td>33.4</td>
+<td>34.8</td>
+<td>30.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>35.7</td>
+<td>33.3</td>
+<td>40.9</td>
+<td>42.0</td>
+<td>37.8</td>
+<td>35.6</td>
+<td>30.6</td>
+<td>39.9</td>
+<td>41.7</td>
+<td>36.9</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>局域网v2</td>
+<td>4+16</td>
+<td>48.0</td>
+<td>39.2</td>
+<td>58.2</td>
+<td>56.7</td>
+<td>50.3</td>
+<td>49.9</td>
+<td>40.1</td>
+<td>60.2</td>
+<td>57.9</td>
+<td>51.9</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>47.6</td>
+<td>39.6</td>
+<td>57.6</td>
+<td>56.0</td>
+<td>50.0</td>
+<td>49.4</td>
+<td>40.9</td>
+<td>59.7</td>
+<td>57.6</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>47.7</td>
+<td>41.4</td>
+<td>59.6</td>
+<td>57.2</td>
+<td>51.1</td>
+<td>50.0</td>
+<td>41.5</td>
+<td>60.5</td>
+<td>58.4</td>
+<td>52.4</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>46.6</td>
+<td>37.9</td>
+<td>55.9</td>
+<td>55.7</td>
+<td>48.9</td>
+<td>46.5</td>
+<td>38.2</td>
+<td>57.2</td>
+<td>56.1</td>
+<td>49.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>47.4</td>
+<td>39.4</td>
+<td>57.7</td>
+<td>56.0</td>
+<td>49.9</td>
+<td>49.3</td>
+<td>40.0</td>
+<td>60.0</td>
+<td>57.5</td>
+<td>51.5</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>36.2</td>
+<td>30.3</td>
+<td>40.8</td>
+<td>44.1</td>
+<td>37.8</td>
+<td>36.6</td>
+<td>32.0</td>
+<td>43.8</td>
+<td>44.2</td>
+<td>38.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>40.8</td>
+<td>36.4</td>
+<td>39.3</td>
+<td>50.1</td>
+<td>43.9</td>
+<td>40.9</td>
+<td>36.1</td>
+<td>50.7</td>
+<td>46.7</td>
+<td>44.1</td>
+</tr>
+<tr>
+<td>LLaMA-33B</td>
+<td>–</td>
+<td>16</td>
+<td>51.0</td>
+<td>42.7</td>
+<td>63.3</td>
+<td>60.4</td>
+<td>54.1</td>
+<td>56.2</td>
+<td>45.9</td>
+<td>67.1</td>
+<td>63.9</td>
+<td>58.2</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>羊驼毛</td>
+<td>4+16</td>
+<td>52.2</td>
+<td>44.9</td>
+<td>64.3</td>
+<td>61.8</td>
+<td>55.5</td>
+<td>55.4</td>
+<td>46.0</td>
+<td>66.4</td>
+<td>63.6</td>
+<td>57.7</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>51.7</td>
+<td>44.7</td>
+<td>63.4</td>
+<td>61.0</td>
+<td>54.9</td>
+<td>53.9</td>
+<td>46.6</td>
+<td>66.3</td>
+<td>62.9</td>
+<td>57.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>51.6</td>
+<td>44.9</td>
+<td>65.0</td>
+<td>61.8</td>
+<td>55.4</td>
+<td>55.8</td>
+<td>46.4</td>
+<td>67.0</td>
+<td>64.0</td>
+<td>58.1</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>49.5</td>
+<td>43.3</td>
+<td>63.1</td>
+<td>61.0</td>
+<td>53.8</td>
+<td>53.3</td>
+<td>45.0</td>
+<td>64.1</td>
+<td>61.4</td>
+<td>55.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>50.6</td>
+<td>44.6</td>
+<td>64.0</td>
+<td>61.2</td>
+<td>54.7</td>
+<td>54.3</td>
+<td>45.8</td>
+<td>65.2</td>
+<td>62.6</td>
+<td>56.8</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>32.0</td>
+<td>31.6</td>
+<td>35.8</td>
+<td>32.8</td>
+<td>32.9</td>
+<td>37.5</td>
+<td>34.9</td>
+<td>45.3</td>
+<td>44.9</td>
+<td>40.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>38.4</td>
+<td>38.2</td>
+<td>50.7</td>
+<td>49.7</td>
+<td>43.6</td>
+<td>44.2</td>
+<td>38.8</td>
+<td>53.9</td>
+<td>52.3</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>局域网v2</td>
+<td>4+16</td>
+<td>56.3</td>
+<td>46.5</td>
+<td>68.6</td>
+<td>64.6</td>
+<td>58.8</td>
+<td>57.2</td>
+<td>48.6</td>
+<td>69.8</td>
+<td>65.2</td>
+<td>60.0</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>54.9</td>
+<td>46.4</td>
+<td>68.2</td>
+<td>63.6</td>
+<td>58.0</td>
+<td>57.4</td>
+<td>48.6</td>
+<td>69.2</td>
+<td>64.9</td>
+<td>59.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>54.2</td>
+<td>47.0</td>
+<td>69.7</td>
+<td>65.5</td>
+<td>58.7</td>
+<td>57.9</td>
+<td>48.8</td>
+<td>71.0</td>
+<td>65.5</td>
+<td>60.6</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>54.0</td>
+<td>44.3</td>
+<td>65.8</td>
+<td>62.7</td>
+<td>56.5</td>
+<td>55.7</td>
+<td>47.4</td>
+<td>67.9</td>
+<td>64.0</td>
+<td>58.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>53.1</td>
+<td>45.0</td>
+<td>66.9</td>
+<td>63.0</td>
+<td>56.7</td>
+<td>56.8</td>
+<td>46.9</td>
+<td>68.9</td>
+<td>63.7</td>
+<td>58.9</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>37.9</td>
+<td>35.0</td>
+<td>47.6</td>
+<td>42.9</td>
+<td>40.6</td>
+<td>42.8</td>
+<td>37.0</td>
+<td>54.3</td>
+<td>51.5</td>
+<td>46.1</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>49.4</td>
+<td>40.4</td>
+<td>59.8</td>
+<td>56.5</td>
+<td>51.4</td>
+<td>49.6</td>
+<td>42.7</td>
+<td>60.7</td>
+<td>57.8</td>
+<td>52.4</td>
+</tr>
+<tr>
+<td>拉玛-65B</td>
+<td>–</td>
+<td>16</td>
+<td>56.4</td>
+<td>45.2</td>
+<td>68.0</td>
+<td>64.1</td>
+<td>58.3</td>
+<td>61.4</td>
+<td>51.9</td>
+<td>73.6</td>
+<td>67.6</td>
+<td>63.4</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>羊驼毛</td>
+<td>4+16</td>
+<td>55.5</td>
+<td>49.3</td>
+<td>70.4</td>
+<td>66.9</td>
+<td>60.1</td>
+<td>60.3</td>
+<td>52.7</td>
+<td>72.9</td>
+<td>67.4</td>
+<td>63.1</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>54.8</td>
+<td>48.9</td>
+<td>69.8</td>
+<td>66.1</td>
+<td>59.4</td>
+<td>60.4</td>
+<td>52.5</td>
+<td>73.0</td>
+<td>67.2</td>
+<td>63.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>57.1</td>
+<td>48.2</td>
+<td>70.7</td>
+<td>64.9</td>
+<td>60.0</td>
+<td>60.8</td>
+<td>50.5</td>
+<td>72.5</td>
+<td>66.7</td>
+<td>62.5</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>57.4</td>
+<td>47.9</td>
+<td>67.2</td>
+<td>65.1</td>
+<td>59.3</td>
+<td>59.6</td>
+<td>50.0</td>
+<td>70.6</td>
+<td>66.1</td>
+<td>61.4</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>3</td>
+<td>57.6</td>
+<td>48.4</td>
+<td>69.3</td>
+<td>65.4</td>
+<td>60.0</td>
+<td>59.3</td>
+<td>49.6</td>
+<td>71.9</td>
+<td>66.0</td>
+<td>61.5</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>43.9</td>
+<td>38.0</td>
+<td>42.6</td>
+<td>51.1</td>
+<td>46.2</td>
+<td>47.3</td>
+<td>40.8</td>
+<td>58.9</td>
+<td>57.0</td>
+<td>50.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>2</td>
+<td>48.6</td>
+<td>42.5</td>
+<td>60.7</td>
+<td>58.6</td>
+<td>52.2</td>
+<td>51.3</td>
+<td>43.4</td>
+<td>63.4</td>
+<td>60.7</td>
+<td>54.4</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点] QLoRA</td>
+<td>局域网v2</td>
+<td>4+16</td>
+<td>58.8</td>
+<td>52.5</td>
+<td>74.0</td>
+<td>67.4</td>
+<td>62.8</td>
+<td>59.8</td>
+<td>52.9</td>
+<td>75.0</td>
+<td>69.6</td>
+<td>63.9</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>57.8</td>
+<td>51.9</td>
+<td>73.5</td>
+<td>67.8</td>
+<td>62.3</td>
+<td>59.2</td>
+<td>52.5</td>
+<td>75.0</td>
+<td>69.3</td>
+<td>63.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>64.1</td>
+<td>52.6</td>
+<td>74.8</td>
+<td>69.1</td>
+<td>65.1</td>
+<td>57.6</td>
+<td>51.1</td>
+<td>73.9</td>
+<td>67.4</td>
+<td>62.1</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>58.5</td>
+<td>50.2</td>
+<td>71.5</td>
+<td>66.9</td>
+<td>61.5</td>
+<td>59.9</td>
+<td>51.7</td>
+<td>73.4</td>
+<td>67.9</td>
+<td>63.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>3</td>
+<td>57.5</td>
+<td>49.5</td>
+<td>72.4</td>
+<td>66.9</td>
+<td>61.2</td>
+<td>61.7</td>
+<td>51.1</td>
+<td>73.8</td>
+<td>68.4</td>
+<td>63.6</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>47.9</td>
+<td>43.1</td>
+<td>60.1</td>
+<td>56.0</td>
+<td>51.4</td>
+<td>52.6</td>
+<td>43.8</td>
+<td>62.8</td>
+<td>58.5</td>
+<td>54.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>2</td>
+<td>55.9</td>
+<td>44.6</td>
+<td>65.6</td>
+<td>63.4</td>
+<td>57.1</td>
+<td>55.5</td>
+<td>46.8</td>
+<td>67.3</td>
+<td>63.2</td>
+<td>58.0</td>
+</tr>
+</tbody>
+</table>
+<p>表 1：大规模多任务语言理解 (MMLU) 数据集上的 <span class="arithmatex">\(0\)</span> 镜头和 <span class="arithmatex">\(5\)</span> 镜头准确率 (%)（Hendrycks 等人，2021）。每个块都基于第一行指定的相同基础模型。我们使用微调数据集（Alpaca 或 Flan-v2）和量化位宽来组织所有结果。 “<span class="arithmatex">\(4+16\)</span>”的位宽指的是原始 QLoRA，其中最终推理版本为 FP16。</p>
+<h2 id="实验">实验<a class="headerlink" href="#实验" title="Permanent link">&para;</a></h2>
+<h3 id="设置">设置<a class="headerlink" href="#设置" title="Permanent link">&para;</a></h3>
+<p>基础模型。我们在 LLaMA (Touvron et al., 2023a) 和 LLaMa2 (Touvron et al., 2023b) 系列上建立了 QA-LoRA。特别是，我们对 LLaMA 的 7B、13B、33B 和 65B 模型以及 LLaMA2 的 7B 和 13B 模型进行了微调。</p>
+<p>评估指标。遵循 QLoRA（Dettmers 等人，2023a），我们在大规模多任务语言理解（MMLU）基准上评估了法学硕士的零样本和少样本性能（Hendrycks 等人，2021）。它由人文、STEM、社会科学等57个语言任务组成。我们使用官方的MMLU评估脚本，并提示 <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> 。我们进一步评估了涵盖 HellaSwag (Zellers et al., 2019)、PIQA (Bisk et al., 2020)、WinoGrande (Sakaguchi et al., 2019)、ARC (Clark et al., 2018)、BoolQ (Clark et al., 2019) 和 OpenBookQA 的任务的零样本常识推理能力（米哈伊洛夫等人，2018）。我们采用 lm-eval-harness (Gao et al., 2021) 来生成 Common Sense QA 结果。</p>
+<p>量化。我们在量化步骤中采用 GPTQ（Frantar 等人，2023），并且我们的方法对其他 PTQ 方法开放，例如（Lin 等人，2023；Dettmers 等人，2023b）。我们使用相同的设置来量化 QLoRA 微调模型和预训练的 LLaMA 模型。在主要实验中，我们进行了分组非对称量化（组大小为 <span class="arithmatex">\(32\)</span> ）。我们将 act-order 变量设置为 false ，将 true-sequential 变量设置为 true 。</p>
+<p>数据集和训练细节。我们选择 Alpaca (Taori et al., 2023) 和 FLAN v2 (Longpre et al., 2023) 作为我们的微调数据集。 Alpaca 包含从 text-davinci-003 (GPT 3.5) 生成的 52K 指令跟踪数据（Wang et al., 2022）。 FLAN v2 是 <span class="arithmatex">\(1\rm{,}836\)</span> 任务的集合，将 CoT、Muffin、T0-SF 和 NIV2 混合在一起。为了节省调整成本，我们从 FLAN v2 集合中随机采样 320K 子集。遵循 QLoRA（Dettmers 等人，2023a），我们在调整期间使用分页 AdamW 优化器、<span class="arithmatex">\(0.3\)</span> 的最大梯度范数和 <span class="arithmatex">\(16\)</span> 的批量大小。我们选择恒定学习率计划，并将 7B 和 13B 模型的学习率设置为 <span class="arithmatex">\(2\times 10^{-5}\)</span>，将 33B 和 65B 模型的学习率设置为 <span class="arithmatex">\(1\times 10^{-5}\)</span>。 Alpaca 的微调步数为 10K，FLAN v2 的微调步数为 20K。所有实验均在 Tesla V100 GPU 上进行。我们对 7B、13B 和 33B 型号使用 1 个 GPU，对 65B 型号使用 2 个 GPU。</p>
+<h3 id="主要成果和效率">主要成果和效率<a class="headerlink" href="#主要成果和效率" title="Permanent link">&para;</a></h3>
+<p>与 MMLU 的 LLaMA 上最近的竞争对手进行比较。我们首先应用 QA-LoRA 来微调 MMLU 的 LLaMA 模型。表 1 总结了不同模型大小、微调数据集和位宽的结果。除了基本 LLaMA 模型之外，我们还将 QA-LoRA 与 QLoRA（Dettmers 等人，2023a）（最相关的工作）以及 PEQA（Kim 等人，2023）（一种最近不使用 LoRA 的量化方法）进行比较。我们报告了原始 QLoRA（推理阶段涉及 FP16 计算）和 GPTQ 之后的变体（为了公平比较）。 QA-LoRA 在 <span class="arithmatex">\(0\)</span> 射击和 <span class="arithmatex">\(5\)</span> 射击精度方面始终优于竞争对手（带有 GPTQ 和 PEQA 的 QLoRA）。当模型尺寸较小（例如7B和13B）或位宽较小（例如使用INT3甚至INT2）时，优势更加显着，这表明QA-LoRA在需要计算效率的场景中是一个强大的解决方案。在某些情况下，QA-LoRA 的 INT4 版本的性能甚至比 QLoRA 的原始版本更好，同时推理速度也更快（参见下一段）。我们在附录 A 中进一步展示了 QA-LoRA 的一些示例，其中可以看到定性比较以及 QA-LoRA 超越 QLoRA w/ GPTQ。 QA-LoRA 主要受益于量化感知自适应；否则，训练后量化将得不到补偿，导致结果不稳定。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>拉马-7B</th>
+<th>拉马-7B</th>
+<th>LLaMA-13B</th>
+<th>LLaMA-13B</th>
+<th>LLaMA-33B</th>
+<th>LLaMA-33B</th>
+<th>拉玛-65B</th>
+<th>拉玛-65B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方法</td>
+<td>#参数</td>
+<td>时间 <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#参数</td>
+<td>时间 <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#参数</td>
+<td>时间 <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+<td>#参数</td>
+<td>时间 <span class="arithmatex">\({}_{\text{(h)}}\)</span></td>
+</tr>
+<tr>
+<td>QLoRA</td>
+<td>160M</td>
+<td>40.0</td>
+<td>250M</td>
+<td>73.1</td>
+<td>488M</td>
+<td>148.6</td>
+<td>800M</td>
+<td>284.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>89M</td>
+<td>21.5</td>
+<td>140M</td>
+<td>29.5</td>
+<td>272M</td>
+<td>51.2</td>
+<td>447M</td>
+<td>100.5</td>
+</tr>
+</tbody>
+</table>
+<p>表2：QLoRA和QA-LoRA在微调阶段的可学习参数数量和时间成本。所有结果均在配备一个 Tesla-V100 GPU 的 Alpaca 上报告（65B 型号使用两个芯片）。微调步数为10K。</p>
+<p>QA-LoRA 的效率。 QA-LoRA 的一个明显优势在于其计算效率。表 2 在微调阶段的可学习参数和训练时间方面比较了 QA-LoRA 和 QLoRA。 QA-LoRA在训练时间上的显着优势主要来自于INT4量化的使用。与 QLoRA 使用的 NF4 量化相比，INT4 运算符经过 CUDA 优化，执行速度更快。此外，在推理阶段，QA-LoRA 也比 QLoRA 快 <span class="arithmatex">\(50\%\)</span> ，因为微调后的模型（权重积分后）仍然是 INT4 ，不像 QLoRA 将其转换回 FP16 。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>#位</th>
+<th>海拉斯瓦格</th>
+<th>PIQA</th>
+<th>威诺格兰德</th>
+<th>ARC-e</th>
+<th>ARC-c</th>
+<th>布尔Q</th>
+<th>OBQA</th>
+<th>平均。</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拉马-7B</td>
+<td>16</td>
+<td>56.3</td>
+<td>78.2</td>
+<td>67.1</td>
+<td>67.3</td>
+<td>38.2</td>
+<td>72.9</td>
+<td>28.4</td>
+<td>58.3</td>
+</tr>
+<tr>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>61.8</td>
+<td>78.1</td>
+<td>68.4</td>
+<td>75.8</td>
+<td>43.6</td>
+<td>73.7</td>
+<td>32.8</td>
+<td>62.0</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] LLaMA-7B + GPTQ</td>
+<td>4</td>
+<td>54.5</td>
+<td>76.5</td>
+<td>66.9</td>
+<td>66.1</td>
+<td>36.9</td>
+<td>70.9</td>
+<td>27.4</td>
+<td>57.0</td>
+</tr>
+<tr>
+<td>带 GPTQ 的 QLoRA</td>
+<td>4</td>
+<td>57.4</td>
+<td>77.6</td>
+<td>66.2</td>
+<td>70.9</td>
+<td>41.8</td>
+<td>73.5</td>
+<td>31.2</td>
+<td>59.8</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>58.6</td>
+<td>78.0</td>
+<td>66.9</td>
+<td>71.2</td>
+<td>43.9</td>
+<td>79.9</td>
+<td>34.0</td>
+<td>61.8</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>3</td>
+<td>52.2</td>
+<td>75.2</td>
+<td>64.1</td>
+<td>65.8</td>
+<td>37.2</td>
+<td>70.4</td>
+<td>27.2</td>
+<td>56.0</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>3</td>
+<td>57.6</td>
+<td>76.2</td>
+<td>66.5</td>
+<td>70.2</td>
+<td>43.1</td>
+<td>76.3</td>
+<td>30.6</td>
+<td>60.1</td>
+</tr>
+<tr>
+<td>[0.8pt/1pt] QLoRA 带 GPTQ</td>
+<td>2</td>
+<td>31.9</td>
+<td>58.2</td>
+<td>52.4</td>
+<td>32.3</td>
+<td>20.7</td>
+<td>60.6</td>
+<td>14.6</td>
+<td>38.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>2</td>
+<td>49.8</td>
+<td>70.2</td>
+<td>58.5</td>
+<td>55.4</td>
+<td>33.9</td>
+<td>73.7</td>
+<td>32.8</td>
+<td>53.7</td>
+</tr>
+</tbody>
+</table>
+<p>表 3：相对于不同量化位宽度的 <span class="arithmatex">\(0\)</span> 镜头常识 QA 准确度 (%)。</p>
+<p>常识性质量检查结果。我们还评估了基于 LLaMA-7B 的 <span class="arithmatex">\(0\)</span> 镜头常识 QA 的 QA-LoRA。结果总结于表3中。与 MMLU 结果类似，<span class="arithmatex">\(4\)</span> 位 QA-LoRA 与混合精度 QLoRA 相当，并且平均优于后量化 QLoRA <span class="arithmatex">\(2.0\%\)</span> 。在低比特场景下，优势变得更加明显，例如，<span class="arithmatex">\(2\)</span> 位 QA-LoRA 报告 <span class="arithmatex">\(15.0\%\)</span> 相对于 <span class="arithmatex">\(2\)</span> 位后量化 QLoRA 具有显着的精度增益。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+</tr>
+<tr>
+<td>方法</td>
+<td>数据</td>
+<td>#位</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+</tr>
+<tr>
+<td>#位</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>LLaMA2-7B</td>
+<td>–</td>
+<td>16</td>
+<td>38.9</td>
+<td>32.9</td>
+<td>46.6</td>
+<td>44.9</td>
+<td>40.7</td>
+<td>43.0</td>
+<td>36.4</td>
+<td>51.4</td>
+<td>52.2</td>
+<td>45.5</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>41.1</td>
+<td>35.4</td>
+<td>50.2</td>
+<td>50.1</td>
+<td>43.9</td>
+<td>42.1</td>
+<td>34.4</td>
+<td>49.1</td>
+<td>50.3</td>
+<td>43.9</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>47.4</td>
+<td>39.5</td>
+<td>58.9</td>
+<td>57.3</td>
+<td>50.5</td>
+<td>48.4</td>
+<td>41.4</td>
+<td>59.4</td>
+<td>58.6</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>LLaMA2-13B</td>
+<td>–</td>
+<td>16</td>
+<td>48.1</td>
+<td>42.7</td>
+<td>60.5</td>
+<td>59.5</td>
+<td>52.3</td>
+<td>53.3</td>
+<td>44.1</td>
+<td>63.3</td>
+<td>61.0</td>
+<td>55.3</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>羊驼毛</td>
+<td>4</td>
+<td>48.2</td>
+<td>41.7</td>
+<td>60.4</td>
+<td>58.7</td>
+<td>51.9</td>
+<td>48.0</td>
+<td>43.0</td>
+<td>59.7</td>
+<td>57.4</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>QA-LoRA</td>
+<td>局域网v2</td>
+<td>4</td>
+<td>50.7</td>
+<td>44.1</td>
+<td>63.8</td>
+<td>62.0</td>
+<td>54.8</td>
+<td>52.9</td>
+<td>44.8</td>
+<td>65.9</td>
+<td>64.0</td>
+<td>56.6</td>
+</tr>
+</tbody>
+</table>
+<p>表 4：基于 LLaMA2 模型系列的 <span class="arithmatex">\(0\)</span> 和 <span class="arithmatex">\(5\)</span> MMLU 精度 (%)。</p>
+<p>在 LLaMA2 型号上。我们进一步验证了我们的方法在 LLaMA2 上的有效性（Touvron 等人，2023b）。如表4所示，我们对LLaMA2的7B和13B模型进行了微调，并在MMLU上进行了测试。与原始 FP16 模型相比，使用 FLAN v2 微调的 INT4 模型始终表现得更好，而使用 Alpaca 的模型则准确率稍低。这些实验验证了 QA-LoRA 可以推广到其他预训练的模型系列。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(0\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+<td>MMLU（<span class="arithmatex">\(5\)</span>-镜头）</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+<td>嗡嗡声。</td>
+<td>科学、技术、工程和数学</td>
+<td>社交</td>
+<td>其他</td>
+<td>平均。</td>
+</tr>
+<tr>
+<td>基础型号</td>
+<td>团体规模</td>
+<td>#位</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+<td>( <span class="arithmatex">\(\uparrow\)</span> )</td>
+</tr>
+<tr>
+<td>#位</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>128</td>
+<td>4</td>
+<td>37.3</td>
+<td>31.8</td>
+<td>39.3</td>
+<td>43.7</td>
+<td>38.0</td>
+<td>36.5</td>
+<td>32.1</td>
+<td>41.7</td>
+<td>44.0</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>64</td>
+<td>4</td>
+<td>37.5</td>
+<td>30.6</td>
+<td>41.3</td>
+<td>45.4</td>
+<td>38.6</td>
+<td>36.5</td>
+<td>32.6</td>
+<td>43.4</td>
+<td>45.0</td>
+<td>39.1</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>32</td>
+<td>4</td>
+<td>38.1</td>
+<td>31.1</td>
+<td>41.6</td>
+<td>46.9</td>
+<td>39.4</td>
+<td>36.1</td>
+<td>31.9</td>
+<td>42.0</td>
+<td>44.5</td>
+<td>38.4</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点]</td>
+<td>128</td>
+<td>2</td>
+<td>24.0</td>
+<td>26.7</td>
+<td>24.8</td>
+<td>25.2</td>
+<td>25.0</td>
+<td>25.0</td>
+<td>29.0</td>
+<td>27.9</td>
+<td>26.1</td>
+<td>26.7</td>
+</tr>
+<tr>
+<td></td>
+<td>64</td>
+<td>2</td>
+<td>25.1</td>
+<td>26.9</td>
+<td>24.7</td>
+<td>27.0</td>
+<td>25.8</td>
+<td>25.0</td>
+<td>27.2</td>
+<td>25.2</td>
+<td>27.3</td>
+<td>26.0</td>
+</tr>
+<tr>
+<td></td>
+<td>32</td>
+<td>2</td>
+<td>26.4</td>
+<td>25.5</td>
+<td>25.6</td>
+<td>28.7</td>
+<td>26.5</td>
+<td>27.3</td>
+<td>26.1</td>
+<td>26.1</td>
+<td>30.3</td>
+<td>27.5</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>128</td>
+<td>4</td>
+<td>43.4</td>
+<td>39.6</td>
+<td>55.5</td>
+<td>53.9</td>
+<td>47.6</td>
+<td>46.5</td>
+<td>38.0</td>
+<td>55.8</td>
+<td>54.5</td>
+<td>48.6</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>64</td>
+<td>4</td>
+<td>43.4</td>
+<td>39.3</td>
+<td>55.8</td>
+<td>53.6</td>
+<td>47.6</td>
+<td>47.8</td>
+<td>39.3</td>
+<td>55.7</td>
+<td>54.8</td>
+<td>49.3</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>32</td>
+<td>4</td>
+<td>44.3</td>
+<td>38.0</td>
+<td>55.1</td>
+<td>55.5</td>
+<td>47.9</td>
+<td>48.4</td>
+<td>38.3</td>
+<td>54.9</td>
+<td>55.2</td>
+<td>49.2</td>
+</tr>
+<tr>
+<td>[0.8 点/1 点]</td>
+<td>128</td>
+<td>2</td>
+<td>28.5</td>
+<td>28.4</td>
+<td>30.6</td>
+<td>29.8</td>
+<td>29.2</td>
+<td>29.2</td>
+<td>30.6</td>
+<td>32.8</td>
+<td>32.4</td>
+<td>31.0</td>
+</tr>
+<tr>
+<td></td>
+<td>64</td>
+<td>2</td>
+<td>30.7</td>
+<td>31.5</td>
+<td>38.1</td>
+<td>36.0</td>
+<td>33.7</td>
+<td>32.3</td>
+<td>30.3</td>
+<td>37.0</td>
+<td>38.3</td>
+<td>34.3</td>
+</tr>
+<tr>
+<td></td>
+<td>32</td>
+<td>2</td>
+<td>35.7</td>
+<td>33.3</td>
+<td>40.9</td>
+<td>42.0</td>
+<td>37.8</td>
+<td>35.6</td>
+<td>30.6</td>
+<td>39.9</td>
+<td>41.7</td>
+<td>36.9</td>
+</tr>
+</tbody>
+</table>
+<p>表 5：相对于不同组设置的 <span class="arithmatex">\(0\)</span> 射击和 <span class="arithmatex">\(5\)</span> 射击 MMLU 准确度 (%)。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>基础型号</td>
+<td>方法</td>
+<td>#位</td>
+<td>自学</td>
+<td>自学</td>
+<td>长篇</td>
+<td>长篇</td>
+<td>芯片2</td>
+<td>芯片2</td>
+<td>羊驼毛</td>
+<td>羊驼毛</td>
+<td>果馅饼 v2</td>
+<td>果馅饼 v2</td>
+</tr>
+<tr>
+<td>基础型号</td>
+<td>方法</td>
+<td></td>
+<td><span class="arithmatex">\(0\)</span>-射击</td>
+<td><span class="arithmatex">\(5\)</span>-射击</td>
+<td><span class="arithmatex">\(0\)</span>-射击</td>
+<td><span class="arithmatex">\(5\)</span>-射击</td>
+<td><span class="arithmatex">\(0\)</span>-射击</td>
+<td><span class="arithmatex">\(5\)</span>-射击</td>
+<td><span class="arithmatex">\(0\)</span>-射击</td>
+<td><span class="arithmatex">\(5\)</span>-射击</td>
+<td><span class="arithmatex">\(0\)</span>-射击</td>
+<td><span class="arithmatex">\(5\)</span>-射击</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>–</td>
+<td>36.4</td>
+<td>–</td>
+<td>32.1</td>
+<td>–</td>
+<td>34.5</td>
+<td>–</td>
+<td>38.8</td>
+<td>–</td>
+<td>44.5</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>带 GPTQ 的 QLoRA</td>
+<td>4</td>
+<td>–</td>
+<td>35.4</td>
+<td>–</td>
+<td>29.3</td>
+<td>–</td>
+<td>33.6</td>
+<td>–</td>
+<td>36.0</td>
+<td>–</td>
+<td>41.4</td>
+</tr>
+<tr>
+<td>拉马-7B</td>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>32.5</td>
+<td>34.4</td>
+<td>29.3</td>
+<td>33.6</td>
+<td>30.4</td>
+<td>32.2</td>
+<td>38.3</td>
+<td>39.4</td>
+<td>45.9</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>QLoRA</td>
+<td>4+16</td>
+<td>–</td>
+<td>39.0</td>
+<td>–</td>
+<td>43.2</td>
+<td>–</td>
+<td>41.6</td>
+<td>–</td>
+<td>48.4</td>
+<td>–</td>
+<td>51.9</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>带 GPTQ 的 QLoRA</td>
+<td>4</td>
+<td>–</td>
+<td>38.4</td>
+<td>–</td>
+<td>42.8</td>
+<td>–</td>
+<td>41.3</td>
+<td>–</td>
+<td>48.0</td>
+<td>–</td>
+<td>51.7</td>
+</tr>
+<tr>
+<td>LLaMA-13B</td>
+<td>QA-LoRA</td>
+<td>4</td>
+<td>44.4</td>
+<td>46.1</td>
+<td>39.9</td>
+<td>43.3</td>
+<td>42.4</td>
+<td>45.8</td>
+<td>47.9</td>
+<td>49.2</td>
+<td>51.1</td>
+<td>52.4</td>
+</tr>
+</tbody>
+</table>
+<p>表 6：不同微调数据集上的 <span class="arithmatex">\(0\)</span> 镜头和 <span class="arithmatex">\(5\)</span> 镜头 MMLU 准确度 (%)。</p>
+<h3 id="烧蚀研究">烧蚀研究<a class="headerlink" href="#烧蚀研究" title="Permanent link">&para;</a></h3>
+<p>量化组大小的影响。我们研究了 <span class="arithmatex">\(L\)</span> 的不同设置，该超参数控制量化和低秩适配的自由度。结果报告在表 5 中，其中显示组大小（即显示 <span class="arithmatex">\(D_{\mathrm{in}}/L\)</span> 而不是 <span class="arithmatex">\(L\)</span>）。回想一下，较大的 <span class="arithmatex">\(L\)</span>（对应于较小的组大小）意味着较大的自由度，即较小的量化损失和较大数量的自适应参数。同时，它还需要大量的存储和计算，尽管与 <span class="arithmatex">\(L\gg 1\)</span> 一样长，可以忽略不计。可以观察到，较大的<span class="arithmatex">\(L\)</span>（例如，组大小为<span class="arithmatex">\(32\)</span>）通常会带来较高的精度，并且当量化位宽较小时，优势变得更加明显，这意味着较大的量化损失需要通过较大的自由度来补偿。</p>
+<p><img alt="Figure S4.F3" src="../figs/S4-F3-01.png" /></p>
+<p>图 3：当 LLaMA-7B 模型在不同大小的 FLAN v2 子集上进行微调时，QA-LoRA 的 <span class="arithmatex">\(5\)</span> 射击 MMLU 准确度 (%)。</p>
+<p>微调数据集的影响。我们还在更多数据集上评估 QA-LoRA，例如 Self-instruct (Wang et al., 2022)、Longform (Köksal et al., 2023) 和 Chip2 (LAION, 2023)。结果总结于表6中。与 Alpaca 和 FLAN v2 相比，这些数据集相对较小，因此微调后的模型在 MMLU 上的准确性稍差。请注意，以 LLaMA-13B 作为基础模型，QA-LoRA 在混合精度方面始终优于 QLoRA，同时在推理阶段速度更快。</p>
+<p>微调数据集大小的影响。最后，我们在 FLAN v2 的不同子集上评估 QA-LoRA。数据集大小从 160K、240K、320K、400K 和 480K 变化。 LLaMA-7B 用作基础模型。如图 3 所示，低位量化需要更多数据，但 320K 对于 QA-LoRA 的 INT2 和 INT4 变体来说都足够了。</p>
+<h2 id="结论">结论<a class="headerlink" href="#结论" title="Permanent link">&para;</a></h2>
+<p>在本文中，我们提出 QA-LoRA 作为一种有效的方法，将量化意识引入 LLM 的低秩适配中。 QA-LoRA 的核心在于量化和低秩适配的分组操作，其关键见解来自于平衡双方的自由度。 QA-LoRA 易于实现，可推广到各种基础模型和语言理解任务，并且在微调和推理阶段的计算效率很高。对 LLaMA 模型族的大量实验验证了 QA-LoRA 的有效性。</p>
+<h2 id="参考文献">参考文献<a class="headerlink" href="#参考文献" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Bisk et al. (2020) Yonatan Bisk, Rowan Zellers, Ronan Le Bras, Jianfeng Gao, and Yejin Choi. Piqa: Reasoning about physical commonsense in natural language. In Thirty-Fourth AAAI Conference on Artificial Intelligence , 2020.</p>
+</li>
+<li>
+<p>Brown et al. (2020) Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Language models are few-shot learners. Advances in neural information processing systems , 33:1877–1901, 2020.</p>
+</li>
+<li>
+<p>Bubeck et al. (2023) Sébastien Bubeck, Varun Chandrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz, Ece Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li, Scott Lundberg, Harsha Nori, Hamid Palangi, Marco Tulio Ribeiro, and Yi Zhang. Sparks of artificial general intelligence: Early experiments with gpt-4. arXiv preprint arXiv:2303.12712 , 2023.</p>
+</li>
+<li>
+<p>Chang et al. (2023) Yupeng Chang, Xu Wang, Jindong Wang, Yuan Wu, Kaijie Zhu, Hao Chen, Linyi Yang, Xiaoyuan Yi, Cunxiang Wang, Yidong Wang, et al. A survey on evaluation of large language models. arXiv preprint arXiv:2307.03109 , 2023.</p>
+</li>
+<li>
+<p>Chowdhery et al. (2022) Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, et al. Palm: Scaling language modeling with pathways. arXiv preprint arXiv:2204.02311 , 2022.</p>
+</li>
+<li>
+<p>Clark et al. (2019) Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina Toutanova. BoolQ: Exploring the surprising difficulty of natural yes/no questions. arXiv preprint arXiv:1905.10044 , 2019.</p>
+</li>
+<li>
+<p>Clark et al. (2018) Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, and Oyvind Tafjord. Think you have solved question answering? try arc, the ai2 reasoning challenge. arXiv preprint arXiv:1803.05457 , 2018.</p>
+</li>
+<li>
+<p>Dettmers et al. (2022) Tim Dettmers, Mike Lewis, Younes Belkada, and Luke Zettlemoyer. LLM.int8(): 8-bit matrix multiplication for transformers at scale. In Advances in Neural Information Processing Systems , 2022.</p>
+</li>
+<li>
+<p>Dettmers et al. (2023a) Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. Qlora: Efficient finetuning of quantized llms. arXiv preprint arXiv:2305.14314 , 2023a.</p>
+</li>
+<li>
+<p>Dettmers et al. (2023b) Tim Dettmers, Ruslan Svirschevski, Vage Egiazarian, Denis Kuznedelev, Elias Frantar, Saleh Ashkboos, Alexander Borzunov, Torsten Hoefler, and Dan Alistarh. Spqr: A sparse-quantized representation for near-lossless llm weight compression. arXiv preprint arXiv:2306.03078 , 2023b.</p>
+</li>
+<li>
+<p>Devlin et al. (2019) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. Bert: Pre-training of deep bidirectional transformers for language understanding. In North American Chapter of the Association for Computational Linguistics , 2019. URL https://api.semanticscholar.org/CorpusID:52967399 .</p>
+</li>
+<li>
+<p>Esser et al. (2019) Steven K Esser, Jeffrey L McKinstry, Deepika Bablani, Rathinakumar Appuswamy, and Dharmendra S Modha. Learned step size quantization. arXiv preprint arXiv:1902.08153 , 2019.</p>
+</li>
+<li>
+<p>Frantar &amp; Alistarh (2023) Elias Frantar and Dan Alistarh. Sparsegpt: Massive language models can be accurately pruned in one-shot. International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Frantar et al. (2023) Elias Frantar, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. GPTQ: Accurate post-training compression for generative pretrained transformers. In International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Gao et al. (2021) Leo Gao, Jonathan Tow, Stella Biderman, Sid Black, Anthony DiPofi, Charles Foster, Laurence Golding, Jeffrey Hsu, Kyle McDonell, Niklas Muennighoff, et al. A framework for few-shot language model evaluation. Version v0. 0.1. Sept , 2021.</p>
+</li>
+<li>
+<p>Hadi et al. (2023) Muhammad Usman Hadi, Rizwan Qureshi, Abbas Shah, Muhammad Irfan, Anas Zafar, Muhammad Bilal Shaikh, Naveed Akhtar, Jia Wu, Seyedali Mirjalili, et al. Large language models: A comprehensive survey of its applications, challenges, limitations, and future prospects. TechRxiv , 2023.</p>
+</li>
+<li>
+<p>He et al. (2022) Junxian He, Chunting Zhou, Xuezhe Ma, Taylor Berg-Kirkpatrick, and Graham Neubig. Towards a unified view of parameter-efficient transfer learning. In International Conference on Learning Representations , 2022.</p>
+</li>
+<li>
+<p>Hendrycks et al. (2021) Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. Measuring massive multitask language understanding. In International Conference on Learning Representations , 2021.</p>
+</li>
+<li>
+<p>Houlsby et al. (2019) Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. Parameter-efficient transfer learning for nlp. In International Conference on Machine Learning , pp. 2790–2799. PMLR, 2019.</p>
+</li>
+<li>
+<p>Hu et al. (2021) Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. LoRA: Low-rank adaptation of large language models. In International Conference on Learning Representations , 2021.</p>
+</li>
+<li>
+<p>Hu et al. (2023) Zhiqiang Hu, Yihuai Lan, Lei Wang, Wanyu Xu, Ee-Peng Lim, Roy Ka-Wei Lee, Lidong Bing, and Soujanya Poria. Llm-adapters: An adapter family for parameter-efficient fine-tuning of large language models. arXiv preprint arXiv:2304.01933 , 2023.</p>
+</li>
+<li>
+<p>Kim et al. (2023) Jeonghoon Kim, Jung Hyun Lee, Sungdong Kim, Joonsuk Park, Kang Min Yoo, Se Jung Kwon, and Dongsoo Lee. Memory-efficient fine-tuning of compressed large language models via sub-4-bit integer quantization. arXiv preprint arXiv:2305.14152 , 2023.</p>
+</li>
+<li>
+<p>Köksal et al. (2023) Abdullatif Köksal, Timo Schick, Anna Korhonen, and Hinrich Schütze. Longform: Optimizing instruction tuning for long text generation with corpus extraction. arXiv preprint arXiv:2304.08460 , 2023.</p>
+</li>
+<li>
+<p>LAION (2023) LAION. Open-instruction-generalist dataset. https://github.com/LAION-AI/Open-Instruction-Generalist , 2023.</p>
+</li>
+<li>
+<p>Li &amp; Liang (2021) Xiang Lisa Li and Percy Liang. Prefix-tuning: Optimizing continuous prompts for generation. arXiv preprint arXiv:2101.00190 , 2021.</p>
+</li>
+<li>
+<p>Lin et al. (2023) Ji Lin, Jiaming Tang, Haotian Tang, Shang Yang, Xingyu Dang, and Song Han. Awq: Activation-aware weight quantization for llm compression and acceleration. arXiv preprint arXiv:2306.00978 , 2023.</p>
+</li>
+<li>
+<p>Liu et al. (2021) Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. Gpt understands, too. arXiv preprint arXiv:2103.10385 , 2021.</p>
+</li>
+<li>
+<p>Liu et al. (2023) Zechun Liu, Barlas Oguz, Changsheng Zhao, Ernie Chang, Pierre Stock, Yashar Mehdad, Yangyang Shi, Raghuraman Krishnamoorthi, and Vikas Chandra. Llm-qat: Data-free quantization aware training for large language models. arXiv preprint arXiv:2305.17888 , 2023.</p>
+</li>
+<li>
+<p>Longpre et al. (2023) Shayne Longpre, Le Hou, Tu Vu, Albert Webson, Hyung Won Chung, Yi Tay, Denny Zhou, Quoc V Le, Barret Zoph, Jason Wei, et al. The flan collection: Designing data and methods for effective instruction tuning. arXiv preprint arXiv:2301.13688 , 2023.</p>
+</li>
+<li>
+<p>Ma et al. (2023) Xinyin Ma, Gongfan Fang, and Xinchao Wang. Llm-pruner: On the structural pruning of large language models. arXiv preprint arXiv:2305.11627 , 2023.</p>
+</li>
+<li>
+<p>Mangrulkar et al. (2022) Sourab Mangrulkar, Sylvain Gugger, Lysandre Debut, Younes Belkada, and Sayak Paul. Peft: State-of-the-art parameter-efficient fine-tuning methods. https://github.com/huggingface/peft , 2022.</p>
+</li>
+<li>
+<p>Mihaylov et al. (2018) Todor Mihaylov, Peter Clark, Tushar Khot, and Ashish Sabharwal. Can a suit of armor conduct electricity? a new dataset for open book question answering. In EMNLP , 2018.</p>
+</li>
+<li>
+<p>OpenAI (2023) OpenAI. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 , 2023.</p>
+</li>
+<li>
+<p>Park et al. (2022) Gunho Park, Baeseong Park, Se Jung Kwon, Byeongwook Kim, Youngjoo Lee, and Dongsoo Lee. nuqmm: Quantized matmul for efficient inference of large-scale generative language models. arXiv preprint arXiv:2206.09557 , 2022.</p>
+</li>
+<li>
+<p>Sakaguchi et al. (2019) Keisuke Sakaguchi, Ronan Le Bras, Chandra Bhagavatula, and Yejin Choi. Winogrande: An adversarial winograd schema challenge at scale. arXiv preprint arXiv:1907.10641 , 2019.</p>
+</li>
+<li>
+<p>Scao et al. (2022) Teven Le Scao, Angela Fan, Christopher Akiki, Ellie Pavlick, Suzana Ilić, Daniel Hesslow, Roman Castagné, Alexandra Sasha Luccioni, François Yvon, Matthias Gallé, et al. Bloom: A 176b-parameter open-access multilingual language model. arXiv preprint arXiv:2211.05100 , 2022.</p>
+</li>
+<li>
+<p>Shen et al. (2020) Sheng Shen, Zhen Dong, Jiayu Ye, Linjian Ma, Zhewei Yao, Amir Gholami, Michael W Mahoney, and Kurt Keutzer. Q-bert: Hessian based ultra low precision quantization of bert. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 34, pp. 8815–8821, 2020.</p>
+</li>
+<li>
+<p>Sun et al. (2023) Mingjie Sun, Zhuang Liu, Anna Bair, and J Zico Kolter. A simple and effective pruning approach for large language models. arXiv preprint arXiv:2306.11695 , 2023.</p>
+</li>
+<li>
+<p>Taori et al. (2023) Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori B. Hashimoto. Stanford alpaca: An instruction-following llama model. https://github.com/tatsu-lab/stanford_alpaca , 2023.</p>
+</li>
+<li>
+<p>Touvron et al. (2023a) Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. Llama: Open and efficient foundation language models. arXiv preprint arXiv:2302.13971 , 2023a.</p>
+</li>
+<li>
+<p>Touvron et al. (2023b) Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, et al. Llama 2: Open foundation and fine-tuned chat models. arXiv preprint arXiv:2307.09288 , 2023b.</p>
+</li>
+<li>
+<p>Valipour et al. (2022) Mojtaba Valipour, Mehdi Rezagholizadeh, Ivan Kobyzev, and Ali Ghodsi. Dylora: Parameter efficient tuning of pre-trained models using dynamic search-free low-rank adaptation. arXiv preprint arXiv:2210.07558 , 2022.</p>
+</li>
+<li>
+<p>Wang et al. (2022) Yizhong Wang, Yeganeh Kordi, Swaroop Mishra, Alisa Liu, Noah A Smith, Daniel Khashabi, and Hannaneh Hajishirzi. Self-instruct: Aligning language model with self generated instructions. arXiv preprint arXiv:2212.10560 , 2022.</p>
+</li>
+<li>
+<p>Wei et al. (2022a) Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, Ed H. Chi, Tatsunori Hashimoto, Oriol Vinyals, Percy Liang, Jeff Dean, and William Fedus. Emergent abilities of large language models. In Transactions on Machine Learning Research , 2022a.</p>
+</li>
+<li>
+<p>Wei et al. (2022b) Xiuying Wei, Yunchen Zhang, Xiangguo Zhang, Ruihao Gong, Shanghang Zhang, Qi Zhang, Fengwei Yu, and Xianglong Liu. Outlier suppression: Pushing the limit of low-bit transformer language models. In Advances in Neural Information Processing Systems , 2022b.</p>
+</li>
+<li>
+<p>Weng (2023) Lilian Weng. Large transformer model inference optimization. Lil’Log , Jan 2023. URL https://lilianweng.github.io/posts/2023-01-10-inference-optimization/ .</p>
+</li>
+<li>
+<p>Wortsman et al. (2023) Mitchell Wortsman, Tim Dettmers, Luke Zettlemoyer, Ari Morcos, Ali Farhadi, and Ludwig Schmidt. Stable and low-precision training for large-scale vision-language models. arXiv preprint arXiv:2304.13013 , 2023.</p>
+</li>
+<li>
+<p>Wu et al. (2023) Xiaoxia Wu, Zhewei Yao, and Yuxiong He. Zeroquant-fp: A leap forward in llms post-training w4a8 quantization using floating-point formats. arXiv preprint arXiv:2307.09782 , 2023.</p>
+</li>
+<li>
+<p>Xiao et al. (2023) Guangxuan Xiao, Ji Lin, Mickael Seznec, Hao Wu, Julien Demouth, and Song Han. Smoothquant: Accurate and efficient post-training quantization for large language models. In International Conference on Machine Learning , 2023.</p>
+</li>
+<li>
+<p>Yao et al. (2022) Zhewei Yao, Reza Yazdani Aminabadi, Minjia Zhang, Xiaoxia Wu, Conglong Li, and Yuxiong He. Zeroquant: Efficient and affordable post-training quantization for large-scale transformers. In Advances in Neural Information Processing Systems , 2022.</p>
+</li>
+<li>
+<p>Zellers et al. (2019) Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi. Hellaswag: Can a machine really finish your sentence? CoRR , abs/1905.07830, 2019. URL http://arxiv.org/abs/1905.07830 .</p>
+</li>
+<li>
+<p>Zeng et al. (2023) Aohan Zeng, Xiao Liu, Zhengxiao Du, Zihan Wang, Hanyu Lai, Ming Ding, Zhuoyi Yang, Yifan Xu, Wendi Zheng, Xiao Xia, et al. Glm-130b: An open bilingual pre-trained model. International Conference on Learning Representations , 2023.</p>
+</li>
+<li>
+<p>Zhang et al. (2022) Susan Zhang, Stephen Roller, Naman Goyal, Mikel Artetxe, Moya Chen, Shuohui Chen, Christopher Dewan, Mona Diab, Xian Li, Xi Victoria Lin, Todor Mihaylov, Myle Ott, Sam Shleifer, Kurt Shuster, Daniel Simig, Punit Singh Koura, Anjali Sridhar, Tianlu Wang, and Luke Zettlemoyer. Opt: Open pre-trained transformer language models, 2022. URL https://arxiv.org/abs/2205.01068 .</p>
+</li>
+<li>
+<p>Zhao et al. (2023a) Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, Yifan Du, Chen Yang, Yushuo Chen, Zhipeng Chen, Jinhao Jiang, Ruiyang Ren, Yifan Li, Xinyu Tang, Zikang Liu, Peiyu Liu, Jian-Yun Nie, and Ji-Rong Wen. A survey of large language models. arXiv preprint arXiv:2303.18223 , 2023a. URL http://arxiv.org/abs/2303.18223 .</p>
+</li>
+<li>
+<p>Zhao et al. (2023b) Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, et al. A survey of large language models. arXiv preprint arXiv:2303.18223 , 2023b.</p>
+</li>
+<li>
+<p>Zhou et al. (2023) Aojun Zhou, Ke Wang, Zimu Lu, Weikang Shi, Sichun Luo, Zipeng Qin, Shaoqing Lu, Anya Jia, Linqi Song, Mingjie Zhan, et al. Solving challenging math word problems using gpt-4 code interpreter with code-based self-verification. arXiv preprint arXiv:2308.07921 , 2023.</p>
+</li>
+<li>
+<p>Zhu et al. (2023) Xunyu Zhu, Jian Li, Yong Liu, Can Ma, and Weiping Wang. A survey on model compression for large language models. arXiv preprint arXiv:2308.07633 , 2023.</p>
+</li>
+</ul>
+<h2 id="定性研究">定性研究<a class="headerlink" href="#定性研究" title="Permanent link">&para;</a></h2>
+<p>在本节中，我们将展示一些对话框示例。我们在不同的量化位宽下将我们的方法 QA-LoRA 与直接竞争对手 QLoRA 进行比较。所有 QLoRA 模型均使用 GPTQ 进行后处理，如正文中所述。我们用蓝色突出显示不准确的答案，用红色突出显示完全不可接受的答案。</p>
+<p>总体而言，带有 GPTQ 的 QLoRA 在不同情况下表现出不稳定的行为。例如，在第二种情况下，它在 <span class="arithmatex">\(4\)</span> 位和 <span class="arithmatex">\(2\)</span> 位量化中崩溃，但在 <span class="arithmatex">\(3\)</span> 位量化中运行良好。这主要是由于后处理中不可控的量化损失，并且这种损失无法通过任何后续阶段来修正。</p>
+<p>说明：建议五种预算费用的方法。 QLoRA（<span class="arithmatex">\(4\)</span> 位）： 1. 写下您当前的所有开支。 2. 估算您未来的开支。 3. 减少非必要开支。 4. 根据开支的重要性对其进行评级。 5. 对你的开支进行分类，以使其更容易。我们的（<span class="arithmatex">\(4\)</span> 位）： 1. 计划每月预算并坚持执行。 2. 跟踪您的支出。 3. 缩小你的需求和优先事项范围。 4、货比三家来削减开支。 5.尽可能在家吃饭。 ———— QLoRA（<span class="arithmatex">\(3\)</span> 位）： 1. 收集并记录您的财务信息（收入、支出和资产） 2. 估算您的现金流（收入、支出和资产） 3. 将您的现金流分配到需要/想要的类别。 4. 监控您的支出 我们的（<span class="arithmatex">\(3\)</span> 位）：为了预算支出，我们应该： (1) 跟踪支出； （二）有支出计划； （3）设定每周目标； (4) 只使用现金； (5) 尝试用超支的方式覆盖一个区域来覆盖另一个区域。 ———— QLoRA（<span class="arithmatex">\(2\)</span>位）：最大次数2026#03289-012-052112。 03289-0222500032815-0451 2291-253222。我们的（<span class="arithmatex">\(2\)</span> 位）： 1. 计划每月预算并坚持执行。 2. 跟踪您的支出。 3. 缩小你的需求和优先事项范围。 4、货比三家来削减开支。 5、尽量在家吃饭。</p>
+<p>说明：您如何回应社交媒体上的负面评论？ QLoRA（<span class="arithmatex">\(4\)</span> 位）：很抱歉您有这种感觉。我们的（<span class="arithmatex">\(4\)</span> 位）：社交媒体上的负面评论可能很难回应，但我首先会尝试了解这个人来自哪里以及他们为什么这么说。然后我会努力以一种不会进一步升级讨论的方式进行回复，而是以成熟的方式进行回复。 ———— QLoRA（<span class="arithmatex">\(3\)</span> 位）：我首先要感谢这个人花时间分享他们的想法。然后我会说我重视他们的意见，我来这里是为了倾听和学习。然后我会继续解释为什么我有这样的感觉，并邀请他们进行公开讨论。我们的（<span class="arithmatex">\(3\)</span> 位）：我对社交媒体上的负面评论做出回应，感谢该人的反馈，澄清他们的评论是否基于糟糕的经历，并邀请他们直接与我联系，以便我们解决他们可能遇到的任何问题或疑虑。 ———— QLoRA ( <span class="arithmatex">\(2\)</span> 位) : Demostimeta 对于他们的工作的部分 对于他们的工作的部分 对于 3.4.2004 G Mach Rack 2002-2004 G 的部分 2. 我们的 ( <span class="arithmatex">\(2\)</span> 位) : 社交媒体上的负面评论可能很难回应，但我首先会尝试了解这个人来自哪里以及他们为什么这么说。然后我会努力以一种不会进一步升级讨论的方式进行回复，而是以成熟的方式进行回复。</p>
+<p>说明：根据颜色对下列水果进行分类。输入：苹果、香蕉、鳄梨、桃子。 QLoRA（<span class="arithmatex">\(4\)</span> 位）：同色：红色（苹果、香蕉）、绿色（牛油果、桃子） 其他：黄色（桃子）。我们的（<span class="arithmatex">\(4\)</span> 位）：苹果 - 红色。香蕉 - 黄色。鳄梨 - 绿色。桃色 - 粉红色。 ———— QLoRA（<span class="arithmatex">\(3\)</span>位）：是黄是绿是黑是白。我们的（<span class="arithmatex">\(3\)</span> 位）：- 苹果（红色）- 香蕉（黄色）- 鳄梨（绿色）- 桃子（粉色）。 ———— QLoRA（<span class="arithmatex">\(2\)</span> 位）：苹果、混搭和鳄梨。我们的（<span class="arithmatex">\(2\)</span> 位）：苹果 - 红色。香蕉 - 黄色。鳄梨 - 绿色。桃色 - 粉红色。</p>
+<p>说明：生成一个包含文本“欢迎来到我的页面”的 HTML 页面。 QLoRA ( <span class="arithmatex">\(4\)</span> 位) : \n\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> 头 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> 标题 <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面 <span class="arithmatex">\(&lt;\)</span> /标题 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /head <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> h1 <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面 <span class="arithmatex">\(&lt;\)</span> /h1 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n。我们的（<span class="arithmatex">\(4\)</span>位）：欢迎来到我的页面。\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面。 <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n。 ———— QLoRA ( <span class="arithmatex">\(3\)</span> 位) : <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> 头 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> 标题 <span class="arithmatex">\(&gt;\)</span> 我的页面 <span class="arithmatex">\(&lt;\)</span> /标题 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /头 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> 主体 <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面！ <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n 包 org.michael。我们的 ( <span class="arithmatex">\(3\)</span> 位) : <span class="arithmatex">\(&lt;\)</span> HTML <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> P <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面 <span class="arithmatex">\(&lt;\)</span> /P <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> P <span class="arithmatex">\(&gt;\)</span> Lorem Ipsum只是占位符文本。 <span class="arithmatex">\(&lt;\)</span> /P <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /HTML <span class="arithmatex">\(&gt;\)</span> \n\n 请注意，此响应还可能包含其他元素，例如样式表和脚本（如果它们是在任务中定义的）。 ———— QLoRA ( <span class="arithmatex">\(2\)</span> 位) : 该页面有文字“欢迎来到我的页面”。\n\n28.重新绑定：28！313473-020-520。 \n313473-020/2 我们的（ <span class="arithmatex">\(2\)</span> 位）：欢迎来到我的页面。\n <span class="arithmatex">\(&lt;\)</span> html <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> p <span class="arithmatex">\(&gt;\)</span> 欢迎来到我的页面。 <span class="arithmatex">\(&lt;\)</span> /p <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /body <span class="arithmatex">\(&gt;\)</span> \n <span class="arithmatex">\(&lt;\)</span> /html <span class="arithmatex">\(&gt;\)</span> \n。</p>
+<p>说明：在两个人之间创建一个关于去海滩的对话。 QLoRA（<span class="arithmatex">\(4\)</span> 位）：当然，我参加！你想什么时候见面？本来想中午左右去的。听起来不错，到时候见！我们的（<span class="arithmatex">\(4\)</span> 位）：...。 （海滩对话 A 和 B）\n…. B：去海滩听起来真是太棒了！答：确实如此，不是吗？乙：是啊！答：那我们在做什么呢？ B：计划一个完整的行程。 ———— QLoRA（<span class="arithmatex">\(3\)</span> 位）：“第一个人：”我很兴奋要去海滩！阳光、沙滩、水，一切都是那么的舒缓。我迫不及待地想到达那里并潜入其中！”第二个人：“我也是！我迫不及待地想体验那种感觉”。我们的（<span class="arithmatex">\(3\)</span>-bit）：“那么我们应该去哪个海滩，斐济还是波拉波拉岛？”\n，“斐济有更多的珊瑚礁，波拉波拉岛有更多的海滩，对吧？”\n，“是的，波拉波拉岛也有世界上最多的” ———— QLoRA（<span class="arithmatex">\(2\)</span>-bit）：这样作为用户 31 是 4 0-5 Gigs Sector 4 (22.12.2018) - [P] / f / 我们的 (<span class="arithmatex">\(2\)</span> -bit) : .... (海滩对话 A 和 B)\n... B: 去海滩听起来很刺激，不是吗？ B: 是的！完整的行程。</p>
+<h2 id="简单证明">简单证明<a class="headerlink" href="#简单证明" title="Permanent link">&para;</a></h2>
+<p>在本节中，我们给出一个简单的证明来解释为什么所提出的方法 QA-LoRA 可以与量化基础模型合并。本节中使用的一些字母与主脚本中的字母有冲突。</p>
+<h3 id="b1-量化">B.1 量化<a class="headerlink" href="#b1-量化" title="Permanent link">&para;</a></h3>
+<p>预训练的 LLM 权重通过最先进的 PTQ 方法（例如 GPTQ）进行量化。每列权重 <span class="arithmatex">\(\mathbf{W}\)</span> 均分为组大小为 <span class="arithmatex">\(\mathbf{g}\)</span> 的组。反量化过程为：</p>
+<div class="arithmatex">\[
+\tilde{\mathbf{W}}=\mathbf{A}\odot(\hat{\mathbf{W}}-\mathbf{B})
+\]</div>
+<p>其中 <span class="arithmatex">\(\mathbf{A}\)</span> 是缩放矩阵，<span class="arithmatex">\(\mathbf{B}\)</span> 是零矩阵。 <span class="arithmatex">\(\mathbf{A}_{i,j}=\alpha_{\lfloor\frac{i}{g}\rfloor,j}\)</span> 和 <span class="arithmatex">\(\mathbf{B}_{i,j}=\beta_{\lfloor\frac{i}{g}\rfloor,j}\)</span> 。</p>
+<h3 id="b2-qa-lora-培训">B.2 QA-LoRA 培训<a class="headerlink" href="#b2-qa-lora-培训" title="Permanent link">&para;</a></h3>
+<p>我们在将输入输入 LoRA 适配器之前引入聚合操作。</p>
+<div class="arithmatex">\[
+\mathbf{H}_{I}^{a}=\mathcal{A}(\mathbf{H}_{I})=[h_{i,k}^{a}]=[\sum_{r=1}^{g}h_{i,(k-1)g+r}],
+\]</div>
+<p>其中 <span class="arithmatex">\(g\)</span> 是聚合窗口大小，等于量化组大小 <span class="arithmatex">\(\mathbf{H}_{I}\in\mathcal{R}^{b\times h}\)</span> 、聚合输入 <span class="arithmatex">\(\mathbf{H}_{I}^{a}\in\mathcal{R}^{b\times(h/g)}\)</span> 。每个聚合窗口中的潜在特征都被添加，并且窗口之间没有重叠。如等式所示。如图4所示，聚合输入通过低阶适配器并增强量化权重的输出。</p>
+<div class="arithmatex">\[
+\mathbf{H}_{O}=\mathbf{H}_{I}\tilde{\mathbf{W}}+s\mathcal{A}(\mathbf{H}_{I})\mathbf{L_{1}}\mathbf{L_{2}},
+\]</div>
+<p>当输入特征维度 <span class="arithmatex">\((h\rightarrow h/l)\)</span> 发生变化时，<span class="arithmatex">\(\mathbf{L_{1}}\)</span> 的维度也会相应变化。</p>
+<h3 id="b3-合并推理">B.3 合并推理<a class="headerlink" href="#b3-合并推理" title="Permanent link">&para;</a></h3>
+<p>在本节中，我们讨论将学习到的 LoRA 适配器与量化权重合并并保留量化特性的可行性。这样，合并后的权重就可以直接用低位推理来部署。</p>
+<p>等式的左边项。 4 可以计算为：</p>
+<div class="arithmatex">\[
+\displaystyle\mathbf{H}_{I}\tilde{\mathbf{W}}=\mathbf{H}_{I}(\mathbf{A}\odot(\hat{\mathbf{W}}-\mathbf{B}))=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j})],
+\]</div>
+<p>考虑等式的正确术语。 4、为了简单起见，我们用 <span class="arithmatex">\(\mathbf{P}=[p_{i,j}]\)</span> 来代替 <span class="arithmatex">\(\mathbf{L_{1}}\mathbf{L_{2}}\)</span> 和 <span class="arithmatex">\(\mathbf{P}\in\mathcal{R}^{(d/l)\times o}\)</span> ：</p>
+<div class="arithmatex">\[
+\displaystyle s\mathcal{A}(\mathbf{H}_{I})\mathbf{L}
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=s\mathbf{H}_{I}^{a}\mathbf{L}=s[\sum_{k=1}^{d/g}h_{i,k}^{a}p_{k,j}]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=s[\sum_{k=1}^{d/g}\sum_{r=1}^{g}h_{i,(k-1)g+r}p_{k,j}]=s[\sum_{m=1}^{d}h_{i,m}p_{\lfloor\frac{m}{g}\rfloor,j}]
+\]</div>
+<p>替代方程。 5 和等式。 6 进入等式。 4：</p>
+<div class="arithmatex">\[
+\displaystyle\mathbf{H}_{O}
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j})]-s[\sum_{m=1}^{d}h_{i,m}p_{\lfloor\frac{m}{g}\rfloor,j}]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-[\sum_{m=1}^{d}h_{i,m}(\alpha_{\lfloor\frac{m}{g}\rfloor,j}\beta_{\lfloor\frac{m}{g}\rfloor,j}-sp_{\lfloor\frac{m}{g}\rfloor,j})]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-\mathbf{H}_{I}[\alpha_{\lfloor\frac{m}{g}\rfloor,j}(\beta_{\lfloor\frac{m}{g}\rfloor,j}-s\frac{p_{\lfloor\frac{m}{g}\rfloor,j}}{\alpha_{\lfloor\frac{m}{g}\rfloor,j}})]
+\]</div>
+<div class="arithmatex">\[
+\displaystyle=\mathbf{H}_{I}(\mathbf{A}\odot\hat{\mathbf{W}})-\mathbf{H}_{I}(\mathbf{A}\odot(\mathbf{B}-s\mathbf{L_{1}}\mathbf{L2}\oslash\mathbf{A})),
+\]</div>
+<p>其中 <span class="arithmatex">\(\oslash\)</span> 是逐元素除法运算。来自等式。如图7所示，我们可以得出结论，只需将零点矩阵 <span class="arithmatex">\(\mathbf{B}\)</span> 更新为 <span class="arithmatex">\(\mathbf{B}-s\mathbf{L_{1}}\mathbf{L2}\oslash\mathbf{A}\)</span> ，就可以将 QA-LoRA 的适配器权重完美地合并到量化权重中。</p>
+<h2 id="脚注">脚注<a class="headerlink" href="#脚注" title="Permanent link">&para;</a></h2>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p>确切的条件有两个。对于任何 <span class="arithmatex">\(j\)</span> ，都存在一个新的零因子 <span class="arithmatex">\(\beta_{j}^{\prime}\)</span> 和一组整数 <span class="arithmatex">\(c_{i,j}\)</span> ，以便 <span class="arithmatex">\(c_{i,j}=\alpha_{j}\times\hat{c}_{i,j}+\beta_{j}^{\prime}\)</span> 。另外，<span class="arithmatex">\(\hat{w}_{i,j}+\hat{c}_{i,j}\)</span>的最小值和最大值之间的差不大于<span class="arithmatex">\(2^{B}-1\)</span>，使得总的权重仍然可以被量化为<span class="arithmatex">\(B\)</span>位整数。&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p>我们实现了这个版本的 QLoRA，并且在 MMLU 的小样本实验中，与原始 QLoRA 相比，它报告的精度非常相似 (<span class="arithmatex">\(\pm 0.5\%\)</span>)。&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p>https://github.com/hendrycks/test&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../en/" class="md-footer__link md-footer__link--prev" aria-label="上一页: QA-LoRA · 英文原文">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                QA-LoRA · 英文原文
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--next" aria-label="下一页: QLoRA 论文研读：四位基座微调、Guanaco 与评测边界">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                QLoRA 论文研读：四位基座微调、Guanaco 与评测边界
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

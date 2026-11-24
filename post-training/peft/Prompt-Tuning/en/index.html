@@ -1,0 +1,4118 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/peft/Prompt-Tuning/en/">
+      
+      
+        <link rel="prev" href="../Prompt-Tuning%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="next" href="../zh/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Prompt-Tuning · 英文原文 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-power-of-scale-for-parameter-efficient-prompt-tuning" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prompt-Tuning · 英文原文
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../RLHF/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RLHF/GRPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../RLHF/DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_13" id="__nav_4_4_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt-Tuning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt Tuning：输入层软提示的规模效应
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 英文原文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Tuning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prompt Tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unlearning-span-corruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unlearning Span Corruption
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#closing-the-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closing the Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ablation-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ablation Study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompt-length" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Length
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-training Objective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-similar-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison to Similar Approaches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resilience-to-domain-shift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resilience to Domain Shift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-ensembling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Ensembling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpretability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interpretability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-experimental-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.1 Experimental Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-hyperparameter-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.2 Hyperparameter Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.3 Datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Tuning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prompt Tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unlearning-span-corruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unlearning Span Corruption
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#closing-the-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closing the Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ablation-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ablation Study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompt-length" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Length
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-training Objective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-similar-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison to Similar Approaches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resilience-to-domain-shift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resilience to Domain Shift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-ensembling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Ensembling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpretability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interpretability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-experimental-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.1 Experimental Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-hyperparameter-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.2 Hyperparameter Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.3 Datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="the-power-of-scale-for-parameter-efficient-prompt-tuning">The Power of Scale for Parameter-Efficient Prompt Tuning<a class="headerlink" href="#the-power-of-scale-for-parameter-efficient-prompt-tuning" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Source: <a href="https://arxiv.org/html/2104.08691v2">arXiv:2104.08691v2</a> · Original authors are credited below.
+Complete English transcription of the paper body, appendices, tables, captions, footnotes and references; layout is normalized from the original HTML.</p>
+</blockquote>
+<h2 id="authors-and-affiliations">Authors and affiliations<a class="headerlink" href="#authors-and-affiliations" title="Permanent link">&para;</a></h2>
+<p>Brian Lester * Rami Al-Rfou Noah Constant Affiliation: Google Research Email: {brianlester,rmyeid,nconstant}@google.com</p>
+<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<p>In this work, we explore “prompt tuning,” a simple yet effective mechanism for learning “soft prompts” to condition frozen language models to perform specific downstream tasks. Unlike the discrete text prompts used by GPT-3 , soft prompts are learned through backpropagation and can be tuned to incorporate signals from any number of labeled examples. Our end-to-end learned approach outperforms GPT-3’s few-shot learning by a large margin. More remarkably, through ablations on model size using T5, we show that prompt tuning becomes more competitive with scale: as models exceed billions of parameters, our method “closes the gap” and matches the strong performance of model tuning (where all model weights are tuned). This finding is especially relevant because large models are costly to share and serve and the ability to reuse one frozen model for multiple downstream tasks can ease this burden. Our method can be seen as a simplification of the recently proposed “prefix tuning” of Li and Liang (2021) and we provide a comparison to this and other similar approaches. Finally, we show that conditioning a frozen model with soft prompts confers benefits in robustness to domain transfer and enables efficient “prompt ensembling.”</p>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>With the wide success of pre-trained large language models, a range of techniques has arisen to adapt these general-purpose models to downstream tasks. ELMo Peters et al. (2018) proposed freezing the pre-trained model and learning a task-specific weighting of its per-layer representations. However, since GPT Radford et al. (2018) and BERT Devlin et al. (2019) , the dominant adaptation technique has been model tuning (or “fine-tuning”), where all model parameters are tuned during adaptation, as proposed by Howard and Ruder (2018) .</p>
+<p><img alt="Figure S1.F1" src="../figs/S1-F1-01.png" /></p>
+<p>Figure 1: Standard model tuning of T5 achieves strong performance, but requires storing separate copies of the model for each end task. Our prompt tuning of T5 matches the quality of model tuning as size increases, while enabling the reuse of a single frozen model for all tasks. Our approach significantly outperforms few-shot prompt design using GPT-3 . We show mean and standard deviation across <span class="arithmatex">\(3\)</span> runs for tuning methods.</p>
+<p>More recently, Brown et al. (2020) showed that prompt design (or “priming”) is surprisingly effective at modulating a frozen GPT-3 model’s behavior through text prompts. Prompts are typically composed of a task description and/or several canonical examples. This return to “freezing” pre-trained models is appealing, especially as model size continues to increase. Rather than requiring a separate copy of the model for each downstream task, a single generalist model can simultaneously serve many different tasks.</p>
+<p><img alt="Figure S1.F2" src="../figs/S1-F2-01.png" /></p>
+<p>Figure 2: Model tuning requires making a task-specific copy of the entire pre-trained model for each downstream task and inference must be performed in separate batches. Prompt tuning only requires storing a small task-specific prompt for each task, and enables mixed-task inference using the original pre-trained model. With a T5 “XXL” model, each copy of the tuned model requires <span class="arithmatex">\(11\)</span> billion parameters. By contrast, our tuned prompts would only require <span class="arithmatex">\(20{,}480\)</span> parameters per task—a reduction of over five orders of magnitude —assuming a prompt length of <span class="arithmatex">\(5\)</span> tokens.</p>
+<p>Unfortunately, prompt-based adaptation has several key drawbacks. Task description is error-prone and requires human involvement, and the effectiveness of a prompt is limited by how much conditioning text can fit into the model’s input. As a result, downstream task quality still lags far behind that of tuned models. For instance, GPT-3 175B few-shot performance on SuperGLUE is <span class="arithmatex">\(17.5\)</span> points below fine-tuned T5-XXL Raffel et al. (2020) ( <span class="arithmatex">\(71.8\)</span> vs. <span class="arithmatex">\(89.3\)</span> ) despite using <span class="arithmatex">\(16\)</span> times more parameters.</p>
+<p>Several efforts to automate prompt design have been recently proposed. Shin et al. (2020) propose a search algorithm over the discrete space of words, guided by the downstream application training data. While this technique outperforms manual prompt design, there is still a gap relative to model tuning.</p>
+<p>Li and Liang (2021) propose “prefix tuning” and show strong results on generative tasks. This method freezes the model parameters and backpropagates the error during tuning to prefix activations prepended to each layer in the encoder stack, including the input layer. Hambardzumyan et al. (2021) simplify this recipe by restricting the trainable parameters to the input and output sub-networks of a masked language model, and show reasonable results on classifications tasks.</p>
+<p>In this paper, we propose prompt tuning as a further simplification for adapting language models. We freeze the entire pre-trained model and only allow an additional <span class="arithmatex">\(k\)</span> tunable tokens per downstream task to be prepended to the input text. This “soft prompt” is trained end-to-end and can condense the signal from a full labeled dataset, allowing our method to outperform few-shot prompts and close the quality gap with model tuning (Figure 1 ). At the same time, since a single pre-trained model is recycled for all downstream tasks, we retain the efficient serving benefits of frozen models (Figure 2 ).</p>
+<p>While we developed our method concurrently with Li and Liang (2021) and Hambardzumyan et al. (2021) , we are the first to show that prompt tuning alone (with no intermediate-layer prefixes or task-specific output layers) is sufficient to be competitive with model tuning. Through detailed experiments in sections 2 – 3 , we demonstrate that language model capacity is a key ingredient for these approaches to succeed. As Figure 1 shows, prompt tuning becomes more competitive with scale.</p>
+<p>We compare with similar approaches in Section 4 . Explicitly separating task-specific parameters from the “generalist” parameters needed for general language-understanding has a range of additional benefits. We show in Section 5 that by capturing the task definition in the prompt while keeping the generalist parameters fixed, we are able to achieve better resilience to domain shifts. In Section 6 , we show that “prompt ensembling”, learning multiple prompts for the same task, can boost quality and is more efficient than classic model ensembling. Finally, in Section 7 , we investigate the interpretability of our learned soft prompts. In sum, our key contributions are:</p>
+<ul>
+<li>
+<ol>
+<li>Proposing prompt tuning and showing its competitiveness with model tuning in the regime of large language models.</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Ablating many design choices, and showing quality and robustness improve with scale.</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Showing prompt tuning outperforms model tuning on domain shift problems.</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Proposing “prompt ensembling” and showing its effectiveness.</li>
+</ol>
+</li>
+</ul>
+<h2 id="prompt-tuning">Prompt Tuning<a class="headerlink" href="#prompt-tuning" title="Permanent link">&para;</a></h2>
+<p>Following the “text-to-text” approach of T5 Raffel et al. (2020) , we cast all tasks as text generation. Instead of modeling classification as the probability of an output class given some input, <span class="arithmatex">\(\Pr(y|X)\)</span> , where <span class="arithmatex">\(X\)</span> is a series of tokens and <span class="arithmatex">\(y\)</span> is a single class label, we now model it as conditional generation, where <span class="arithmatex">\(Y\)</span> is a sequence of tokens that represent a class label. T5 models classification as <span class="arithmatex">\(\Pr_{\theta}(Y|X)\)</span> , parameterized by the weights, <span class="arithmatex">\(\theta\)</span> , of the transformers Vaswani et al. (2017) that make up its encoder and decoder.</p>
+<p>Prompting is the approach of adding extra information for the model to condition on during its generation of <span class="arithmatex">\(Y\)</span> . Normally, prompting is done by prepending a series of tokens, <span class="arithmatex">\(P\)</span> , to the input <span class="arithmatex">\(X\)</span> , such that the model maximizes the likelihood of the correct <span class="arithmatex">\(Y\)</span> , <span class="arithmatex">\(\Pr_{\theta}(Y|[P;X])\)</span> , while keeping the model parameters, <span class="arithmatex">\(\theta\)</span> , fixed. In GPT-3 , the representations of the prompt tokens, <span class="arithmatex">\(P=\{p_{1},p_{2},\dots,p_{n}\}\)</span> , are part of the model’s embedding table, parameterized by the frozen <span class="arithmatex">\(\theta\)</span> . Finding an optimal prompt thus requires the selection of prompt tokens, through either manual search or non-differentiable search methods Jiang et al. (2020) ; Shin et al. (2020) . Prompt tuning removes the restriction that the prompt <span class="arithmatex">\(P\)</span> be parameterized by <span class="arithmatex">\(\theta\)</span> ; instead the prompt has its own dedicated parameters, <span class="arithmatex">\(\theta_{P}\)</span> , that can be updated. While prompt design involves selecting prompt tokens from a fixed vocabulary of frozen embeddings, prompt tuning can be thought of as using a fixed prompt of special tokens, where only the embeddings of these prompt tokens can be updated. Our new conditional generation is now <span class="arithmatex">\(\Pr_{\theta;\theta_{P}}(Y|[P;X])\)</span> and can be trained by maximizing the likelihood of <span class="arithmatex">\(Y\)</span> via backpropagation, while only applying gradient updates to <span class="arithmatex">\(\theta_{P}\)</span> .</p>
+<p>Given a series of <span class="arithmatex">\(n\)</span> tokens, <span class="arithmatex">\(\{x_{1},x_{2},\dots,x_{n}\}\)</span> , the first thing T5 does is embed the tokens, forming a matrix <span class="arithmatex">\(X_{e}\in\mathbb{R}^{n\times e}\)</span> where <span class="arithmatex">\(e\)</span> is the dimension of the embedding space. Our soft-prompts are represented as a parameter <span class="arithmatex">\(P_{e}\in\mathbb{R}^{p\times e}\)</span> , where <span class="arithmatex">\(p\)</span> is the length of the prompt. Our prompt is then concatenated to the embedded input forming a single matrix <span class="arithmatex">\([P_{e};X_{e}]\in\mathbb{R}^{(p+n)\times e}\)</span> which then flows though the encoder-decoder as normal. Our models are trained to maximize the probability of <span class="arithmatex">\(Y\)</span> , but only the prompt parameters <span class="arithmatex">\(P_{e}\)</span> are updated.</p>
+<h3 id="design-decisions">Design Decisions<a class="headerlink" href="#design-decisions" title="Permanent link">&para;</a></h3>
+<p>There are many possible ways to initialize the prompt representations. The simplest is to train from scratch, using random initialization. A more sophisticated option is to initialize each prompt token to an embedding drawn from the model’s vocabulary. Conceptually, our soft-prompt modulates the frozen network’s behavior in the same way as text preceding the input, so it follows that a word-like representation might serve as a good initialization spot. For classification tasks, a third option is to initialize the prompt with embeddings that enumerate the output classes, similar to the “verbalizers” of Schick and Schütze (2021) . Since we want the model to produce these tokens in the output, initializing the prompt with the embeddings of the valid target tokens should prime the model to restrict its output to the legal output classes.</p>
+<p>Another design consideration is the length of the prompt. The parameter cost of our method is <span class="arithmatex">\(EP\)</span> , where <span class="arithmatex">\(E\)</span> is the token embedding dimension and <span class="arithmatex">\(P\)</span> is the prompt length. The shorter the prompt, the fewer new parameters must be tuned, so we aim to find a minimal length that still performs well.</p>
+<h3 id="unlearning-span-corruption">Unlearning Span Corruption<a class="headerlink" href="#unlearning-span-corruption" title="Permanent link">&para;</a></h3>
+<p>Unlike autoregressive language models like GPT-3 , the T5 models we experiment with use an encoder-decoder architecture and pre-train on a span corruption objective. Specifically, T5 is tasked with “reconstructing” masked spans in the input text, which are marked with unique sentinel tokens. The target output text consists of all the masked content, separated by sentinels, plus a final sentinel. For instance, from the text “Thank you for inviting me to your party last week” we might construct a pre-training example where the input is “Thank you <span class="arithmatex">\(\langle\)</span> X <span class="arithmatex">\(\rangle\)</span> me to your party <span class="arithmatex">\(\langle\)</span> Y <span class="arithmatex">\(\rangle\)</span> week” and the target output is “ <span class="arithmatex">\(\langle\)</span> X <span class="arithmatex">\(\rangle\)</span> for inviting <span class="arithmatex">\(\langle\)</span> Y <span class="arithmatex">\(\rangle\)</span> last <span class="arithmatex">\(\langle\)</span> Z <span class="arithmatex">\(\rangle\)</span> ”.</p>
+<p>While Raffel et al. (2020) find this architecture and pre-training objective more effective than traditional language modeling, we hypothesize that this setup is not a good fit for producing a frozen model that can be readily controlled through prompt tuning. In particular, a T5 model pre-trained exclusively on span corruption, such as T5.1.1, has never seen truly natural input text (free of sentinel tokens), nor has it ever been asked to predict truly natural targets. In fact, due to the details of T5’s span corruption preprocessing, every pre-training target will begin with a sentinel. While this “unnatural” tendency to output sentinels is easy to overcome through fine-tuning, we suspect that it would be much harder to override through a prompt alone, as the decoder priors cannot be adjusted.</p>
+<p>Given these concerns, we experiment with T5 models in three settings. (1) “Span Corruption”: We use pre-trained T5 off-the-shelf as our frozen model, and test its ability to output the expected text for downstream tasks. (2) “Span Corruption + Sentinel”: We use the same model, but prepend all downstream targets with a sentinel, so as to more closely resemble the targets seen in pre-training. (3) “LM Adaptation”: We continue T5’s self-supervised training for a small number of additional steps, but using the “LM” objective discussed by Raffel et al. (2020) ; given a natural text prefix as input, the model must produce the natural text continuation as output. Crucially, this adaptation happens only once , producing a single frozen model that we can reuse for prompt tuning across any number of downstream tasks.</p>
+<p>Through LM adaptation, we hope to “quickly” transform T5 into a model more similar to GPT-3 , which always outputs realistic text, and is known to respond well to prompts as a “few-shot learner”. It is not obvious how successful this late-stage transformation will be compared to pre-training from scratch, and it has not been investigated previously to our knowledge. As such, we experiment with various lengths of adaptation up to 100K steps.</p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-01.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-02.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-03.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-04.png" /></p>
+<p><img alt="Figure S2.F3" src="../figs/S2-F3-05.png" /></p>
+<p>Figure 3: Ablations of various hyperparameters on prompt tuning performance (mean and stddev across <span class="arithmatex">\(3\)</span> runs). In our “ default ” ( ) configuration, quality improves stably with model size. Across all ablations, the largest (XXL) model is the most robust to hyperparameter choice . 3(a) Prompt length : Increasing to <span class="arithmatex">\(20\)</span> + tokens generally confers a large boost, but XXL performs well even with single-token prompts. 3(b) Prompt initialization : Random uniform initialization lags behind more “advanced” initializations using sampled vocabulary or class label embeddings, but the difference vanishes at XXL size. 3(c) Pre-training objective : LM adaptation outperforms span corruption, even when a sentinel is added to downstream task targets, but XXL works well with any method. 3(d) LM adaptation : Longer adaptation generally gives larger gains, but XXL is robust to even short adaptation.</p>
+<h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
+<p>Our frozen models are built on top of pre-trained T5 checkpoints of all sizes (Small, Base, Large, XL, XXL). We leverage the public T5.1.1 checkpoints, which include improvements over the original T5. <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup></p>
+<p>Our “default” configuration, plotted with a green ‘ <span class="arithmatex">\(\times\)</span> ’ ( ) throughout, uses an LM-adapted version of T5 trained for an additional 100K steps, initializes using class labels (see Section 3.2 ), and uses a prompt length of <span class="arithmatex">\(100\)</span> tokens. While this is longer than the default 10-token prefix used by Li and Liang (2021) , our method still uses fewer task-specific parameters, as we only tune the input layer, as opposed to overwriting activations in all network layers. See Figure 4 for a detailed comparison. We will also see shortly that even much shorter prompts are viable as model size increases.</p>
+<p>We measure performance on the SuperGLUE benchmark Wang et al. (2019a) , a collection of eight challenging English language understanding tasks. <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> We report metrics on the development set associated with each dataset.</p>
+<p>Each of our prompts train on a single SuperGLUE task; there was no multi-task setup or mixing of training data across tasks. We translate each SuperGLUE dataset into a text-to-text format following Raffel et al. (2020) , except that we omit the task names prepended to inputs indicating which SuperGLUE task an example belongs to.</p>
+<p>We train our prompts for <span class="arithmatex">\(30{,}000\)</span> steps using T5’s standard cross-entropy loss, with a constant learning rate of <span class="arithmatex">\(0.3\)</span> and a batch size of <span class="arithmatex">\(32\)</span> . Checkpoints are selected via early stopping on the development set, where the stopping metric is the default metric for the dataset, or the average of metrics for datasets evaluated with multiple metrics. All experiments were run in JAX Bradbury et al. (2018) using the Adafactor optimizer Shazeer and Stern (2018) with weight decay <span class="arithmatex">\(1e{-5}\)</span> , <span class="arithmatex">\(\beta_{2}\)</span> decay <span class="arithmatex">\(0.8\)</span> , and parameter scaling off. The models were implemented in Flax Heek et al. (2020) . More details are available in Appendix A .</p>
+<h3 id="closing-the-gap">Closing the Gap<a class="headerlink" href="#closing-the-gap" title="Permanent link">&para;</a></h3>
+<p>To compare our method with standard model tuning, we tune the public T5.1.1 checkpoints on SuperGLUE using the default hyperparameters specified in the T5 library (learning rate <span class="arithmatex">\(0.001\)</span> , and Adafactor optimizer with pre-training parameter states restored). We consider two baselines. (1) ‘‘Model Tuning’’: For an apples-to-apples comparison, we tune on each task separately, as in our prompt tuning setup. <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> (2) ‘‘Model Tuning (Multi-task)’’: We use T5’s multi-task tuning setup to achieve a more competitive baseline. <sup id="fnref:footnote4"><a class="footnote-ref" href="#fn:footnote4">4</a></sup> In this case, a single model is tuned on all tasks jointly, with a text prefix indicating the task name.</p>
+<p>In Figure 1 (p. 1), we see that prompt tuning becomes more competitive with model tuning as scale increases. At the XXL size (11 billion parameters), prompt tuning matches even the stronger multi-task model tuning baseline, despite having over <span class="arithmatex">\(20{,}000\)</span> times fewer task-specific parameters.</p>
+<p>To compare with prompt design, we include GPT-3 few-shot performance on the SuperGLUE dev split, as reported by Brown et al. (2020) . <sup id="fnref:footnote5"><a class="footnote-ref" href="#fn:footnote5">5</a></sup> Figure 1 shows that prompt tuning beats GPT-3 prompt design by a large margin, with prompt-tuned T5-Small matching GPT-3 XL (over <span class="arithmatex">\(16\)</span> times larger), and prompt-tuned T5-Large beating GPT-3 175B (over <span class="arithmatex">\(220\)</span> times larger).</p>
+<h3 id="ablation-study">Ablation Study<a class="headerlink" href="#ablation-study" title="Permanent link">&para;</a></h3>
+<h4 id="prompt-length">Prompt Length<a class="headerlink" href="#prompt-length" title="Permanent link">&para;</a></h4>
+<p>We train prompts for each model size while varying the prompt length in <span class="arithmatex">\(\{1,5,20,100,150\}\)</span> and fixing other settings to our default configuration . Figure 3(a) shows that for most model sizes, increasing prompt length beyond a single token is critical to achieve good performance. Notably, the XXL model still gives strong results with a single-token prompt, suggesting that the larger the model, the less conditioning signal is needed to achieve a target behavior. Across all models, increasing beyond <span class="arithmatex">\(20\)</span> tokens only yields marginal gains. <sup id="fnref:footnote6"><a class="footnote-ref" href="#fn:footnote6">6</a></sup></p>
+<h4 id="prompt-initialization">Prompt Initialization<a class="headerlink" href="#prompt-initialization" title="Permanent link">&para;</a></h4>
+<p>We ablate the effect of prompt initialization by training models at all sizes while fixing other hyperparameters to their default values . For random initialization, we sample uniformly from the range [ <span class="arithmatex">\(-0.5\)</span> , <span class="arithmatex">\(0.5\)</span> ]. When initializing from sampled vocabulary, we restrict to the <span class="arithmatex">\(5{,}000\)</span> most “common” tokens in T5’s SentencePiece vocabulary Kudo and Richardson (2018) , which is ordered by likelihood in the pre-training corpus. For ‘‘class label’’ initialization, we take the embeddings for the string representations of each class in the downstream task and use them to initialize one of the tokens in the prompt. When a class label is multi-token, we average the token embeddings. At longer prompt lengths, we often run out of class labels before we have initialized all of the prompt tokens. In this case we fall back to our sampled vocab strategy to fill in the prompt. <sup id="fnref:footnote7"><a class="footnote-ref" href="#fn:footnote7">7</a></sup></p>
+<p>Figure 3(b) shows our ablation of initialization strategy across model sizes, where we find that the class based initialization performs best. At smaller model sizes, there are large gaps between the different initializations, but once the model is scaled to XXL size, those differences disappear.</p>
+<p>With “class label” initialization, we observe that the class labels typically persist in the learned prompts, such that the nearest token embeddings (in cosine distance) match the tokens used for initialization. Beyond this, we did not find our learned prompts to be interpretable, similar to those of Shin et al. (2020) . See Section 7 for details.</p>
+<h4 id="pre-training-objective">Pre-training Objective<a class="headerlink" href="#pre-training-objective" title="Permanent link">&para;</a></h4>
+<p>In Figures 3(c) and 3(d) , we see pre-training objective has a clear effect on prompt tuning quality. As hypothesized in Section 2.2 , T5’s default “span corruption” objective is not well-suited for training frozen models to be later conditioned by prompts. Intuitively, models pre-trained to read and write sentinel tokens are hard to apply directly to tasks of reading and writing text without sentinels. As seen in Figure 3(c) , even the “workaround” of adding a sentinel to the downstream targets has little benefit. While LM adaptation adds value across all model sizes, we note our largest XXL model is the most forgiving and gives strong results even with span corruption.</p>
+<p>Given the benefit of LM adaptation, we also explore how long of an adaptation is helpful. Figure 3(d) shows that longer adaptation provides additional gains, up to <span class="arithmatex">\(100\)</span> K steps. This suggests that the “transition” from span corruption to a language modeling objective is not a trivial change, and making an effective switch takes an investment of training resources ( <span class="arithmatex">\(10\)</span> % of the steps of the original T5 pre-training). At the same time, as in our other ablations, we observe that the XXL model is robust to even non-ideal configurations. At this size, the gains from adaptation are quite modest.</p>
+<p>In the non-optimal “span corruption” setting, we observe instability across model sizes, with the Small model outperforming the larger Base, Large, and XL models. On inspection, we find that for many tasks, these mid-sized models never learn to output a legal class label and thus score 0%. The two most common error modes are copying sub-spans from the input and predicting an empty string. Furthermore, this poor performance is not due to random variance in prompt tuning, as we observe low variance across <span class="arithmatex">\(3\)</span> runs for each size. These results indicate that using models pre-trained with the “span corruption” objective can be unreliable, with only <span class="arithmatex">\(2\)</span> out of <span class="arithmatex">\(5\)</span> models working well, whereas the LM adapated versions work reliably across all model sizes.</p>
+<p>We have released T5 1.1 checkpoints adapted using the LM objective for <span class="arithmatex">\(100\)</span> K steps for all model sizes. <sup id="fnref:footnote8"><a class="footnote-ref" href="#fn:footnote8">8</a></sup></p>
+<h2 id="comparison-to-similar-approaches">Comparison to Similar Approaches<a class="headerlink" href="#comparison-to-similar-approaches" title="Permanent link">&para;</a></h2>
+<p><img alt="Figure S4.F4" src="../figs/S4-F4-01.png" /></p>
+<p>Figure 4: Parameter usage of various adaptation techniques, fixing architecture to T5.1.1 and prompt/prefix length to <span class="arithmatex">\(1\)</span> – <span class="arithmatex">\(100\)</span> tokens (bands show mean and stddev). Model Tuning : All parameters are task-specific. Prefix Tuning : Activations are tuned in the prefix of each layer, requiring <span class="arithmatex">\(0.1\)</span> – <span class="arithmatex">\(1\)</span> % task-specific parameters for inference, but more are used for training. WARP : Task parameters are reduced to under <span class="arithmatex">\(0.1\)</span> % by only tuning input and output layers. Prompt Tuning : Only prompt embeddings are tuned, reaching under <span class="arithmatex">\(0.01\)</span> % for most model sizes. Prompt Design : Only a sequence of prompt IDs ( <span class="arithmatex">\(500\)</span> – <span class="arithmatex">\(2000\)</span> tokens) is required.</p>
+<p>In this section, we review recent work on learning continuous prompts, and draw comparisons with our method. One important axis of comparison is the number of task-specific parameters each method requires, as shown in Figure 4 . Among methods with learnable parameters, prompt tuning is the most parameter efficient, requiring less than <span class="arithmatex">\(0.01\)</span> % task-specific parameters for models over a billion parameters. <sup id="fnref:footnote9"><a class="footnote-ref" href="#fn:footnote9">9</a></sup></p>
+<p>Li and Liang (2021) propose “prefix tuning”: learning a sequence of prefixes that are prepended at every transformer layer. This is akin to learning transformer activations that are fixed across examples at every network layer. In contrast, prompt tuning uses a single prompt representation that is prepended to the embedded input. Beyond requiring fewer parameters, our approach allows the transformer to update the intermediate-layer task representations, as contextualized by an input example. Their work builds on GPT-2 Radford et al. (2019) and BART Lewis et al. (2020) , while ours focuses on T5 and examines changes in performance and robustness to design choices as model size increases. When using BART, prefix tuning includes prefixes on both the encoder and decoder network, while prompt tuning only requires prompts on the encoder. Li and Liang (2021) also rely on a reparameterization of the prefix to stabilize learning, which adds a large number of parameters during training, whereas our configuration does not require this reparameterization and is robust across SuperGLUE tasks and model sizes.</p>
+<p>Hambardzumyan et al. (2021) propose “WARP”, where prompt parameters are added to the input layer. This method works with masked language models, relying on a [MASK] token and a learnable output layer to project the mask to class logits. This formulation restricts the model to producing a single output, limiting it to classification. Prompt tuning does not require any changes to the input or a task-specific head. The performance of prompt tuning is also considerably closer to the strong performance of model tuning.</p>
+<p>Liu et al. (2021) propose “P-tuning” where learnable continuous prompts are interleaved throughout the embedded input, using patterns based on human design. Our approach removes this complication by simply prepending the prompt to the input. To achieve strong SuperGLUE results, P-tuning has to be used in conjunction with model tuning, that is, models jointly update both the prompt and the main model parameters, whereas our approach keeps the original language model frozen. <sup id="fnref:footnote10"><a class="footnote-ref" href="#fn:footnote10">10</a></sup></p>
+<p>Qin and Eisner (2021) use “soft words” to learn prompts to extract knowledge from pre-trained LMs. Prompts are positioned in relation to the input based on hand-designed prompt prototypes, and a learned <span class="arithmatex">\(\Delta_{i}^{\ell}\)</span> parameter is included for each layer, so parameter cost scales with model depth.</p>
+<p>Logeswaran et al. (2020) use a learnable prepended token to adapt transformer models to various tasks, but focus on small synthetic datasets designed to accommodate a compositional task representation, as opposed to larger real-world datasets. Their base models are small transformers trained from scratch jointly with the task representations, whereas we keep the base model frozen and investigate scaling laws using larger transformers.</p>
+<p>More generally, work on task prompts is closely aligned with work on “adapters” Rebuffi et al. (2017) ; Houlsby et al. (2019) , small bottleneck layers inserted between frozen pre-trained network layers. Adapters offer another means of reducing task-specific parameters, with Houlsby et al. (2019) achieving GLUE performance close to full model tuning when freezing BERT-Large and only adding <span class="arithmatex">\(2\)</span> – <span class="arithmatex">\(4\)</span> % additional parameters. Pfeiffer et al. (2020) use multiple adapters in a multilingual context to explicitly separate language understanding from task specification, similar to our approach. A core difference between adapters and prompt tuning is how the approaches change model behavior. Adapters modify the actual function that acts on the input representation, parameterized by the neural network, by allowing the rewriting of activations at any given layer. Prompt tuning modifies behavior by leaving the function fixed and adding new input representations that can affect how subsequent input is processed.</p>
+<h2 id="resilience-to-domain-shift">Resilience to Domain Shift<a class="headerlink" href="#resilience-to-domain-shift" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Domain</th>
+<th>Model</th>
+<th>Prompt</th>
+<th><span class="arithmatex">\(\Delta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQuAD</td>
+<td>Wiki</td>
+<td>94.9 <span class="arithmatex">\(\pm\)</span> 0.2</td>
+<td>94.8 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td><span class="arithmatex">\(-\)</span> 0.1</td>
+</tr>
+<tr>
+<td>TextbookQA</td>
+<td>Book</td>
+<td>54.3 <span class="arithmatex">\(\pm\)</span> 3.7</td>
+<td>66.8 <span class="arithmatex">\(\pm\)</span> 2.9</td>
+<td>+12.5</td>
+</tr>
+<tr>
+<td>BioASQ</td>
+<td>Bio</td>
+<td>77.9 <span class="arithmatex">\(\pm\)</span> 0.4</td>
+<td>79.1 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+<td>+1.2</td>
+</tr>
+<tr>
+<td>RACE</td>
+<td>Exam</td>
+<td>59.8 <span class="arithmatex">\(\pm\)</span> 0.6</td>
+<td>60.7 <span class="arithmatex">\(\pm\)</span> 0.5</td>
+<td>+0.9</td>
+</tr>
+<tr>
+<td>RE</td>
+<td>Wiki</td>
+<td>88.4 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td>88.8 <span class="arithmatex">\(\pm\)</span> 0.2</td>
+<td>+0.4</td>
+</tr>
+<tr>
+<td>DuoRC</td>
+<td>Movie</td>
+<td>68.9 <span class="arithmatex">\(\pm\)</span> 0.7</td>
+<td>67.7 <span class="arithmatex">\(\pm\)</span> 1.1</td>
+<td><span class="arithmatex">\(-\)</span> 1.2</td>
+</tr>
+<tr>
+<td>DROP</td>
+<td>Wiki</td>
+<td>68.9 <span class="arithmatex">\(\pm\)</span> 1.7</td>
+<td>67.1 <span class="arithmatex">\(\pm\)</span> 1.9</td>
+<td><span class="arithmatex">\(-\)</span> 1.8</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1: F1 mean and stddev for models trained on SQuAD and evaluated on out-of-domain datasets from the MRQA 2019 shared task. Prompt tuning tends to give stronger zero-shot performance than model tuning, especially on datasets with large domain shifts like TextbookQA.</p>
+<p>By freezing the core language model parameters, prompt tuning prevents the model from modifying its general understanding of language. Instead, prompt representations indirectly modulate the representation of the input. This reduces the model’s ability to overfit to a dataset by memorizing specific lexical cues and spurious correlations. This restriction suggests that prompt tuning may improve robustness to domain shifts, where the distribution of inputs differs between training and evaluation.</p>
+<p>We investigate zero-shot domain transfer on two tasks: question answering (QA) and paraphrase detection. For question answering, we use the MRQA 2019 shared task on generalization Fisch et al. (2019) . This task collects extractive QA datasets in a unified format and tests how models trained on “in-domain” datasets perform when evaluated on “out-of-domain” datasets. For our experiments, we train on SQuAD Rajpurkar et al. (2016) and evaluate on each of the out-of-domain datasets. <sup id="fnref:footnote11"><a class="footnote-ref" href="#fn:footnote11">11</a></sup></p>
+<p>Table 1 shows that prompt tuning outperforms model tuning on the majority of out-of-domain datasets, with a remarkable <span class="arithmatex">\(12.5\)</span> point F1 gap between the two approaches on TextbookQA. We observe larger gains from prompt tuning in cases of larger domain shifts (e.g. to Biomedical in BioASQ or to Textbooks in TextbookQA). Of the datasets where model tuning is better, we see that DROP shares a domain (Wikipedia) with SQuAD and is thus one of the smallest domain transfers.</p>
+<p>As a second test of robustness to domain shift, we explore transfer between two paraphrase detection tasks from GLUE Wang et al. (2019b) . The first task is QQP Iyer et al. (2017) , which asks if two questions from the community Q&amp;A site Quora are “duplicates”. The second task is MRPC Dolan and Brockett (2005) , which asks if two sentences drawn from news articles are paraphrases. We test transfer in both directions (QQP <span class="arithmatex">\(\Leftrightarrow\)</span> MRPC). As before, we train on the “in-domain” task, select checkpoints using in-domain validation, and evaluate zero-shot on the “out-of-domain” task.</p>
+<table>
+<thead>
+<tr>
+<th>Train</th>
+<th>Eval</th>
+<th>Tuning</th>
+<th>Accuracy</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QQP</td>
+<td>MRPC</td>
+<td>Model</td>
+<td>73.1 <span class="arithmatex">\(\pm\)</span> 0.9</td>
+<td>81.2 <span class="arithmatex">\(\pm\)</span> 2.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Prompt</td>
+<td>76.3 <span class="arithmatex">\(\pm\)</span> 0.1</td>
+<td>84.3 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+</tr>
+<tr>
+<td>MRPC</td>
+<td>QQP</td>
+<td>Model</td>
+<td>74.9 <span class="arithmatex">\(\pm\)</span> 1.3</td>
+<td>70.9 <span class="arithmatex">\(\pm\)</span> 1.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Prompt</td>
+<td>75.4 <span class="arithmatex">\(\pm\)</span> 0.8</td>
+<td>69.7 <span class="arithmatex">\(\pm\)</span> 0.3</td>
+</tr>
+</tbody>
+</table>
+<p>Table 2: Mean and stddev of zero-shot domain transfer between two paraphrase detection tasks.</p>
+<p>Table 2 shows that training a lightweight prompt on the QQP data and evaluating on MRPC gives much better performance than tuning the entire model (+ <span class="arithmatex">\(3.2\)</span> accuracy and + <span class="arithmatex">\(3.1\)</span> F1). The results are much closer in the other direction, with prompt tuning showing a small improvement in accuracy and a small drop in F1. These results support the view that model tuning may be over-parameterized and more prone to overfit the training task, to the detriment of similar tasks in different domains.</p>
+<h2 id="prompt-ensembling">Prompt Ensembling<a class="headerlink" href="#prompt-ensembling" title="Permanent link">&para;</a></h2>
+<p>Ensembles of neural models trained from different initializations on the same data are widely observed to improve task performance Hansen and Salamon (1990) and are useful for estimating model uncertainty Lakshminarayanan et al. (2017) . However, as model size increases, ensembling can become impractical. Beyond the space required to store <span class="arithmatex">\(N\)</span> models (e.g. <span class="arithmatex">\(42\)</span> GiB for each copy of T5-XXL), there is a substantial inference cost to running <span class="arithmatex">\(N\)</span> distinct models, whether in parallel or in series.</p>
+<p>Prompt tuning provides a more efficient way to ensemble multiple adaptations of a pre-trained language model. By training <span class="arithmatex">\(N\)</span> prompts on the same task, we create <span class="arithmatex">\(N\)</span> separate “models” for a task, while still sharing the core language modeling parameters throughout. Beyond drastically reducing storage costs, the prompt ensemble makes inference more efficient. To process one example, rather than computing forward passes of <span class="arithmatex">\(N\)</span> different models, we can execute a single forward pass with a batch size of <span class="arithmatex">\(N\)</span> , replicating the example across the batch and varying the prompt. These savings mirror those seen for multi-tasking in Figure 2 .</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Metric</th>
+<th>Average</th>
+<th>Best</th>
+<th>Ensemble</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BoolQ</td>
+<td>acc.</td>
+<td>91.1</td>
+<td>91.3</td>
+<td>91.7</td>
+</tr>
+<tr>
+<td>CB</td>
+<td>acc./F1</td>
+<td>99.3 / 99.0</td>
+<td>100.00 / 100.00</td>
+<td>100.0 / 100.0</td>
+</tr>
+<tr>
+<td>COPA</td>
+<td>acc.</td>
+<td>98.8</td>
+<td>100.0</td>
+<td>100.0</td>
+</tr>
+<tr>
+<td>MultiRC</td>
+<td>EM/F1 a</td>
+<td>65.7 / 88.7</td>
+<td>66.3 / 89.0</td>
+<td>67.1 / 89.4</td>
+</tr>
+<tr>
+<td>ReCoRD</td>
+<td>EM/F1</td>
+<td>92.7 / 93.4</td>
+<td>92.9 / 93.5</td>
+<td>93.2 / 93.9</td>
+</tr>
+<tr>
+<td>RTE</td>
+<td>acc.</td>
+<td>92.6</td>
+<td>93.5</td>
+<td>93.5</td>
+</tr>
+<tr>
+<td>WiC</td>
+<td>acc.</td>
+<td>76.2</td>
+<td>76.6</td>
+<td>77.4</td>
+</tr>
+<tr>
+<td>WSC</td>
+<td>acc.</td>
+<td>95.8</td>
+<td>96.2</td>
+<td>96.2</td>
+</tr>
+<tr>
+<td>SuperGLUE (dev)</td>
+<td>SuperGLUE (dev)</td>
+<td>90.5</td>
+<td>91.0</td>
+<td>91.3</td>
+</tr>
+</tbody>
+</table>
+<p>Table 3: Performance of a five-prompt ensemble built from a single frozen T5-XXL model exceeds both the average and the best among the five prompts.</p>
+<p>To demonstrate the viability of prompt ensembling, we train five prompts for each SuperGLUE task, using a single frozen T5-XXL model with our default hyperparameters. We use simple majority voting to compute predictions from the ensemble. Table 3 shows that across all tasks, the ensemble beats the single-prompt average and beats, or matches, the best individual prompt.</p>
+<h2 id="interpretability">Interpretability<a class="headerlink" href="#interpretability" title="Permanent link">&para;</a></h2>
+<p>An ideally interpretable prompt would consist of natural language that clearly describes the task at hand, explicitly asks the model for some result or action, and makes it easy to understand why the prompt elicited such behavior from the model.</p>
+<p>As prompt tuning works in the continuous embedding space rather than the discrete token space, interpreting prompts becomes more difficult. To test the interpretability of our learned soft prompts, we compute the nearest neighbors to each prompt token from the frozen model’s vocabulary. We use cosine distance between the vocabulary embedding vector and the prompt token representation as the similarity metric.</p>
+<p>We observe that for a given learned prompt token, the top-5 nearest neighbors form tight semantic clusters. For example, we see lexically similar clusters such as { Technology / technology / Technologies / technological / technologies }, as well as more diverse but still strongly related clusters such as { entirely / completely / totally / altogether / 100% }. The nature of these clusters suggests that the prompts are in fact learning “word-like” representations. We found that random vectors drawn from the embedding space do not show this sort of semantic clustering.</p>
+<p>When initializing the prompts using the “class-label” strategy, we often find that the class labels persist through training. Specifically, if a prompt token is initialized to a given label, that label is often among the learned token’s nearest neighbors after tuning. When initializing with the “Random Uniform” or “Sampled Vocab” methods, the class labels can also be found in the nearest neighbors of the prompts; however they tend to appear as neighbors to multiple prompt tokens. This suggests that the model is learning to store the expected output classes in the prompts as reference, and initializing the prompt to outputs classes makes this easier and more centralized.</p>
+<p>When examining longer prompts (e.g. size <span class="arithmatex">\(100\)</span> ), we often find several prompt tokens with the same nearest neighbors. This suggests there is either excess capacity in the prompt, or that the lack of sequential structure in the prompt representation makes it difficult for the model to localize information to a specific position.</p>
+<p>While the learned prompts taken as sequences show little interpretability, we do observe a high frequency of words like science , technology and engineering as the nearest neighbors for prompts trained on the BoolQ dataset and approximately <span class="arithmatex">\(20\)</span> % of the questions are in the “Nature/Science” category. While more investigation is needed, this suggests that one role of the prompt may be to prime the model to interpret inputs in a specific domain or context (e.g. “scientific”).</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>In this paper, we showed that prompt tuning is a competitive technique for adapting frozen pre-trained language models to downstream tasks. On the popular SuperGLUE benchmark, its task performance rivals that of traditional model tuning, with the gap vanishing as model size increases. On zero-shot domain transfer, we found that prompt tuning leads to improved generalization. This plausibly indicates that freezing general-purpose language understanding parameters and restricting downstream learning to a lightweight parameter footprint can help to avoid overfitting to a specific domain.</p>
+<p>Beyond task quality metrics, we discussed the appeal of moving to frozen pre-trained models in terms of storage and serving costs. This move enables both efficient multi-task serving, as well as efficient high-performing prompt ensembling. Looking forward, we believe that factoring out task-defining parameters as distinct from general language-modeling parameters is an exciting step that opens up many avenues for new research.</p>
+<h2 id="acknowledgements">Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permanent link">&para;</a></h2>
+<p>We thank Lucas Dixon, Waleed Ammar, Slav Petrov and Sebastian Ruder for comments on an earlier draft, and the following people for helpful discussion: Colin Raffel, Adam Roberts, and Noam Shazeer. We thank Linting Xue for help with the LM adaptation training.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Bar-Haim et al. (2006) Roy Bar-Haim, Ido Dagan, Bill Dolan, Lisa Ferro, Danilo Giampiccolo, Bernardo Magnini, and Idan Szpektor. 2006. The second PASCAL recognising textual entailment challenge. In Proceedings of the second PASCAL challenges workshop on recognising textual entailment , volume 6, pages 6–4. Venice.</p>
+</li>
+<li>
+<p>Bentivogli et al. (2009) Luisa Bentivogli, Peter Clark, Ido Dagan, and Danilo Giampiccolo. 2009. The fifth PASCAL recognizing textual entailment challenge. In TAC .</p>
+</li>
+<li>
+<p>Bradbury et al. (2018) James Bradbury, Roy Frostig, Peter Hawkins, Matthew James Johnson, Chris Leary, Dougal Maclaurin, George Necula, Adam Paszke, Jake VanderPlas, Skye Wanderman-Milne, and Qiao Zhang. 2018. JAX: composable transformations of Python+NumPy programs .</p>
+</li>
+<li>
+<p>Brown et al. (2020) Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners . In Advances in Neural Information Processing Systems , volume 33, pages 1877–1901. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Clark et al. (2019) Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina Toutanova. 2019. BoolQ: Exploring the surprising difficulty of natural yes/no questions . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 2924–2936, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Dagan et al. (2005) Ido Dagan, Oren Glickman, and Bernardo Magnini. 2005. The PASCAL recognising textual entailment challenge. In Machine Learning Challenges Workshop , pages 177–190. Springer.</p>
+</li>
+<li>
+<p>De Marneff et al. (2019) Marie-Catherine De Marneff, Mandy Simons, and Judith Tonhauser. 2019. The CommitmentBank: Investigating projection in naturally occurring discourse. Proceedings of Sinn und Bedeutung 23 .</p>
+</li>
+<li>
+<p>Devlin et al. (2019) Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of deep bidirectional transformers for language understanding . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 4171–4186, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Dolan and Brockett (2005) William B Dolan and Chris Brockett. 2005. Automatically constructing a corpus of sentential paraphrases. In Proceedings of the Third International Workshop on Paraphrasing (IWP2005) .</p>
+</li>
+<li>
+<p>Dua et al. (2019) Dheeru Dua, Yizhong Wang, Pradeep Dasigi, Gabriel Stanovsky, Sameer Singh, and Matt Gardner. 2019. DROP: A reading comprehension benchmark requiring discrete reasoning over paragraphs . In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers) , pages 2368–2378, Minneapolis, Minnesota. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Fisch et al. (2019) Adam Fisch, Alon Talmor, Robin Jia, Minjoon Seo, Eunsol Choi, and Danqi Chen. 2019. MRQA 2019 shared task: Evaluating generalization in reading comprehension. In Proceedings of 2nd Machine Reading for Reading Comprehension (MRQA) Workshop at EMNLP .</p>
+</li>
+<li>
+<p>Giampiccolo et al. (2007) Danilo Giampiccolo, Bernardo Magnini, Ido Dagan, and Bill Dolan. 2007. The third PASCAL recognizing textual entailment challenge. In Proceedings of the ACL-PASCAL workshop on textual entailment and paraphrasing , pages 1–9. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Hambardzumyan et al. (2021) Karen Hambardzumyan, Hrant Khachatrian, and Jonathan May. 2021. WARP: Word-level Adversarial ReProgramming . In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers) , pages 4921–4933, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Hansen and Salamon (1990) L. K. Hansen and P. Salamon. 1990. Neural network ensembles . IEEE Transactions on Pattern Analysis and Machine Intelligence , 12(10):993–1001.</p>
+</li>
+<li>
+<p>Heek et al. (2020) Jonathan Heek, Anselm Levskaya, Avital Oliver, Marvin Ritter, Bertrand Rondepierre, Andreas Steiner, and Marc van Zee. 2020. Flax: A neural network library and ecosystem for JAX .</p>
+</li>
+<li>
+<p>Houlsby et al. (2019) Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. 2019. Parameter-efficient transfer learning for NLP . In Proceedings of the 36th International Conference on Machine Learning , volume 97 of Proceedings of Machine Learning Research , pages 2790–2799. PMLR.</p>
+</li>
+<li>
+<p>Howard and Ruder (2018) Jeremy Howard and Sebastian Ruder. 2018. Universal language model fine-tuning for text classification . In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 328–339, Melbourne, Australia. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Iyer et al. (2017) Shankar Iyer, Nikhil Dandekar, and Kornel Csernai. 2017. First Quora dataset release: Question pairs .</p>
+</li>
+<li>
+<p>Jiang et al. (2020) Zhengbao Jiang, Frank F. Xu, Jun Araki, and Graham Neubig. 2020. How can we know what language models know? Transactions of the Association for Computational Linguistics , 8:423–438.</p>
+</li>
+<li>
+<p>Kembhavi et al. (2017) A. Kembhavi, M. Seo, D. Schwenk, J. Choi, A. Farhadi, and H. Hajishirzi. 2017. Are you smarter than a sixth grader? textbook question answering for multimodal machine comprehension . In 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 5376–5384.</p>
+</li>
+<li>
+<p>Khashabi et al. (2018) Daniel Khashabi, Snigdha Chaturvedi, Michael Roth, Shyam Upadhyay, and Dan Roth. 2018. Looking beyond the surface: A challenge set for reading comprehension over multiple sentences. In Proceedings of North American Chapter of the Association for Computational Linguistics (NAACL) .</p>
+</li>
+<li>
+<p>Kocijan et al. (2019) Vid Kocijan, Ana-Maria Cretu, Oana-Maria Camburu, Yordan Yordanov, and Thomas Lukasiewicz. 2019. A surprisingly robust trick for the Winograd schema challenge . In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics , pages 4837–4842, Florence, Italy. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Kudo and Richardson (2018) Taku Kudo and John Richardson. 2018. SentencePiece: A simple and language independent subword tokenizer and detokenizer for neural text processing . In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing: System Demonstrations , pages 66–71, Brussels, Belgium. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lai et al. (2017) Guokun Lai, Qizhe Xie, Hanxiao Liu, Yiming Yang, and Eduard Hovy. 2017. RACE: Large-scale ReAding comprehension dataset from examinations . In Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing , pages 785–794, Copenhagen, Denmark. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lakshminarayanan et al. (2017) Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell. 2017. Simple and scalable predictive uncertainty estimation using deep ensembles . In Advances in Neural Information Processing Systems , volume 30. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Levesque et al. (2012) Hector Levesque, Ernest Davis, and Leora Morgenstern. 2012. The Winograd schema challenge. In Thirteenth International Conference on the Principles of Knowledge Representation and Reasoning .</p>
+</li>
+<li>
+<p>Levy et al. (2017) Omer Levy, Minjoon Seo, Eunsol Choi, and Luke Zettlemoyer. 2017. Zero-shot relation extraction via reading comprehension . In Proceedings of the 21st Conference on Computational Natural Language Learning (CoNLL 2017) , pages 333–342, Vancouver, Canada. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Lewis et al. (2020) Mike Lewis, Yinhan Liu, Naman Goyal, Marjan Ghazvininejad, Abdelrahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer. 2020. BART: Denoising sequence-to-sequence pre-training for natural language generation, translation, and comprehension . In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics , pages 7871–7880, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Li and Liang (2021) Xiang Lisa Li and Percy Liang. 2021. Prefix-tuning: Optimizing continuous prompts for generation . In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers) , pages 4582–4597, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Liu et al. (2021) Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. 2021. GPT understands, too . CoRR , abs/2103.10385.</p>
+</li>
+<li>
+<p>Logeswaran et al. (2020) Lajanugen Logeswaran, Ann Lee, Myle Ott, Honglak Lee, Marc’Aurelio Ranzato, and Arthur Szlam. 2020. Few-shot sequence learning with transformers . CoRR , abs/2012.09543.</p>
+</li>
+<li>
+<p>Nair and Hinton (2010) Vinod Nair and Geoffrey E. Hinton. 2010. Rectified linear units improve restricted Boltzmann machines. In Proceedings of the 27th International Conference on International Conference on Machine Learning , ICML’10, page 807–814, Madison, WI, USA. Omnipress.</p>
+</li>
+<li>
+<p>Peters et al. (2018) Matthew Peters, Mark Neumann, Mohit Iyyer, Matt Gardner, Christopher Clark, Kenton Lee, and Luke Zettlemoyer. 2018. Deep contextualized word representations . In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers) , pages 2227–2237, New Orleans, Louisiana. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Pfeiffer et al. (2020) Jonas Pfeiffer, Ivan Vulić, Iryna Gurevych, and Sebastian Ruder. 2020. MAD-X: An Adapter-Based Framework for Multi-Task Cross-Lingual Transfer . In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 7654–7673, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Pilehvar and Camacho-Collados (2018) Mohammad Taher Pilehvar and Jose Camacho-Collados. 2018. WiC: 10,000 example pairs for evaluating context-sensitive representations . CoRR , abs/1808.09121.</p>
+</li>
+<li>
+<p>Qin and Eisner (2021) Guanghui Qin and Jason Eisner. 2021. Learning how to ask: Querying LMs with mixtures of soft prompts . In Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , pages 5203–5212, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Radford et al. (2018) Alec Radford, Karthik Narasimhan, Tim Salimans, and Ilya Sutskever. 2018. Improving language understanding by generative pre-training .</p>
+</li>
+<li>
+<p>Radford et al. (2019) Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners . OpenAI Blog .</p>
+</li>
+<li>
+<p>Raffel et al. (2020) Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J. Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer . Journal of Machine Learning Research , 21(140):1–67.</p>
+</li>
+<li>
+<p>Rajpurkar et al. (2016) Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. SQuAD: 100,000+ questions for machine comprehension of text . In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing , pages 2383–2392, Austin, Texas. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Rebuffi et al. (2017) Sylvestre-Alvise Rebuffi, Hakan Bilen, and Andrea Vedaldi. 2017. Learning multiple visual domains with residual adapters . In Advances in Neural Information Processing Systems , volume 30. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Roemmele et al. (2011) Melissa Roemmele, Cosmin Adrian Bejan, and Andrew S Gordon. 2011. Choice of plausible alternatives: An evaluation of commonsense causal reasoning. In 2011 AAAI Spring Symposium Series .</p>
+</li>
+<li>
+<p>Saha et al. (2018) Amrita Saha, Rahul Aralikatte, Mitesh M. Khapra, and Karthik Sankaranarayanan. 2018. DuoRC: Towards complex language understanding with paraphrased reading comprehension . In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 1683–1693, Melbourne, Australia. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Schick and Schütze (2021) Timo Schick and Hinrich Schütze. 2021. Exploiting cloze-questions for few-shot text classification and natural language inference . In Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume , pages 255–269, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Shazeer (2020) Noam Shazeer. 2020. GLU variants improve transformer . CoRR , abs/2002.05202.</p>
+</li>
+<li>
+<p>Shazeer and Stern (2018) Noam Shazeer and Mitchell Stern. 2018. Adafactor: Adaptive learning rates with sublinear memory cost . In Proceedings of the 35th International Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , pages 4596–4604. PMLR.</p>
+</li>
+<li>
+<p>Shin et al. (2020) Taylor Shin, Yasaman Razeghi, Robert L. Logan IV, Eric Wallace, and Sameer Singh. 2020. AutoPrompt: Eliciting Knowledge from Language Models with Automatically Generated Prompts . In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 4222–4235, Online. Association for Computational Linguistics.</p>
+</li>
+<li>
+<p>Vaswani et al. (2017) Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need . In Advances in Neural Information Processing Systems , volume 30, pages 5998–6008.</p>
+</li>
+<li>
+<p>Wang et al. (2019a) Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel Bowman. 2019a. SuperGLUE: A stickier benchmark for general-purpose language understanding systems . In Advances in Neural Information Processing Systems , volume 32. Curran Associates, Inc.</p>
+</li>
+<li>
+<p>Wang et al. (2019b) Alex Wang, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2019b. GLUE: A multi-task benchmark and analysis platform for natural language understanding. In the Proceedings of ICLR.</p>
+</li>
+<li>
+<p>Waskom (2021) Michael L. Waskom. 2021. seaborn: statistical data visualization . Journal of Open Source Software , 6(60):3021.</p>
+</li>
+<li>
+<p>Zhang et al. (2018) Sheng Zhang, Xiaodong Liu, Jingjing Liu, Jianfeng Gao, Kevin Duh, and Benjamin Van Durme. 2018. ReCoRD: Bridging the gap between human and machine commonsense reading comprehension . CoRR , abs/1810.12885.</p>
+</li>
+</ul>
+<h2 id="reproducibility">Reproducibility<a class="headerlink" href="#reproducibility" title="Permanent link">&para;</a></h2>
+<h3 id="a1-experimental-settings">A.1 Experimental Settings<a class="headerlink" href="#a1-experimental-settings" title="Permanent link">&para;</a></h3>
+<p>We evaluate each GLUE and SuperGLUE dataset using the metric specified in the benchmark. We reuse the evaluation code from the publicly available T5 open-source release to compute metrics. <sup id="fnref:footnote12"><a class="footnote-ref" href="#fn:footnote12">12</a></sup> For the SQuAD and MRQA datasets, we evaluate using F1, one of the metrics used by the SQuAD benchmark, where partial answer spans are considered. Again, we use the T5 open-source release for metric calculation. <sup id="fnref:footnote13"><a class="footnote-ref" href="#fn:footnote13">13</a></sup> All of our models use T5 1.1 as the base frozen model, additional details and pre-trained checkpoints can be found on GitHub. <sup id="fnref:footnote14"><a class="footnote-ref" href="#fn:footnote14">14</a></sup> <sup id="fnref:footnote15"><a class="footnote-ref" href="#fn:footnote15">15</a></sup></p>
+<p>All prompts for T5 Small and Base models were trained on <span class="arithmatex">\(4\)</span> TPU v2 chips, while prompts for larger models were trained on <span class="arithmatex">\(16\)</span> TPU v3 chips.</p>
+<table>
+<thead>
+<tr>
+<th>T5 Size</th>
+<th>Prompt Length</th>
+<th>Trainable Parameters</th>
+<th>Total Parameters</th>
+<th>Percent Trainable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Small</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(512\)</span></td>
+<td><span class="arithmatex">\(76{,}961{,}664\)</span></td>
+<td><span class="arithmatex">\(0.00067\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(2{,}560\)</span></td>
+<td><span class="arithmatex">\(76{,}963{,}712\)</span></td>
+<td><span class="arithmatex">\(0.00333\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(10{,}420\)</span></td>
+<td><span class="arithmatex">\(76{,}971{,}572\)</span></td>
+<td><span class="arithmatex">\(0.01330\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(25{,}600\)</span></td>
+<td><span class="arithmatex">\(76{,}986{,}752\)</span></td>
+<td><span class="arithmatex">\(0.03325\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(51{,}200\)</span></td>
+<td><span class="arithmatex">\(77{,}012{,}352\)</span></td>
+<td><span class="arithmatex">\(0.06648\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(76{,}800\)</span></td>
+<td><span class="arithmatex">\(77{,}037{,}952\)</span></td>
+<td><span class="arithmatex">\(0.09969\)</span> %</td>
+</tr>
+<tr>
+<td>Base</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(768\)</span></td>
+<td><span class="arithmatex">\(247{,}578{,}624\)</span></td>
+<td><span class="arithmatex">\(0.00031\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(3{,}840\)</span></td>
+<td><span class="arithmatex">\(247{,}581{,}696\)</span></td>
+<td><span class="arithmatex">\(0.00155\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(15{,}360\)</span></td>
+<td><span class="arithmatex">\(247{,}593{,}216\)</span></td>
+<td><span class="arithmatex">\(0.00620\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(38{,}400\)</span></td>
+<td><span class="arithmatex">\(247{,}616{,}256\)</span></td>
+<td><span class="arithmatex">\(0.01551\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(76{,}800\)</span></td>
+<td><span class="arithmatex">\(247{,}654{,}656\)</span></td>
+<td><span class="arithmatex">\(0.03101\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(115{,}200\)</span></td>
+<td><span class="arithmatex">\(247{,}693{,}056\)</span></td>
+<td><span class="arithmatex">\(0.04651\)</span> %</td>
+</tr>
+<tr>
+<td>Large</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(1{,}024\)</span></td>
+<td><span class="arithmatex">\(783{,}151{,}104\)</span></td>
+<td><span class="arithmatex">\(0.00013\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(5{,}120\)</span></td>
+<td><span class="arithmatex">\(783{,}155{,}200\)</span></td>
+<td><span class="arithmatex">\(0.00065\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(20{,}480\)</span></td>
+<td><span class="arithmatex">\(783{,}170{,}560\)</span></td>
+<td><span class="arithmatex">\(0.00262\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(51{,}200\)</span></td>
+<td><span class="arithmatex">\(783{,}201{,}280\)</span></td>
+<td><span class="arithmatex">\(0.00654\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(102{,}400\)</span></td>
+<td><span class="arithmatex">\(783{,}252{,}480\)</span></td>
+<td><span class="arithmatex">\(0.01907\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(153{,}600\)</span></td>
+<td><span class="arithmatex">\(783{,}303{,}680\)</span></td>
+<td><span class="arithmatex">\(0.01961\)</span> %</td>
+</tr>
+<tr>
+<td>XL</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(2{,}048\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}759{,}232\)</span></td>
+<td><span class="arithmatex">\(0.00007\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(10{,}240\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}767{,}424\)</span></td>
+<td><span class="arithmatex">\(0.00036\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(40{,}960\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}798{,}144\)</span></td>
+<td><span class="arithmatex">\(0.00143\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(102{,}400\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}859{,}584\)</span></td>
+<td><span class="arithmatex">\(0.00359\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(204{,}800\)</span></td>
+<td><span class="arithmatex">\(2{,}849{,}961{,}984\)</span></td>
+<td><span class="arithmatex">\(0.00718\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(307{,}200\)</span></td>
+<td><span class="arithmatex">\(2{,}850{,}064{,}384\)</span></td>
+<td><span class="arithmatex">\(0.01078\)</span> %</td>
+</tr>
+<tr>
+<td>XXL</td>
+<td><span class="arithmatex">\(1\)</span></td>
+<td><span class="arithmatex">\(4{,}096\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}336{,}448\)</span></td>
+<td><span class="arithmatex">\(0.00004\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(5\)</span></td>
+<td><span class="arithmatex">\(20{,}480\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}352{,}832\)</span></td>
+<td><span class="arithmatex">\(0.00018\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(20\)</span></td>
+<td><span class="arithmatex">\(81{,}920\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}414{,}272\)</span></td>
+<td><span class="arithmatex">\(0.00074\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(50\)</span></td>
+<td><span class="arithmatex">\(204{,}800\)</span></td>
+<td><span class="arithmatex">\(11{,}137{,}380{,}352\)</span></td>
+<td><span class="arithmatex">\(0.00184\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(409{,}600\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}741{,}952\)</span></td>
+<td><span class="arithmatex">\(0.00368\)</span> %</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="arithmatex">\(150\)</span></td>
+<td><span class="arithmatex">\(614{,}400\)</span></td>
+<td><span class="arithmatex">\(11{,}135{,}946{,}752\)</span></td>
+<td><span class="arithmatex">\(0.00552\)</span> %</td>
+</tr>
+</tbody>
+</table>
+<p>Table 4: Number of parameters used for various prompt lengths and T5 model sizes. Trainable parameters is the number of parameters in the prompt itself, while total parameters includes the prompt plus the original T5 parameters. The T5 parameters are frozen and shared across all tasks, and include the SentencePiece lookup table parameters. The final column is the percentage of total parameters that are trainable.</p>
+<p>Parameter counts for each prompt can be found in Table 4 . Average runtimes until convergence can be found in Table 5 .</p>
+<table>
+<thead>
+<tr>
+<th>Prompt Length</th>
+<th>T5 Size</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Large</td>
+<td>3:17 <span class="arithmatex">\(\pm\)</span> 02:10</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>3:37 <span class="arithmatex">\(\pm\)</span> 02:11</td>
+</tr>
+<tr>
+<td></td>
+<td>XXL</td>
+<td>21:23 <span class="arithmatex">\(\pm\)</span> 01:54</td>
+</tr>
+<tr>
+<td>20</td>
+<td>XL</td>
+<td>49:08 <span class="arithmatex">\(\pm\)</span> 18:53</td>
+</tr>
+<tr>
+<td></td>
+<td>XXL</td>
+<td>53:03 <span class="arithmatex">\(\pm\)</span> 16:25</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Small</td>
+<td>09:05 <span class="arithmatex">\(\pm\)</span> 05:07</td>
+</tr>
+<tr>
+<td></td>
+<td>Base</td>
+<td>55:01 <span class="arithmatex">\(\pm\)</span> 27:48</td>
+</tr>
+<tr>
+<td></td>
+<td>Large</td>
+<td>1:14:16 <span class="arithmatex">\(\pm\)</span> 13:12</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>2:30:10 <span class="arithmatex">\(\pm\)</span> 25:40</td>
+</tr>
+<tr>
+<td></td>
+<td>XXL</td>
+<td>3:13:13 <span class="arithmatex">\(\pm\)</span> 23:08</td>
+</tr>
+<tr>
+<td>100</td>
+<td>Small</td>
+<td>16:25 <span class="arithmatex">\(\pm\)</span> 01:15</td>
+</tr>
+<tr>
+<td></td>
+<td>Base</td>
+<td>29:57 <span class="arithmatex">\(\pm\)</span> 00:18</td>
+</tr>
+<tr>
+<td></td>
+<td>Large</td>
+<td>1:23:36 <span class="arithmatex">\(\pm\)</span> 10:21</td>
+</tr>
+<tr>
+<td></td>
+<td>XL</td>
+<td>3:35:00 <span class="arithmatex">\(\pm\)</span> 54:42</td>
+</tr>
+<tr>
+<td></td>
+<td>XXL</td>
+<td>3:51:15 <span class="arithmatex">\(\pm\)</span> 45:53</td>
+</tr>
+</tbody>
+</table>
+<p>Table 5: Mean and standard deviation of the runtime until convergence for the BoolQ dataset and various prompt lengths and model sizes. Convergence is defined as reaching a performance within <span class="arithmatex">\(1\)</span> % of the mean value for that model configuration. A few configurations have been omitted because their runtimes were artificially extended due to preemption.</p>
+<h3 id="a2-hyperparameter-search">A.2 Hyperparameter Search<a class="headerlink" href="#a2-hyperparameter-search" title="Permanent link">&para;</a></h3>
+<p>This work used <span class="arithmatex">\(77\)</span> hyperparameter search trials ( <span class="arithmatex">\(40\)</span> for prompt tuning and <span class="arithmatex">\(37\)</span> for single-task model tuning), and <span class="arithmatex">\(3\)</span> training runs (with validation evaluation) for each baseline configuration and ablation setting, for a total of <span class="arithmatex">\(195\)</span> runs for our main result and ablations. There were an additional <span class="arithmatex">\(18\)</span> runs for the domain shift experiments and <span class="arithmatex">\(24\)</span> extra runs to create the ensemble. Hyperparameter bounds can be found in Table 6 . Hyperparameter tuning was done via manual tuning and settings were selected based on the SuperGLUE score. All experiments in this work, outside of the hyperparameter being ablated, use our default configuration of 100K steps of LM Adapation, a prompt length of 100, and “class-label” initialization.</p>
+<p>All graphs of our experimental results plot the mean and standard deviation over 3 runs as computed by Seaborn Waskom (2021) . Some settings have such low variance that the standard deviation is hidden behind the line itself, such as “Model Tuning (Multi-task)” in Figure 1 and the Base, Large, and XL prompts trained on the “Span Corruption” pretraining objective in Figure 3(b) . Figure 4 also shows mean and standard deviation for the number of parameters each method uses as the prompt length varies from <span class="arithmatex">\(1\)</span> – <span class="arithmatex">\(100\)</span> . The “Prefix Tuning (Train)” curves appears to have no standard deviation because the parameter count is so strongly dominated by the cost of the reparameterization parameters that the standard deviation bands are occluded. For our experiments on domain transfer, we report mean and standard deviation over 3 runs.</p>
+<table>
+<thead>
+<tr>
+<th>Hyperparameter</th>
+<th>Search Space</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learning Rate</td>
+<td><span class="arithmatex">\(0.001\)</span> – <span class="arithmatex">\(0.5\)</span></td>
+</tr>
+<tr>
+<td>Parameter Scaling</td>
+<td><span class="arithmatex">\(\{\)</span> True, False <span class="arithmatex">\(\}\)</span></td>
+</tr>
+<tr>
+<td>Batch Size</td>
+<td><span class="arithmatex">\(\{32,64,126,256,512\}\)</span></td>
+</tr>
+<tr>
+<td>Number of Steps</td>
+<td><span class="arithmatex">\(\{10{,}000,20{,}000,30{,}000\}\)</span></td>
+</tr>
+<tr>
+<td>Warmup Steps</td>
+<td><span class="arithmatex">\(\{\text{off},2{,}000,3{,}000\}\)</span></td>
+</tr>
+<tr>
+<td>Decay Factor</td>
+<td><span class="arithmatex">\(\{\text{off},0.1,0.5\}\)</span></td>
+</tr>
+<tr>
+<td>Steps per Decay</td>
+<td><span class="arithmatex">\(\{\text{off},4{,}000,6{,}000,8{,}000\}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 6: Search space for each hyperparameter considered. Parameter Scaling refers to the Adafactor setting where an update is scaled by the norm of the parameter it will be applied to. Warmup Steps is the number of steps before a linearly increasing learning rate reaches the Learning Rate value, starting from zero. Decay Factor is the reduction in Learning Rate size that occurs every “Steps per Decay” steps.</p>
+<h3 id="a3-datasets">A.3 Datasets<a class="headerlink" href="#a3-datasets" title="Permanent link">&para;</a></h3>
+<p>All datasets used are in English. For the GLUE <sup id="fnref:footnote16"><a class="footnote-ref" href="#fn:footnote16">16</a></sup> , <sup id="fnref:footnote17"><a class="footnote-ref" href="#fn:footnote17">17</a></sup> and SuperGLUE <sup id="fnref:footnote18"><a class="footnote-ref" href="#fn:footnote18">18</a></sup> datasets, we used the training, validation, and test splits that ship with TensorFlow Datasets. We used version 1.0.0 for GLUE and 1.0.2 for SuperGLUE datasets. For SQuAD <sup id="fnref:footnote19"><a class="footnote-ref" href="#fn:footnote19">19</a></sup> we used v1.1:3.0.0 from Tensorflow Datasets and follow the provided training, validation, and test splits. For the out-of-domain datasets we used the development splits distributed as part of the MRQA shared task. <sup id="fnref:footnote20"><a class="footnote-ref" href="#fn:footnote20">20</a></sup> Dataset sizes can be found in Table 7 . The label distributions for each dataset can be found in Table 8 (BoolQ), Table 9 (CB), Table 10 (COPA), Table 11 (MultiRC), Table 14 (RTE), Table 12 (WiC), Table 13 (WSC), Table 15 (MRPC) and Table 16 (QQP).</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Training</th>
+<th>Validation</th>
+<th>Testing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BoolQ</td>
+<td><span class="arithmatex">\(9{,}427\)</span></td>
+<td><span class="arithmatex">\(3{,}270\)</span></td>
+<td><span class="arithmatex">\(3{,}245\)</span></td>
+</tr>
+<tr>
+<td>CB</td>
+<td><span class="arithmatex">\(250\)</span></td>
+<td><span class="arithmatex">\(56\)</span></td>
+<td><span class="arithmatex">\(250\)</span></td>
+</tr>
+<tr>
+<td>COPA</td>
+<td><span class="arithmatex">\(400\)</span></td>
+<td><span class="arithmatex">\(100\)</span></td>
+<td><span class="arithmatex">\(500\)</span></td>
+</tr>
+<tr>
+<td>MultiRC</td>
+<td><span class="arithmatex">\(27{,}243\)</span></td>
+<td><span class="arithmatex">\(4{,}848\)</span></td>
+<td><span class="arithmatex">\(9{,}693\)</span></td>
+</tr>
+<tr>
+<td>ReCoRD</td>
+<td><span class="arithmatex">\(100{,}730\)</span></td>
+<td><span class="arithmatex">\(10{,}000\)</span></td>
+<td><span class="arithmatex">\(10{,}000\)</span></td>
+</tr>
+<tr>
+<td>RTE</td>
+<td><span class="arithmatex">\(2{,}490\)</span></td>
+<td><span class="arithmatex">\(277\)</span></td>
+<td><span class="arithmatex">\(3{,}000\)</span></td>
+</tr>
+<tr>
+<td>WiC</td>
+<td><span class="arithmatex">\(5{,}428\)</span></td>
+<td><span class="arithmatex">\(638\)</span></td>
+<td><span class="arithmatex">\(1{,}400\)</span></td>
+</tr>
+<tr>
+<td>WSC</td>
+<td><span class="arithmatex">\(259^{*}\)</span></td>
+<td><span class="arithmatex">\(104\)</span></td>
+<td><span class="arithmatex">\(146\)</span></td>
+</tr>
+<tr>
+<td>MRPC</td>
+<td><span class="arithmatex">\(3{,}668\)</span></td>
+<td><span class="arithmatex">\(408\)</span></td>
+<td><span class="arithmatex">\(1{,}725\)</span></td>
+</tr>
+<tr>
+<td>QQP</td>
+<td><span class="arithmatex">\(363{,}849\)</span></td>
+<td><span class="arithmatex">\(40{,}430\)</span></td>
+<td><span class="arithmatex">\(390{,}965\)</span></td>
+</tr>
+<tr>
+<td>SQuAD</td>
+<td><span class="arithmatex">\(87{,}599\)</span></td>
+<td><span class="arithmatex">\(10{,}570\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>TextbookQA</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}504\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>RACE</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}503\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>BioASQ</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}501\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>RE</td>
+<td>-</td>
+<td><span class="arithmatex">\(674\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>DuoRC</td>
+<td>-</td>
+<td><span class="arithmatex">\(2{,}948\)</span></td>
+<td>-</td>
+</tr>
+<tr>
+<td>DROP</td>
+<td>-</td>
+<td><span class="arithmatex">\(1{,}503\)</span></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>Table 7: Sizes for training, validation, and testing splits of each dataset used. ∗ Following T5, our casting of WSC as a text generation problems means we can only train on examples where the supplied referent is correct. This means our training dataset is smaller than the normal WSC training dataset, which has <span class="arithmatex">\(554\)</span> examples.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>False</th>
+<th>True</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(37.7\)</span></td>
+<td><span class="arithmatex">\(62.3\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(37.8\)</span></td>
+<td><span class="arithmatex">\(62.2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 8: Label distribution for the BoolQ dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>contradiction</th>
+<th>entailment</th>
+<th>neutral</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(47.6\)</span></td>
+<td><span class="arithmatex">\(46.0\)</span></td>
+<td><span class="arithmatex">\(6.4\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(41.1\)</span></td>
+<td><span class="arithmatex">\(8.9\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 9: Label distribution for the CB dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>choice1</th>
+<th>choice2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(48.8\)</span></td>
+<td><span class="arithmatex">\(51.2\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(55.0\)</span></td>
+<td><span class="arithmatex">\(45.0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 10: Label distribution for the COPA dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>False</th>
+<th>True</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(55.9\)</span></td>
+<td><span class="arithmatex">\(44.1\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(57.2\)</span></td>
+<td><span class="arithmatex">\(42.8\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 11: Label distribution for the MultiRC dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>False</th>
+<th>True</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+<td><span class="arithmatex">\(50.0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 12: Label distribution for the WiC dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>False</th>
+<th>True</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(0.0\)</span></td>
+<td><span class="arithmatex">\(100.0\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(63.5\)</span></td>
+<td><span class="arithmatex">\(36.5\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 13: Label distribution for the WSC dataset. Following T5, we cast the WSC dataset to a free-form text generation task where the model generates the referent to the highlighted span instead predicting if the supplied entity is the correct referent of the highlighted span. Thus, we only use training data where the supplied referent is correct making our training label distribution focused entirely on True .</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>entailment</th>
+<th>not_entailment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(51.2\)</span></td>
+<td><span class="arithmatex">\(49.8\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(52.7\)</span></td>
+<td><span class="arithmatex">\(47.3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 14: Label distribution for the RTE dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>equivalent</th>
+<th>not_equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(67.4\)</span></td>
+<td><span class="arithmatex">\(32.6\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(68.4\)</span></td>
+<td><span class="arithmatex">\(31.6\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 15: Label distribution for the MRPC dataset.</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>duplicate</th>
+<th>not_duplicate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td><span class="arithmatex">\(36.9\)</span></td>
+<td><span class="arithmatex">\(63.1\)</span></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><span class="arithmatex">\(36.8\)</span></td>
+<td><span class="arithmatex">\(63.2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Table 16: Label distribution for the QQP dataset.</p>
+<p>The question answering datasets are extractive datasets with a variety of answers, so there isn’t a label distribution to report. Similarly, the ReCoRD dataset is a multiple choice dataset where the model must predict the masked out entity from a list of possible entities. Due to this formulation there isn’t a meaningful label distribution.</p>
+<p>We followed the open-source T5 preprocessing procedure <sup id="fnref:footnote21"><a class="footnote-ref" href="#fn:footnote21">21</a></sup> for each dataset, except that we omit the dataset prefix denoting which SuperGLUE dataset an example belongs to. For the SQuAD and MRQA datasets we used the T5 SQuAD preprocessing code <sup id="fnref:footnote22"><a class="footnote-ref" href="#fn:footnote22">22</a></sup> . By following the T5 preprocessing and text-to-text format, we recast the WSC dataset as a text generation task. Instead of predicting whether a supplied referent is correct for a highlighted span, our model predicts the correct referent directly. As such, we can only learn from training examples where the referent is correct, so WSC training data where the supplied referent is incorrect are omitted.</p>
+<p>No new data was collected for this work.</p>
+<h2 id="footnotes">Footnotes<a class="headerlink" href="#footnotes" title="Permanent link">&para;</a></h2>
+<p>Work done as a Google AI Resident.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p>These improvements are (1) the removal of all supervised data from pre-training, (2) adjustments to hyperparameters <span class="arithmatex">\(d_{\text{model}}\)</span> and <span class="arithmatex">\(d_{f\!f}\)</span> , and (3) the use of GeGLU Shazeer (2020) over ReLU Nair and Hinton (2010) activations.&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p>The tasks are BoolQ Clark et al. (2019) , CB De Marneff et al. (2019) , COPA Roemmele et al. (2011) , MultiRC Khashabi et al. (2018) , ReCoRD Zhang et al. (2018) , RTE Dagan et al. (2005) ; Bar-Haim et al. (2006) ; Giampiccolo et al. (2007) ; Bentivogli et al. (2009) , WiC Pilehvar and Camacho-Collados (2018) , and WSC Levesque et al. (2012) .&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p>To improve this baseline, we performed a sweep over the batch size hyperparameter and selected <span class="arithmatex">\(2^{16}\)</span> tokens per batch.&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote4">
+<p>The T5 SuperGLUE submission used a more complex setup, first mixing multi-task supervised data into pre-training, and then performing single-task fine-tuning. Since we use T5.1.1 throughout, this setup is unavailable, as the pre-training phase is fully self-supervised. We follow Raffel et al. (2020) in using <span class="arithmatex">\(2^{20}\)</span> tokens per batch and including DPR data in the multi-task mixture, which is known to boost WSC task performance Kocijan et al. (2019) .&#160;<a class="footnote-backref" href="#fnref:footnote4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote5">
+<p>We also experimented with using GPT-3’s manual text prompts directly with our LM-adapted T5 checkpoints. However performance was far below GPT-3 for comparable model sizes. This may be due to differences in pre-training data and model architecture, as well as T5’s shorter sequence length.&#160;<a class="footnote-backref" href="#fnref:footnote5" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote6">
+<p>Going past <span class="arithmatex">\(100\)</span> tokens appears mildly detrimental for larger models. A similar pattern of diminishing performance past a certain prefix length is observed by Li and Liang (2021) .&#160;<a class="footnote-backref" href="#fnref:footnote6" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote7">
+<p>T5’s handling of the ReCoRD and WSC tasks requires the model to generate short, free-form text. In these cases, we initialize the prompts with words related to the task: commonsense , reasoning , reading , and comprehension for ReCoRD and commonsense , pronoun , and resolution for WSC.&#160;<a class="footnote-backref" href="#fnref:footnote7" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote8">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/main/released_checkpoints.md##lm-adapted-t511lm100k&#160;<a class="footnote-backref" href="#fnref:footnote8" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote9">
+<p>To compare with prompt design, we count each token ID in the prompt as a parameter, and assume a prompt of between <span class="arithmatex">\(500\)</span> – <span class="arithmatex">\(2000\)</span> tokens to match the GPT-3 setting. While this technique is by far the most parameter efficient, it comes at the cost of task quality.&#160;<a class="footnote-backref" href="#fnref:footnote9" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote10">
+<p>As another difference, P-tuning requires the addition of “anchor” tokens in the input (e.g. a question mark following the hypothesis in the RTE task) to achieve strong performance, while prompt tuning leaves inputs untouched.&#160;<a class="footnote-backref" href="#fnref:footnote10" title="Jump back to footnote 10 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote11">
+<p>We select checkpoints based on SQuAD validation F1. The out-of-domain datasets are TextbookQA Kembhavi et al. (2017) , RACE Lai et al. (2017) , BioASQ ( http://bioasq.org/ ), RE Levy et al. (2017) , DuoRC Saha et al. (2018) , and DROP Dua et al. (2019) .&#160;<a class="footnote-backref" href="#fnref:footnote11" title="Jump back to footnote 11 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote12">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/evaluation/metrics.py&#160;<a class="footnote-backref" href="#fnref:footnote12" title="Jump back to footnote 12 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote13">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/evaluation/metrics.py##L151&#160;<a class="footnote-backref" href="#fnref:footnote13" title="Jump back to footnote 13 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote14">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/released_checkpoints.md##t511&#160;<a class="footnote-backref" href="#fnref:footnote14" title="Jump back to footnote 14 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote15">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/main/released_checkpoints.md##lm-adapted-t511lm100k&#160;<a class="footnote-backref" href="#fnref:footnote15" title="Jump back to footnote 15 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote16">
+<p>https://www.tensorflow.org/datasets/catalog/glue##gluemrpc&#160;<a class="footnote-backref" href="#fnref:footnote16" title="Jump back to footnote 16 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote17">
+<p>https://www.tensorflow.org/datasets/catalog/glue##glueqqp&#160;<a class="footnote-backref" href="#fnref:footnote17" title="Jump back to footnote 17 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote18">
+<p>https://www.tensorflow.org/datasets/catalog/super_glue&#160;<a class="footnote-backref" href="#fnref:footnote18" title="Jump back to footnote 18 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote19">
+<p>https://www.tensorflow.org/datasets/catalog/squad##squadv11_default_config&#160;<a class="footnote-backref" href="#fnref:footnote19" title="Jump back to footnote 19 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote20">
+<p>https://github.com/mrqa/MRQA-Shared-Task-2019##out-of-domain&#160;<a class="footnote-backref" href="#fnref:footnote20" title="Jump back to footnote 20 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote21">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/data/preprocessors.py&#160;<a class="footnote-backref" href="#fnref:footnote21" title="Jump back to footnote 21 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote22">
+<p>https://github.com/google-research/text-to-text-transfer-transformer/blob/master/t5/data/preprocessors.py##L264&#160;<a class="footnote-backref" href="#fnref:footnote22" title="Jump back to footnote 22 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Prompt Tuning：输入层软提示的规模效应">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Prompt Tuning：输入层软提示的规模效应
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../zh/" class="md-footer__link md-footer__link--next" aria-label="下一页: Prompt-Tuning · 中英对照">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                Prompt-Tuning · 中英对照
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

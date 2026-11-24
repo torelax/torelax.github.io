@@ -1,0 +1,6049 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/llm/DeepSeek/DeepSeek-Coder-V2/zh/">
+      
+      
+        <link rel="prev" href="../DeepSeek-Coder-V2%E8%AF%A6%E8%A7%A3/">
+      
+      
+        <link rel="next" href="../../DeepSeek-GRM/DeepSeek-GRM%E8%A7%A3%E8%AF%BB/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>DeepSeek-Coder-V2 · 中英对照 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deepseek-coder-v2-breaking-the-barrier-of-closed-source-models-in-code-intelligence--全文中英对照" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DeepSeek-Coder-V2 · 中英对照
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../post-training/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DeepSeek
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Cordis/Cordis%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cordis
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DSpark/DSpark%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSpark
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Coder/DeepSeek-Coder%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_5" id="__nav_3_2_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DeepSeek-Coder-V2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-Coder-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2：补充解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-Coder-V2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2：从通用 MoE 继续预训练代码与数学能力
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Coder-V2 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations--作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations / 作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 简介
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction / 简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contributions--贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributions / 贡献
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-evaluations-and-metrics--评估和指标摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary of Evaluations and Metrics / 评估和指标摘要
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-collection--数据收集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Collection / 数据收集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-policy--培训政策" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Policy / 培训政策
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training Policy / 培训政策">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-strategy--培训策略" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Strategy / 培训策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-architecture--模型架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Architecture / 模型架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-hyper-parameters--训练超参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Hyper-Parameters / 训练超参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-context-extension--长上下文扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long Context Extension / 长上下文扩展
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alignment--对准" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment / 对准
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alignment / 对准">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supervised-fine-tuning--监督微调" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supervised Fine-Tuning / 监督微调
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reinforcement-learning--强化学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforcement Learning / 强化学习
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompts--提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompts / 提示
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reward-modeling--奖励模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reward Modeling / 奖励模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reinforcement-learning-algorithm--强化学习算法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforcement Learning Algorithm / 强化学习算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-results--实验结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Results / 实验结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experimental Results / 实验结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-generation--代码生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Generation / 代码生成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Generation / 代码生成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#humaneval-and-mbpp-benchmarks--humaneval-和-mbpp-基准" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HumanEval and MBPP Benchmarks. / HumanEval 和 MBPP 基准。
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#competitive-programming--竞争性编程" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competitive Programming. / 竞争性编程。
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-completion--代码完成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Completion / 代码完成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Completion / 代码完成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repository-level-code-completion-evaluation--存储库级代码完成评估" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository-Level Code Completion Evaluation / 存储库级代码完成评估
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fill-in-the-middle-code-completion--中间填写代码完成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fill-in-the-Middle Code Completion / 中间填写代码完成
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-fixing--代码修复" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Fixing / 代码修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-understanding-and-reasoning--代码理解与推理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Understanding and Reasoning / 代码理解与推理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-reasoning--数学推理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Reasoning / 数学推理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#general-natural-language--通用自然语言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Natural Language / 通用自然语言
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-programming-languages--支持的编程语言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Programming Languages / 支持的编程语言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes--脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes / 脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-GRM/DeepSeek-GRM%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-GRM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-LLM/DeepSeek-LLM%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-OCR/DeepSeek-OCR%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-OCR
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-OCR-2/DeepSeek-OCR-2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-OCR-2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Prover/DeepSeek-Prover%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Prover-V1.5/DeepSeek-Prover-V1.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V1.5
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-Prover-V2/DeepSeek-Prover-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-Prover-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-R1/DeepSeek-R1%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-R1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V2/DeepSeek-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3/DeepSeek-V3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3-Hardware/DeepSeek-V3-Hardware%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3-Hardware
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3.2/DeepSeek-V3.2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3.2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V3.2-Exp/DeepSeek-V3.2-Exp%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V3.2-Exp
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V4/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-V4.1-Flash/DeepSeek-V4.1-Flash%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4.1-Flash
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-VL/DeepSeek-VL%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-VL
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeek-VL2/DeepSeek-VL2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-VL2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMath/DeepSeekMath%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMath
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMath-V2/DeepSeekMath-V2%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMath-V2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DeepSeekMoE/DeepSeekMoE%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeekMoE
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DreamCraft3D/DreamCraft3D%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DreamCraft3D
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../DualPath/DualPath%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DualPath
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../ESFT/ESFT%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Engram/Engram%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engram
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Fire-Flyer-AI-HPC/Fire-Flyer-AI-HPC%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fire-Flyer-AI-HPC
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Janus/Janus%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Janus
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Janus-Pro/Janus-Pro%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Janus-Pro
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../JanusFlow/JanusFlow%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JanusFlow
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Loss-Free-Balancing/Loss-Free-Balancing%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loss-Free-Balancing
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../Native-Sparse-Attention/Native-Sparse-Attention%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native-Sparse-Attention
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../mHC/mHC%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../Qwen/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Qwen
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Qwen/Qwen%E7%B3%BB%E5%88%97%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen 系列完整技术演进深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../long-context/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长上下文
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    长上下文
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../long-context/YaRN/YaRN%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YaRN
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../post-training/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authors-and-affiliations--作者与机构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authors and affiliations / 作者与机构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 简介
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction / 简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contributions--贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributions / 贡献
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-evaluations-and-metrics--评估和指标摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary of Evaluations and Metrics / 评估和指标摘要
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-collection--数据收集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Collection / 数据收集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-policy--培训政策" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Policy / 培训政策
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training Policy / 培训政策">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-strategy--培训策略" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Strategy / 培训策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-architecture--模型架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Architecture / 模型架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-hyper-parameters--训练超参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Hyper-Parameters / 训练超参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-context-extension--长上下文扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long Context Extension / 长上下文扩展
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alignment--对准" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment / 对准
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alignment / 对准">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supervised-fine-tuning--监督微调" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supervised Fine-Tuning / 监督微调
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reinforcement-learning--强化学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforcement Learning / 强化学习
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompts--提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompts / 提示
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reward-modeling--奖励模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reward Modeling / 奖励模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reinforcement-learning-algorithm--强化学习算法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforcement Learning Algorithm / 强化学习算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-results--实验结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Results / 实验结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experimental Results / 实验结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-generation--代码生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Generation / 代码生成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Generation / 代码生成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#humaneval-and-mbpp-benchmarks--humaneval-和-mbpp-基准" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HumanEval and MBPP Benchmarks. / HumanEval 和 MBPP 基准。
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#competitive-programming--竞争性编程" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competitive Programming. / 竞争性编程。
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-completion--代码完成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Completion / 代码完成
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Completion / 代码完成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repository-level-code-completion-evaluation--存储库级代码完成评估" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository-Level Code Completion Evaluation / 存储库级代码完成评估
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fill-in-the-middle-code-completion--中间填写代码完成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fill-in-the-Middle Code Completion / 中间填写代码完成
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-fixing--代码修复" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Fixing / 代码修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-understanding-and-reasoning--代码理解与推理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Understanding and Reasoning / 代码理解与推理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-reasoning--数学推理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Reasoning / 数学推理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#general-natural-language--通用自然语言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Natural Language / 通用自然语言
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-programming-languages--支持的编程语言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Programming Languages / 支持的编程语言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footnotes--脚注" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Footnotes / 脚注
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="deepseek-coder-v2-breaking-the-barrier-of-closed-source-models-in-code-intelligence--全文中英对照">DeepSeek-Coder-V2: Breaking the Barrier of Closed-Source Models in Code Intelligence / 全文中英对照<a class="headerlink" href="#deepseek-coder-v2-breaking-the-barrier-of-closed-source-models-in-code-intelligence--全文中英对照" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>来源：<a href="https://arxiv.org/abs/2406.11931v1">arXiv:2406.11931v1</a>。英文段落后紧接中文，覆盖所取 HTML 版本的主文、附录、图表、脚注与参考文献；公式、数字表和书目信息共用。中文以机器初译为底稿，进行了术语整理与结构核对，尚未逐句人工审定；遇到歧义请以紧邻英文和原论文为准。 原作版权归所列作者，许可见 <a href="http://creativecommons.org/licenses/by/4.0/">原作许可</a>；中文译文与版式改写在该许可条件下提供（涉及 SA 时沿用相同许可，涉及 NC 时仅限非商业使用）。</p>
+</blockquote>
+<h2 id="authors-and-affiliations--作者与机构">Authors and affiliations / 作者与机构<a class="headerlink" href="#authors-and-affiliations--作者与机构" title="Permanent link">&para;</a></h2>
+<p>Qihao Zhu*, Daya Guo*, Zhihong Shao*, Dejian Yang*, Peiyi Wang, Runxin Xu, Y. Wu Yukun Li, Huazuo Gao, Shirong Ma, Wangding Zeng, Xiao Bi, Zihui Gu, Hanwei Xu, Damai Dai Kai Dong, Liyue Zhang, Yishi Piao, Zhibin Gou, Zhenda Xie, Zhewen Hao, Bingxuan Wang Junxiao Song, Deli Chen, Xin Xie, Kang Guan, Yuxiang You, Aixin Liu, Qiushi Du, Wenjun Gao Xuan Lu, Qinyu Chen, Yaohui Wang, Chengqi Deng, Jiashi Li, Chenggang Zhao Chong Ruan, Fuli Luo, Wenfeng Liang DeepSeek-AI <a href="https://github.com/deepseek-ai/DeepSeek-Coder-V2">https://github.com/deepseek-ai/DeepSeek-Coder-V2</a> Corresponding author: Core contributors</p>
+<p><strong>EN.</strong> \reportnumber</p>
+<p><strong>中.</strong> \报告编号</p>
+<p><strong>EN.</strong> 001</p>
+<p><strong>中.</strong> 001</p>
+<h2 id="abstract--摘要">Abstract / 摘要<a class="headerlink" href="#abstract--摘要" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> We present DeepSeek-Coder-V2, an open-source Mixture-of-Experts (MoE) code language model that achieves performance comparable to GPT4-Turbo in code-specific tasks. Specifically, DeepSeek-Coder-V2 is further pre-trained from an intermediate checkpoint of DeepSeek-V2 with additional 6 trillion tokens. Through this continued pre-training, DeepSeek-Coder-V2 substantially enhances the coding and mathematical reasoning capabilities of DeepSeek-V2, while maintaining comparable performance in general language tasks. Compared to DeepSeek-Coder-33B, DeepSeek-Coder-V2 demonstrates significant advancements in various aspects of code-related tasks, as well as reasoning and general capabilities. Additionally, DeepSeek-Coder-V2 expands its support for programming languages from 86 to 338, while extending the context length from 16K to 128K. In standard benchmark evaluations, DeepSeek-Coder-V2 achieves superior performance compared to closed-source models such as GPT4-Turbo, Claude 3 Opus, and Gemini 1.5 Pro in coding and math benchmarks.</p>
+<p><strong>中.</strong> 我们推出 DeepSeek-Coder-V2，这是一种开源 Mixture-of-Experts (MoE) 代码语言模型，它在特定于代码的任务中实现了与 GPT4-Turbo 相当的性能。具体来说，DeepSeek-Coder-V2 是从 DeepSeek-V2 的中间检查点使用额外的 6 万亿个代币进行进一步预训练的。通过这种持续的预训练，DeepSeek-Coder-V2 大幅增强了 DeepSeek-V2 的编码和数学推理能力，同时在一般语言任务中保持了可比的性能。与 DeepSeek-Coder-33B 相比，DeepSeek-Coder-V2 在代码相关任务的各个方面以及推理和通用能力方面都表现出了显着的进步。此外，DeepSeek-Coder-V2将对编程语言的支持从86种扩展到338种，同时将上下文长度从16K扩展到128K。在标准基准评估中，与 GPT4-Turbo、Claude 3 Opus 和 Gemini 1.5 Pro 等闭源模型相比，DeepSeek-Coder-V2 在编码和数学基准测试中取得了优异的性能。</p>
+<p><img alt="Figure S0.F1" src="../figs/S0-F1-01.webp" /></p>
+<p><strong>EN.</strong> Figure 1: The Performance of DeepSeek-Coder-V2 on math and code benchmarks.</p>
+<p><strong>中.</strong> 图 1：DeepSeek-Coder-V2 在数学和代码基准测试中的性能。</p>
+<h2 id="introduction--简介">Introduction / 简介<a class="headerlink" href="#introduction--简介" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> The open-source community has made significant strides in advancing code intelligence through the development of open-source code models such as StarCoder ( Li et al., 2023b ; Lozhkov et al., 2024 ) , CodeLlama ( Roziere et al., 2023 ) , DeepSeek-Coder ( Guo et al., 2024 ) , and Codestral ( MistralAI, 2024 ) . These models have steadily approached the performance levels of closed-source counterparts, contributing to the progress of code intelligence. However, there remains a discernible gap when comparing them to state-of-the-art closed-source models like GPT4-Turbo ( OpenAI, 2023 ) , Claude 3 Opus ( Anthropic, 2024 ) , and Gemini 1.5 Pro ( Reid et al., 2024 ) . To bridge this gap and further propel the development of open-source code models, we introduce the DeepSeek-Coder-V2 series. These models are built upon the foundation of DeepSeek-V2 ( DeepSeek-AI, 2024 ) and are further pre-trained with an additional corpus with 6 trillion tokens.</p>
+<p><strong>中.</strong> 开源社区通过开发 StarCoder（Li 等人，2023b；Lozhkov 等人，2024）、CodeLlama（Roziere 等人，2023）、DeepSeek-Coder（Guo 等人，2024）和 Codestral（MistralAI，2024）等开源代码模型，在推进代码智能方面取得了重大进展。 ）。这些模型已稳步接近闭源模型的性能水平，为代码智能的进步做出了贡献。然而，将它们与 GPT4-Turbo (OpenAI, 2023)、Claude 3 Opus (Anthropic, 2024) 和 Gemini 1.5 Pro (Reid et al., 2024) 等最先进的闭源模型进行比较时，仍然存在明显的差距。为了弥补这一差距并进一步推动开源代码模型的发展，我们推出了 DeepSeek-Coder-V2 系列。这些模型建立在 DeepSeek-V2（DeepSeek-AI，2024）的基础上，并使用包含 6 万亿个代币的额外语料库进行进一步预训练。</p>
+<p><strong>EN.</strong> In the pre-training phase, the dataset of DeepSeek-Coder-V2 is created with a composition of 60% source code, 10% math corpus, and 30% natural language corpus. The source code consists of 1,170B code-related tokens sourced from GitHub and CommonCrawl, using the same pipeline as DeepSeekMath ( Shao et al., 2024 ) . This corpus expands from 86 to 338 programming languages compared to the code corpus used to train DeepSeek-Coder. To demonstrate the effectiveness of the new code corpus, we conduct ablation studies with the 1B parameter model and observe improvements of 6.7% and 9.4% in accuracy across both HumanEval (from 30.5% to 37.2%) and MBPP (from 44.6% to 54.0%) benchmarks ( Chen et al., 2021 ; Austin et al., 2021a ) , respectively. For the math corpus, we collect 221B math-related tokens sourced from CommonCrawl using the same pipeline, which approximately doubles the size of the 120B DeepSeekMath corpus ( Shao et al., 2024 ) , while for the natural language corpus, we directly sample from the training corpus in DeepSeek-V2. In total, DeepSeek-Coder-V2 has been exposed to 10.2T training tokens, where 4.2 trillion tokens originate from the DeepSeek V2 dataset, while the remaining 6 trillion tokens come from the DeepSeek-Coder-V2 dataset.</p>
+<p><strong>中.</strong> 在预训练阶段，DeepSeek-Coder-V2的数据集由60%源代码、10%数学语料库和30%自然语言语料库组成。源代码由来自 GitHub 和 CommonCrawl 的 1,170B 代码相关令牌组成，使用与 DeepSeekMath 相同的管道（Shao et al., 2024）。与用于训练 DeepSeek-Coder 的代码语料库相比，该语料库从 86 种编程语言扩展到 338 种编程语言。为了证明新代码语料库的有效性，我们使用 1B 参数模型进行消融研究，观察到 HumanEval（从 30.5% 到 37.2%）和 MBPP（从 44.6% 到 54.0%）基准的准确度分别提高了 6.7% 和 9.4%（Chen 等人，2021；Austin 等人，2021a）。对于数学语料库，我们使用相同的管道收集来自 CommonCrawl 的 221B 个数学相关标记，这大约是 120B DeepSeekMath 语料库大小的两倍（Shao et al., 2024），而对于自然语言语料库，我们直接从 DeepSeek-V2 中的训练语料库中采样。 DeepSeek-Coder-V2 总共暴露了 10.2T 训练 token，其中 4.2 万亿个 token 来自 DeepSeek V2 数据集，其余 6 万亿个 token 来自 DeepSeek-Coder-V2 数据集。</p>
+<p><strong>EN.</strong> To accommodate longer code inputs and enhance applicability across various programming scenarios, we extend the context length from 16K to 128K tokens, allowing our models to handle more complex and extensive coding tasks. After continuous pre-training DeepSeek-V2 on this multi-source corpora, we find that DeepSeek-Coder-V2 significantly enhances the model’s capabilities in coding and mathematical reasoning while maintaining comparable general language performance.</p>
+<p><strong>中.</strong> 为了适应更长的代码输入并增强跨各种编程场景的适用性，我们将上下文长度从 16K 扩展到 128K 标记，使我们的模型能够处理更复杂和广泛的编码任务。在这个多源语料库上对 DeepSeek-V2 进行持续预训练后，我们发现 DeepSeek-Coder-V2 显着增强了模型的编码和数学推理能力，同时保持了可比的一般语言性能。</p>
+<p><strong>EN.</strong> In the alignment phase, we first construct an instruction training dataset that includes code and math data from DeepSeek-Coder ( Guo et al., 2024 ) and DeepSeek-Math ( Shao et al., 2024 ) , as well as general instruction data from DeepSeek-V2 ( DeepSeek-AI, 2024 ) . This dataset is used to fine-tune the base model. Then, in the reinforcement learning phase, we employ Group Relative Policy Optimization (GRPO) algorithm to align its behavior with human preferences. Preference data is collected in the coding domain using compiler feedback and test cases, and a reward model is developed to guide the training of the policy model. This approach ensures that the model’s responses are optimized for correctness and human preference in coding tasks. To enable the model to support code completion after alignment, we also utilize Fill-In-Middle approach ( Guo et al., 2024 ) during the fine-tuning of the base model with 16B parameters.</p>
+<p><strong>中.</strong> 在对齐阶段，我们首先构建一个指令训练数据集，其中包括来自 DeepSeek-Coder (Guo et al., 2024) 和 DeepSeek-Math (Shao et al., 2024) 的代码和数学数据，以及来自 DeepSeek-V2 (DeepSeek-AI, 2024) 的通用指令数据。该数据集用于微调基础模型。然后，在强化学习阶段，我们采用组相对策略优化（GRPO）算法来使其行为与人类偏好保持一致。使用编译器反馈和测试用例在编码领域收集偏好数据，并开发奖励模型来指导策略模型的训练。这种方法确保模型的响应针对编码任务的正确性和人类偏好进行优化。为了使模型能够支持对齐后的代码补全，我们还在使用 16B 参数对基础模型进行微调时采用了 Fill-In-Middle 方法（Guo et al., 2024）。</p>
+<h3 id="contributions--贡献">Contributions / 贡献<a class="headerlink" href="#contributions--贡献" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> In summary, our main contributions are:</p>
+<p><strong>中.</strong> 总之，我们的主要贡献是：</p>
+<p><strong>EN.</strong> We introduce DeepSeek-Coder-V2 with 16B and 236B parameters based on the DeepSeekMoE framework, which has activation parameters of only 2.4B and 21B, efficiently supporting diverse computational and application needs. Additionally, DeepSeek-Coder-V2 supports 338 programming languages and a maximum context length of 128K tokens.</p>
+<p><strong>中.</strong> 我们基于 DeepSeekMoE 框架推出了具有 16B 和 236B 参数的 DeepSeek-Coder-V2，其激活参数仅为 2.4B 和 21B，有效支持多样化的计算和应用需求。此外，DeepSeek-Coder-V2 支持 338 种编程语言和最大上下文长度 128K 令牌。</p>
+<p><strong>EN.</strong> We make the first attempt to develop an open-source hundred-billion-parameter code model to advance the field of code intelligence. Experimental results indicate that DeepSeek-Coder-V2 236B outperforms state-of-the-art closed-source models, such as GPT4-Turbo, Claude 3 Opus, and Gemini 1.5 Pro, in both coding and mathematics tasks.</p>
+<p><strong>中.</strong> 我们首次尝试开发开源千亿参数代码模型，以推进代码智能领域。实验结果表明，DeepSeek-Coder-V2 236B 在编码和数学任务中均优于最先进的闭源模型，例如 GPT4-Turbo、Claude 3 Opus 和 Gemini 1.5 Pro。</p>
+<p><strong>EN.</strong> DeepSeek-Coder-V2 models are released publicly under a permissive license, allowing for both research and unrestricted commercial use.</p>
+<p><strong>中.</strong> DeepSeek-Coder-V2 模型在宽松的许可下公开发布，允许研究和不受限制的商业用途。</p>
+<h3 id="summary-of-evaluations-and-metrics--评估和指标摘要">Summary of Evaluations and Metrics / 评估和指标摘要<a class="headerlink" href="#summary-of-evaluations-and-metrics--评估和指标摘要" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> Code : Regarding code generation benchmark evaluation, DeepSeek-Coder-V2 demonstrates remarkable superiority over all open source models while exhibiting performance on par with the leading closed-source models, such as GPT4-Turbo, Claude 3 Opus, and Gemini 1.5 Pro. Notably, we achieve a 90.2 % score on HumanEval ( Chen et al., 2021 ) , a 76.2 % score on MBPP ( Austin et al., 2021a ) (establishing a new state-of-the-art result with EvalPlus evaluation pipeline), and a 43.4 % score on LiveCodeBench ( Jain et al., 2024 ) (questions from Dec. 2023 to June. 2024). Additionally, DeepSeek-Coder-V2 is the first open-source model that surpasses a score of 10% on SWEBench ( Jimenez et al., 2023 ) .</p>
+<p><strong>中.</strong> 代码：在代码生成基准评估方面，DeepSeek-Coder-V2 表现出优于所有开源模型的显着优势，同时表现出与 GPT4-Turbo、Claude 3 Opus 和 Gemini 1.5 Pro 等领先闭源模型相当的性能。值得注意的是，我们在 HumanEval 上获得了 90.2% 的分数（Chen 等人，2021），在 MBPP 上获得了 76.2% 的分数（Austin 等人，2021a）（通过 EvalPlus 评估管道建立了新的最先进的结果），在 LiveCodeBench 上获得了 43.4% 的分数（Jain 等人，2024）（来自 12 月 12 日的问题）。 2023 年至 2024 年 6 月）。此外，DeepSeek-Coder-V2 是第一个在 SWEBench 上得分超过 10% 的开源模型（Jimenez 等人，2023）。</p>
+<p><strong>EN.</strong> Math : DeepSeek-Coder-V2 exhibits strong mathematical reasoning abilities, rivaling top closed-source models such as GPT-4o, Gemini 1.5 Pro, and Claude 3 Opus on both elementary benchmarks like GSM8K ( Cobbe et al., 2021 ) and advanced competition-level benchmarks including MATH ( Hendrycks et al., 2021 ) , AIME ( MAA, 2024 ) , and Math Odyssey ( Netmind.AI, 2024 ) . Notably, DeepSeek-Coder-V2 attains an accuracy of 75.7 % on the MATH benchmark, nearly matching the state-of-the-art accuracy of 76.6 % achieved by GPT-4o. Furthermore, it surpasses the performance of these closed-source models in the AIME 2024 competition.</p>
+<p><strong>中.</strong> 数学：DeepSeek-Coder-V2 表现出强大的数学推理能力，在 GSM8K（Cobbe 等人，2021）等基本基准和 MATH（Hendrycks 等人，2021）、AIME（MAA，2024）等高级竞赛级基准上，可与 GPT-4o、Gemini 1.5 Pro 和 Claude 3 Opus 等顶级闭源模型相媲美）和数学奥德赛（Netmind.AI，2024）。值得注意的是，DeepSeek-Coder-V2 在 MATH 基准上达到了 75.7% 的准确率，几乎与 GPT-4o 达到的最先进准确率 76.6% 相当。此外，它在 AIME 2024 竞赛中超越了这些闭源模型的性能。</p>
+<p><strong>EN.</strong> Natural Language : DeepSeek-Coder-V2 maintains comparable general language performance to DeepSeek-V2. For example, DeepSeek-Coder-V2 achieves 79.2% on MMLU with OpenAI simple-eval pipeline. Regarding subjective evaluation with GPT-4 as a judger, DeepSeek-Coder-V2 achieves 65.0 on arena-hard ( Li et al., 2024 ) , 8.77 on MT-bench ( Zheng et al., 2023 ) and 7.84 on alignbench ( Liu et al., 2023c ) . These scores are significantly better than other code-specific models, even comparable with general open source models.</p>
+<p><strong>中.</strong> 自然语言：DeepSeek-Coder-V2 保持与 DeepSeek-V2 相当的一般语言性能。例如，DeepSeek-Coder-V2 使用 OpenAI simple-eval pipeline 在 MMLU 上实现了 79.2%。以 GPT-4 作为评判者的主观评价，DeepSeek-Coder-V2 在 arena-hard 上获得 65.0（Li et al., 2024），在 MT-bench 上获得 8.77（Zheng et al., 2023），在alignbench 上获得 7.84（Liu et al., 2023c）。这些分数明显优于其他特定于代码的模型，甚至可以与一般开源模型相媲美。</p>
+<h2 id="data-collection--数据收集">Data Collection / 数据收集<a class="headerlink" href="#data-collection--数据收集" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> The pre-training data for DeepSeek-Coder-V2 primarily consists of 60% source code, 10% math corpus, and 30% natural language corpus. Since the natural language corpus is directly sampled from the training dataset of DeepSeek-V2, this section focuses on the collection, cleaning, and filtering processes of the code and math data. Meanwhile, we further validate the quality of this data through comparative analysis experiments.</p>
+<p><strong>中.</strong> DeepSeek-Coder-V2的预训练数据主要由60%源代码、10%数学语料库和30%自然语言语料库组成。由于自然语言语料库是直接从DeepSeek-V2的训练数据集中采样的，因此本节重点介绍代码和数学数据的收集、清洗和过滤过程。同时，我们通过对比分析实验进一步验证了该数据的质量。</p>
+<p><strong>EN.</strong> We collect public repositories created before November 2023 on GitHub. We first apply the same filtering rules and near-deduplication as those used in the DeepSeek-Coder ( Guo et al., 2024 ) to filter out lower-quality and duplicated source code. To make the paper self-contained, we briefly describe the filtering rules. Firstly, we filter out files with an average line length exceeding 100 characters or a maximum line length surpassing 1000 characters. Additionally, we remove files with fewer than 25% alphabetic characters. Except for the XSLT programming language, we further filter out files where the string "&lt;?xml version=" appears in the first 100 characters. For HTML files, we consider the ratio of visible text to HTML code. We retain files where the visible text constitutes at least 20% of the code and is no less than 100 characters. For JSON and YAML files, which typically contain more data, we only keep files that have a character count ranging from 50 to 5000 characters. This effectively removes most data-heavy files. By applying these filtering rules and near-deduplication, we obtain 821B code encompassing 338 programming languages and 185B code-related text, such as markdown and issues. The list of supported programming languages can be found in the Appendix A . We use the same tokenizer as DeepSeekV2, detailed in ( DeepSeek-AI, 2024 ) .</p>
+<p><strong>中.</strong> 我们收集 GitHub 上 2023 年 11 月之前创建的公共存储库。我们首先应用与 DeepSeek-Coder（Guo et al., 2024）中使用的相同的过滤规则和近重复数据删除来过滤掉质量较低和重复的源代码。为了使本文自成一体，我们简要描述过滤规则。首先，我们过滤掉平均行长度超过100个字符或最大行长度超过1000个字符的文件。此外，我们还会删除字母字符少于 25% 的文件。除XSLT编程语言外，我们进一步过滤掉前100个字符中出现字符串“&lt;?xml version=”的文件。对于 HTML 文件，我们考虑可见文本与 HTML 代码的比率。我们保留可见文本至少占代码 20% 且不少于 100 个字符的文件。对于通常包含更多数据的 JSON 和 YAML 文件，我们仅保留字符数在 50 到 5000 个字符之间的文件。这可以有效地删除大多数数据密集型文件。通过应用这些过滤规则和近乎重复数据删除，我们获得了包含 338 种编程语言的 821B 代码和 185B 代码相关文本，例如 Markdown 和问题。支持的编程语言列表可以在附录 A 中找到。我们使用与 DeepSeekV2 相同的分词器，详细信息请参见 (DeepSeek-AI, 2024)。</p>
+<p><strong>EN.</strong> To collect code-related and math-related web texts from Common Crawl, we follow the same pipeline as DeepSeekMath ( Shao et al., 2024 ) . Specifically, we select coding forums such as StackOverflow <sup id="fnref:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup> , library sites such as PyTorch documentation <sup id="fnref:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> , and mathematics website such as StackExchange <sup id="fnref:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> as our initial seed corpus. Using this seed corpus, we train a fastText model ( Joulin et al., 2016 ) to recall more coding-related and math-related web pages. Since tokenization for languages like Chinese cannot be done through spaces, we use the Byte Pair Encoding (BPE) tokenizer from DeepSeek-V2, which significantly improves the recall accuracy of fastText. For each domain, we calculate the percentage of web pages collected in the first iteration. Domains with over 10% of web pages collected are classified as code-related or math-related. We then annotate the URLs associated with code-related or math-related content within these identified domains. Uncollected web pages linked to these URLs are added to the seed corpus. After three iterations of data collection, we gather 70 billion code-related tokens and 221B math-related tokens from web pages. To further collect high-quality source code from GitHub, we also apply the same pipeline on GitHub with two iterations of data collection and collect 94B source code. The initial seed corpus is constructed by manually collecting high-quality source code, such as those containing detailed descriptions. Finally, the new code corpus consists of 1,170B code-related tokens sourced from GitHub and CommonCrawl.</p>
+<p><strong>中.</strong> 为了从 Common Crawl 中收集与代码相关和数学相关的网络文本，我们遵循与 DeepSeekMath 相同的流程（Shao 等人，2024）。具体来说，我们选择诸如 StackOverflow <sup id="fnref2:footnote1"><a class="footnote-ref" href="#fn:footnote1">1</a></sup> 之类的编码论坛、诸如 PyTorch 文档 <sup id="fnref2:footnote2"><a class="footnote-ref" href="#fn:footnote2">2</a></sup> 之类的图书馆网站以及诸如 StackExchange <sup id="fnref2:footnote3"><a class="footnote-ref" href="#fn:footnote3">3</a></sup> 之类的数学网站作为我们的初始种子语料库。使用这个种子语料库，我们训练一个 fastText 模型（Joulin et al., 2016）来回忆更多与编码相关和数学相关的网页。由于中文等语言的分词不能通过空格完成，因此我们使用 DeepSeek-V2 的字节对编码（BPE）分词器，这显着提高了 fastText 的召回率。对于每个域，我们计算第一次迭代中收集的网页的百分比。收集的网页超过 10% 的域被分类为与代码相关或与数学相关。然后，我们注释与这些已识别域内的代码相关或数学相关内容相关的 URL。链接到这些 URL 的未收集网页将添加到种子语料库中。经过 3 次数据收集迭代，我们从网页中收集了 700 亿个与代码相关的 token 和 221B 个与数学相关的 token。为了进一步从 GitHub 收集高质量的源代码，我们还在 GitHub 上应用相同的管道，进行两次数据收集迭代，收集了 94B 源代码。初始种子语料库是通过手动收集高质量源代码（例如包含详细描述的源代码）构建的。最后，新的代码语料库由来自 GitHub 和 CommonCrawl 的 1,170B 个代码相关令牌组成。</p>
+<p><strong>EN.</strong> To demonstrate the effectiveness of the new code corpus, we conducted ablation studies (see Table 1 ) using a 1B parameter model, comparing it with the corpus used to train DeepSeek-Coder. Pre-training the 1B model on the new code corpus using 1T tokens resulted in improvements of 5.5% and 4.4% in accuracy on the HumanEval (from 30.5% to 36.0%) and MBPP (from 44.6% to 49.0%) benchmarks, respectively. Further training the 1B model with 2T tokens led to additional improvements, with HumanEval and MBPP scores rising to 37.2% and 54.0%, respectively. Therefore, the new code corpus is superior to the code corpus used to train DeepSeek-Coder.</p>
+<p><strong>中.</strong> 为了证明新代码语料库的有效性，我们使用 1B 参数模型进行了消融研究（参见表 1），并将其与用于训练 DeepSeek-Coder 的语料库进行了比较。使用 1T 令牌在新代码语料库上预训练 1B 模型，使 HumanEval（从 30.5% 到 36.0%）和 MBPP（从 44.6% 到 49.0%）基准的准确度分别提高了 5.5% 和 4.4%。使用 2T 代币进一步训练 1B 模型带来了额外的改进，HumanEval 和 MBPP 分数分别上升至 37.2% 和 54.0%。因此，新的代码语料库优于用于训练DeepSeek-Coder的代码语料库。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>Tokens<br>代币</th>
+<th>Python<br>蟒蛇</th>
+<th>C++</th>
+<th>Java<br>爪哇</th>
+<th>PHP</th>
+<th>TS</th>
+<th>C#</th>
+<th>Bash<br>重击</th>
+<th>JS</th>
+<th>Avg<br>平均</th>
+<th>MBPP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek-Coder-1B</td>
+<td>1T</td>
+<td>30.5%</td>
+<td>28.0%</td>
+<td>31.7%</td>
+<td>23.0%</td>
+<td>30.8%</td>
+<td>31.7%</td>
+<td>9.5%</td>
+<td>28.6%</td>
+<td>26.7%</td>
+<td>44.6%</td>
+</tr>
+<tr>
+<td>DeepSeek-Coder-V2-1B</td>
+<td>1T</td>
+<td>36.0%</td>
+<td>34.8%</td>
+<td>31.7%</td>
+<td>27.3%</td>
+<td>37.7%</td>
+<td>34.2%</td>
+<td>6.3%</td>
+<td>38.5%</td>
+<td>31.2%</td>
+<td>49.0%</td>
+</tr>
+<tr>
+<td>DeepSeek-Coder-V2-1B</td>
+<td>2T</td>
+<td>37.2%</td>
+<td>39.1%</td>
+<td>32.3%</td>
+<td>31.7%</td>
+<td>34.6%</td>
+<td>36.7%</td>
+<td>12.0%</td>
+<td>32.9%</td>
+<td>32.0%</td>
+<td>54.0%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 1: Performance of 1B base model between DeepSeek-Coder and DeepSeek-Coder-V2.</p>
+<p><strong>中.</strong> 表 1：DeepSeek-Coder 和 DeepSeek-Coder-V2 之间 1B 基本模型的性能。</p>
+<h2 id="training-policy--培训政策">Training Policy / 培训政策<a class="headerlink" href="#training-policy--培训政策" title="Permanent link">&para;</a></h2>
+<h3 id="training-strategy--培训策略">Training Strategy / 培训策略<a class="headerlink" href="#training-strategy--培训策略" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> We use two training objectives for DeepSeek-Coder-v2 16B: Next-Token-Prediction and Fill-In-Middle (FIM) ( Li et al., 2023b ; Bavarian et al., 2022 ; Guo et al., 2024 ) . For DeepSeek-Coder-v2 236B, we only utilize the Next-Token-Prediction objective. Here we give a brief introduction of the FIM training policy. We adopt the FIM training approach for the development of DeepSeek-Coder-v2-16B, leveraging the PSM (Prefix, Suffix, Middle) mode. This method structures the content reconstruction in the sequence: Prefix, Suffix, and Middle, as illustrated below:</p>
+<p><strong>中.</strong> 我们对 DeepSeek-Coder-v2 16B 使用两个训练目标：Next-Token-Prediction 和 Fill-In-Middle (FIM)（Li et al., 2023b；Bavarian et al., 2022；Guo et al., 2024）。对于 DeepSeek-Coder-v2 236B，我们仅利用 Next-Token-Prediction 目标。这里简单介绍一下FIM的培训政策。我们采用 FIM 训练方法来开发 DeepSeek-Coder-v2-16B，利用 PSM（前缀、后缀、中间）模式。该方法按照前缀、后缀、中间的顺序构建内容重构，如下图所示：</p>
+<div class="arithmatex">\[
+\displaystyle\texttt{&lt;｜fim\_begin｜&gt;}f_{pre}\texttt{&lt;｜fim\_hole｜&gt;}f_{suf}\texttt{&lt;｜fim\_end｜&gt;}f_{middle}\texttt{&lt;|eos\_token|&gt;}
+\]</div>
+<p><strong>EN.</strong> This structure is applied at the document level as part of the pre-packing process. The FIM is utilized at a rate of 0.5, consistent with the PSM framework, to enhance the training efficacy and model performance.</p>
+<p><strong>中.</strong> 该结构作为预打包过程的一部分应用于文档级别。 FIM的使用率为0.5，与PSM框架一致，以提高训练效率和模型性能。</p>
+<h3 id="model-architecture--模型架构">Model Architecture / 模型架构<a class="headerlink" href="#model-architecture--模型架构" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> Our architecture aligns with that of DeepSeekV2 ( DeepSeek-AI, 2024 ) . The hyperparameters settings, 16B and 236B, correspond to those used in DeepSeek-V2-Lite and DeepSeek-V2, respectively. Notably, we encountered instability during training and spikes in gradient values, which we attributed to the exponential normalization technique. To address this, we reverted to the conventional normalization method.</p>
+<p><strong>中.</strong> 我们的架构与 DeepSeekV2（DeepSeek-AI，2024）的架构一致。超参数设置 16B 和 236B 分别对应于 DeepSeek-V2-Lite 和 DeepSeek-V2 中使用的设置。值得注意的是，我们在训练过程中遇到了不稳定和梯度值尖峰，我们将其归因于指数归一化技术。为了解决这个问题，我们恢复了传统的标准化方法。</p>
+<h3 id="training-hyper-parameters--训练超参数">Training Hyper-Parameters / 训练超参数<a class="headerlink" href="#training-hyper-parameters--训练超参数" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> Consistent with the DeepSeek V2 methodology ( DeepSeek-AI, 2024 ) , we utilize the AdamW optimizer ( Loshchilov and Hutter, 2019 ) , configured with <span class="arithmatex">\(\beta_{1}=0.9\)</span> , <span class="arithmatex">\(\beta_{2}=0.95\)</span> , and a weight decay of 0.1. Batch sizes and learning rates are adjusted according to DeepSeek-V2 specifications. For learning rate scheduling, we employ a cosine decay strategy, starting with 2000 warm-up steps and gradually reducing the learning rate to 10% of its initial value.</p>
+<p><strong>中.</strong> 与 DeepSeek V2 方法（DeepSeek-AI，2024）一致，我们利用 AdamW 优化器（Leshchilov 和 Hutter，2019），配置了 <span class="arithmatex">\(\beta_{1}=0.9\)</span>、<span class="arithmatex">\(\beta_{2}=0.95\)</span> 和 0.1 的权重衰减。批量大小和学习率根据 DeepSeek-V2 规范进行调整。对于学习率调度，我们采用余弦衰减策略，从 2000 个预热步骤开始，逐渐将学习率降低至初始值的 10%。</p>
+<p><strong>EN.</strong> Both DeepSeek-Coder-V2 and DeepSeek-Coder-V2-Lite are trained using the same methodology. To maintain robust natural language understanding capabilities in DeepSeek-Coder-V2, we continue the pre-training process from an intermediate checkpoint of DeepSeek-V2. The intermediate checkpoint was initially trained on 4.2T tokens. Consequently, DeepSeek-Coder-V2 has been exposed to a total of 10.2T high-quality tokens during the pre-training phase.</p>
+<p><strong>中.</strong> DeepSeek-Coder-V2 和 DeepSeek-Coder-V2-Lite 均使用相同的方法进行训练。为了保持 DeepSeek-Coder-V2 中强大的自然语言理解能力，我们从 DeepSeek-V2 的中间检查点继续进行预训练过程。中间检查点最初是在 4.2T 令牌上进行训练的。因此，DeepSeek-Coder-V2 在预训练阶段总共接触到了 10.2T 的高质量代币。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>DeepSeek-Coder-V2-Lite</th>
+<th>DeepSeek-Coder-V2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td># Total Parameters (#TP)<br># 总参数 (#TP)</td>
+<td>16B</td>
+<td>236B</td>
+</tr>
+<tr>
+<td># Active Parameters (#AP)<br># 活动参数 (#AP)</td>
+<td>2.4B</td>
+<td>21B</td>
+</tr>
+<tr>
+<td>Pre-training Tokens<br>预训练代币</td>
+<td>4.2T+6T</td>
+<td>4.2T+6T</td>
+</tr>
+<tr>
+<td>LR Scheduler<br>LR调度器</td>
+<td>Cosine<br>余弦</td>
+<td>Cosine<br>余弦</td>
+</tr>
+<tr>
+<td>FIM</td>
+<td>Enable<br>启用</td>
+<td>Disable<br>禁用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 2: Training Setting of DeepSeek-Coder-V2.</p>
+<p><strong>中.</strong> 表 2：DeepSeek-Coder-V2 的训练设置。</p>
+<h3 id="long-context-extension--长上下文扩展">Long Context Extension / 长上下文扩展<a class="headerlink" href="#long-context-extension--长上下文扩展" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> Following DeepSeek-V2, we extend the context length of DeepSeek-Coder-V2 to 128K using Yarn ( Peng et al., 2023 ) . The hyper-parameters of YARN are the same as DeepSeek-V2: the scale <span class="arithmatex">\(s\)</span> to 40, <span class="arithmatex">\(\alpha\)</span> to 1, <span class="arithmatex">\(\beta\)</span> to 32. We further continue training the model using two stages to enhance its capability for handling long contexts. In the first stage, we utilize a sequence length of 32K and a batch size of 1152 for 1000 steps. In the second stage, we train the model for an additional 1000 steps, employing a sequence length of 128K and a batch size of 288 sequences. It should be noted here we upsample long context data ratio during long context extension. As shown in Figure 2 , the results on the “Needle In A Haystack” (NIAH) tests indicate that DeepSeek-Coder-V2 performs well across all context window lengths up to 128K.</p>
+<p><strong>中.</strong> 继 DeepSeek-V2 之后，我们使用 Yarn 将 DeepSeek-Coder-V2 的上下文长度扩展到 128K (Peng et al., 2023)。 YARN 的超参数与 DeepSeek-V2 相同：尺度 <span class="arithmatex">\(s\)</span> 为 40，<span class="arithmatex">\(\alpha\)</span> 为 1，<span class="arithmatex">\(\beta\)</span> 为 32。我们进一步使用两个阶段继续训练模型，以增强其处理长上下文的能力。在第一阶段，我们使用 32K 的序列长度和 1152 的批量大小来执行 1000 个步骤。在第二阶段，我们使用 128K 的序列长度和 288 个序列的批量大小额外训练模型 1000 个步骤。这里应该注意的是，我们在长上下文扩展期间对长上下文数据比率进行上采样。如图 2 所示，“大海捞针”(NIAH) 测试的结果表明 DeepSeek-Coder-V2 在高达 128K 的所有上下文窗口长度上都表现良好。</p>
+<p><img alt="Figure S3.F2" src="../figs/S3-F2-01.png" /></p>
+<p><strong>EN.</strong> Figure 2: Evaluation results on the “Needle In A Haystack” (NIAH) tests. DeepSeek-Coder-V2 performs well across all context window lengths up to 128K.</p>
+<p><strong>中.</strong> 图 2：“大海捞针”(NIAH) 测试的评估结果。 DeepSeek-Coder-V2 在高达 128K 的所有上下文窗口长度上都表现良好。</p>
+<h3 id="alignment--对准">Alignment / 对准<a class="headerlink" href="#alignment--对准" title="Permanent link">&para;</a></h3>
+<h4 id="supervised-fine-tuning--监督微调">Supervised Fine-Tuning / 监督微调<a class="headerlink" href="#supervised-fine-tuning--监督微调" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> To build DeepSeek-Coder-V2 Chat, we construct the instruction training dataset mixed with code and math data. We first collect 20k code-related instruction data and 30k math related data from DeepSeek-Coder and DeepSeek-Math. To maintain the general ability, we also sample several data from the instruction data of DeepSeek-V2. Finally, we use a instruction dataset of 300M tokens. For training, we use a cosine schedule with 100 warm-up steps and an initial learning rate <span class="arithmatex">\(5e^{-6}\)</span> . We also use a batch size of 1M tokens and 1B tokens in total.</p>
+<p><strong>中.</strong> 为了构建 DeepSeek-Coder-V2 Chat，我们构建了与代码和数学数据混合的指令训练数据集。我们首先从 DeepSeek-Coder 和 DeepSeek-Math 收集 20k 代码相关指令数据和 30k 数学相关数据。为了保持通用能力，我们还从 DeepSeek-V2 的指令数据中采样了一些数据。最后，我们使用 300M 令牌的指令数据集。对于训练，我们使用具有 100 个预热步骤和初始学习率 <span class="arithmatex">\(5e^{-6}\)</span> 的余弦计划。我们还使用总共 1M 个代币和 1B 个代币的批量大小。</p>
+<h4 id="reinforcement-learning--强化学习">Reinforcement Learning / 强化学习<a class="headerlink" href="#reinforcement-learning--强化学习" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> We further employ Reinforcement Learning (RL) techniques to fully simulate the capabilities of DeepSeek-Coder-V2, which is proven to be quite effective.</p>
+<p><strong>中.</strong> 我们进一步采用强化学习（RL）技术来充分模拟DeepSeek-Coder-V2的能力，事实证明这是非常有效的。</p>
+<h4 id="prompts--提示">Prompts / 提示<a class="headerlink" href="#prompts--提示" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> Considerable effort was spent collecting prompts related to code and math from various sources, and each code prompt comes with corresponding test cases. After filtering the prompts, there are approximately 40k data in total.</p>
+<p><strong>中.</strong> 我们花费了大量的精力从各种来源收集与代码和数学相关的提示，并且每个代码提示都附带相应的测试用例。过滤提示后，总共有大约40k条数据。</p>
+<h4 id="reward-modeling--奖励模型">Reward Modeling / 奖励模型<a class="headerlink" href="#reward-modeling--奖励模型" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> Reward models play crucial roles in the RL training. In terms of mathematical preference data, we obtain them using the ground-truth labels. In terms of code preference data, although the code compiler itself can already provide 0-1 feedback (whether the code pass all test cases or not), some code prompts may have a limited number of test cases, and do not provide full coverage, and hence directly using 0-1 feedback from the compiler may be noisy and sub-optimal. Therefore, we still decide to train a reward model on the data provided by the compiler, and use the reward model to provide signal during RL training, which is more robust and has better generalization ability, in comparison with raw compiler signal. As illustrated in Figure 3 , in our in-house test sets (Leetcode and Leetcode-zh), using a reward model to provide RL training signal clearly outperforms using raw compiler signal. Hence, we use reward model signal rather than compiler signal in all subsequent experiments.</p>
+<p><strong>中.</strong> 奖励模型在强化学习训练中发挥着至关重要的作用。就数学偏好数据而言，我们使用真实标签获得它们。就代码偏好数据而言，虽然代码编译器本身已经可以提供0-1反馈（无论代码是否通过所有测试用例），但某些代码提示可能具有有限数量的测试用例，并且不提供完全覆盖，因此直接使用编译器的0-1反馈可能会产生噪音且次优。因此，我们仍然决定在编译器提供的数据上训练奖励模型，并在强化学习训练期间使用奖励模型提供信号，与原始编译器信号相比，该信号更鲁棒且具有更好的泛化能力。如图 3 所示，在我们的内部测试集（Leetcode 和 Leetcode-zh）中，使用奖励模型提供 RL 训练信号明显优于使用原始编译器信号。因此，我们在所有后续实验中使用奖励模型信号而不是编译器信号。</p>
+<h4 id="reinforcement-learning-algorithm--强化学习算法">Reinforcement Learning Algorithm / 强化学习算法<a class="headerlink" href="#reinforcement-learning-algorithm--强化学习算法" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> We employ Group Relative Policy Optimization (GRPO) Shao et al. (2024) as our RL algorithm, which is the same as what DeepSeek-V2 uses. Notably, GRPO is proven to be quite effective and has less cost compared with PPO, since there is no need to maintain an additional critic model.</p>
+<p><strong>中.</strong> 我们采用组相对策略优化 (GRPO) Shao 等人。 （2024）作为我们的 RL 算法，与 DeepSeek-V2 使用的相同。值得注意的是，GRPO 被证明非常有效，并且与 PPO 相比成本更低，因为不需要维护额外的批评模型。</p>
+<p><img alt="Figure S3.F3" src="../figs/S3-F3-01.png" /></p>
+<p><strong>EN.</strong> Figure 3: Performances of Different Methods</p>
+<p><strong>中.</strong> 图 3：不同方法的性能</p>
+<h2 id="experimental-results--实验结果">Experimental Results / 实验结果<a class="headerlink" href="#experimental-results--实验结果" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> In this section, we evaluate DeepSeek-Coder-V2 on three types of tasks, including coding, mathematics, and general natural language. We compare DeepSeek-Coder-V2 with the previous state-of-the-art large language models.</p>
+<p><strong>中.</strong> 在本节中，我们将在三种类型的任务上评估 DeepSeek-Coder-V2，包括编码、数学和一般自然语言。我们将 DeepSeek-Coder-V2 与之前最先进的大型语言模型进行比较。</p>
+<p><strong>EN.</strong> CodeLlama ( Roziere et al., 2023 ) consists of a series of code language models based on Llama2 ( Touvron et al., 2023 ) , and continue pre-training on datasets ranging from 500 to 1000 billion code tokens. These models are available in four sizes: 7B, 13B, 34B, and 70B.</p>
+<p><strong>中.</strong> CodeLlama (Roziere et al., 2023) 由一系列基于 Llama2 (Touvron et al., 2023) 的代码语言模型组成，并在 500 到 10000 亿个代码标记的数据集上继续进行预训练。这些型号有四种尺寸：7B、13B、34B 和 70B。</p>
+<p><strong>EN.</strong> StarCoder ( Lozhkov et al., 2024 ) is a publicly accessible model with 15 billion parameters. It is specifically trained on a meticulously curated subset of the Stack dataset ( Kocetkov et al., 2022 ) , covering 86 programming languages.</p>
+<p><strong>中.</strong> StarCoder（Lozhkov 等人，2024）是一个可公开访问的模型，拥有 150 亿个参数。它专门针对 Stack 数据集精心策划的子集进行了训练（Kocetkov 等人，2022），涵盖 86 种编程语言。</p>
+<p><strong>EN.</strong> StarCoder2 ( Lozhkov et al., 2024 ) consists of 3B, 7B, and 15B parameters models trained on 3.3 to 4.3 trillion tokens of the Stack2 dataset ( Lozhkov et al., 2024 ) , spanning 619 programming languages.</p>
+<p><strong>中.</strong> StarCoder2（Lozhkov 等人，2024）由 3B、7B 和 15B 参数模型组成，这些模型在 Stack2 数据集（Lozhkov 等人，2024）的 3.3 到 4.3 万亿个标记上进行训练，涵盖 619 种编程语言。</p>
+<p><strong>EN.</strong> DeepSeek-Coder ( Guo et al., 2024 ) comprises a series of code language models, ranging from 1 billion to 33 billion parameters. Each model is trained from scratch on 2 trillion tokens, with a composition of 87% code and 13% natural language in both English and Chinese. These models are pre-trained on a project-level code corpus using a window size of 16K and an additional fill-in-the-blank task, enabling support for project-level code completion and infilling.</p>
+<p><strong>中.</strong> DeepSeek-Coder（Guo et al., 2024）包含一系列代码语言模型，参数范围从 10 亿到 330 亿不等。每个模型都从头开始训练 2 万亿个 token，其中 87% 是代码，13% 是英文和中文的自然语言。这些模型使用 16K 窗口大小和额外的填空任务在项目级代码语料库上进行预训练，从而支持项目级代码补全和填充。</p>
+<p><strong>EN.</strong> Codestral ( MistralAI, 2024 ) is a 22B parameter model developed by Mistral. It is trained on a diverse dataset of over 80 programming languages, including popular ones such as Python, Java, and JavaScript, as well as more specialized languages like Swift and Fortran.</p>
+<p><strong>中.</strong> Codestral（MistralAI，2024）是Mistral开发的22B参数模型。它接受了超过 80 种编程语言的多样化数据集的训练，包括 Python、Java 和 JavaScript 等流行语言，以及 Swift 和 Fortran 等更专业的语言。</p>
+<p><strong>EN.</strong> General language models that we compare include Llama3 70B ( Meta, 2024 ) , GPT-4 ( OpenAI, 2023 ) , Claude 3 Opus ( Anthropic, 2024 ) , and Gemini 1.5 Pro ( Reid et al., 2024 ) . While they are not specifically trained on large code corpora, they achieve state-of-the-art performance in coding.</p>
+<p><strong>中.</strong> 我们比较的通用语言模型包括 Llama3 70B (Meta, 2024)、GPT-4 (OpenAI, 2023)、Claude 3 Opus (Anthropic, 2024) 和 Gemini 1.5 Pro (Reid et al., 2024)。虽然他们没有接受过大型代码语料库的专门培训，但他们在编码方面实现了最先进的性能。</p>
+<h3 id="code-generation--代码生成">Code Generation / 代码生成<a class="headerlink" href="#code-generation--代码生成" title="Permanent link">&para;</a></h3>
+<h4 id="humaneval-and-mbpp-benchmarks--humaneval-和-mbpp-基准">HumanEval and MBPP Benchmarks. / HumanEval 和 MBPP 基准。<a class="headerlink" href="#humaneval-and-mbpp-benchmarks--humaneval-和-mbpp-基准" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> The HumanEval ( Chen et al., 2021 ) <sup id="fnref:footnote4"><a class="footnote-ref" href="#fn:footnote4">4</a></sup> and MBPP ( Austin et al., 2021b ) benchmarks are commonly utilized for assessing the performance of code-generating Large Language Models (LLMs). HumanEval comprises 164 Python tasks that are verified through test cases to evaluate the performance of Code LLMs in a zero-shot scenario. For MBPP, we use the MBPP-Plus version ( Liu et al., 2023a ) to evaluate the models. To test the multilingual abilities of models, we extended the HumanEval benchmark problems into seven additional languages: C++, Java, PHP, TypeScript, C#, Bash, JavaScript, Swift, R, Julia, D, Rust and Racket. For both benchmarks, we employed a greedy search strategy and recreated the baseline results using identical scripts and environments to ensure a fair comparison.</p>
+<p><strong>中.</strong> HumanEval（Chen 等人，2021）<sup id="fnref2:footnote4"><a class="footnote-ref" href="#fn:footnote4">4</a></sup> 和 MBPP（Austin 等人，2021b）基准通常用于评估代码生成大型语言模型（LLM）的性能。 HumanEval 包含 164 个 Python 任务，这些任务通过测试用例进行验证，以评估 Code LLM 在零样本场景中的性能。对于 MBPP，我们使用 MBPP-Plus 版本（Liu et al., 2023a）来评估模型。为了测试模型的多语言能力，我们将 HumanEval 基准问题扩展到另外七种语言：C++、Java、PHP、TypeScript、C#、Bash、JavaScript、Swift、R、Julia、D、Rust 和 Racket。对于这两个基准测试，我们采用了贪婪搜索策略，并使用相同的脚本和环境重新创建了基线结果，以确保公平的比较。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>Python<br>蟒蛇</th>
+<th>Java<br>爪哇</th>
+<th>C++</th>
+<th>C#</th>
+<th>TS</th>
+<th>JS</th>
+<th>PHP</th>
+<th>Bash<br>重击</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini-1.5-Pro<br>双子座-1.5-Pro</td>
+<td>-</td>
+<td>-</td>
+<td>83.5%</td>
+<td>81.0%</td>
+<td>78.3%</td>
+<td>75.3%</td>
+<td>77.4%</td>
+<td>80.8%</td>
+<td>74.5%</td>
+<td>39.9%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>84.2%</td>
+<td>78.5%</td>
+<td>81.4%</td>
+<td>74.7%</td>
+<td>76.1%</td>
+<td>75.8%</td>
+<td>78.3%</td>
+<td>48.7%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>87.8%</td>
+<td>82.3%</td>
+<td>78.9%</td>
+<td>80.4%</td>
+<td>81.8%</td>
+<td>80.1%</td>
+<td>77.6%</td>
+<td>55.7%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>88.2%</td>
+<td>81.7%</td>
+<td>78.3%</td>
+<td>79.1%</td>
+<td>79.3%</td>
+<td>80.8%</td>
+<td>78.9%</td>
+<td>55.1%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>91.0%</td>
+<td>80.4%</td>
+<td>87.0%</td>
+<td>82.9%</td>
+<td>86.2%</td>
+<td>87.6%</td>
+<td>79.5%</td>
+<td>53.8%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>78.1%</td>
+<td>71.5%</td>
+<td>71.4%</td>
+<td>77.2%</td>
+<td>72.3%</td>
+<td>73.9%</td>
+<td>69.6%</td>
+<td>47.5%</td>
+</tr>
+<tr>
+<td>DS-Coder-instruct<br>DS编码器指令</td>
+<td>33B</td>
+<td>33B</td>
+<td>79.3%</td>
+<td>73.4%</td>
+<td>68.9%</td>
+<td>74.1%</td>
+<td>67.9%</td>
+<td>73.9%</td>
+<td>72.7%</td>
+<td>43.0%</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>81.1%</td>
+<td>67.7%</td>
+<td>64.0%</td>
+<td>69.6%</td>
+<td>69.8%</td>
+<td>70.2%</td>
+<td>65.8%</td>
+<td>36.1%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>81.1%</td>
+<td>76.6%</td>
+<td>75.8%</td>
+<td>76.6%</td>
+<td>80.5%</td>
+<td>77.6%</td>
+<td>74.5%</td>
+<td>43.0%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>90.2%</td>
+<td>82.3%</td>
+<td>84.8%</td>
+<td>82.3%</td>
+<td>83.0%</td>
+<td>84.5%</td>
+<td>79.5%</td>
+<td>52.5%</td>
+</tr>
+<tr>
+<td></td>
+<td>#TP</td>
+<td>#AP<br>#美联社</td>
+<td>Swift<br>斯威夫特</td>
+<td>R</td>
+<td>Julia<br>朱莉娅</td>
+<td>D</td>
+<td>Rust<br>铁锈</td>
+<td>Racket<br>球拍</td>
+<td><span class="arithmatex">\(\text{MBPP}^{+}\)</span></td>
+<td>Average<br>平均</td>
+</tr>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini-1.5-Pro<br>双子座-1.5-Pro</td>
+<td>-</td>
+<td>-</td>
+<td>66.5%</td>
+<td>53.4%</td>
+<td>71.7%</td>
+<td>55.8%</td>
+<td>73.1%</td>
+<td>48.4%</td>
+<td>74.6%</td>
+<td>68.9%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>63.9%</td>
+<td>55.9%</td>
+<td>76.1%</td>
+<td>60.3%</td>
+<td>71.2%</td>
+<td>64.6%</td>
+<td>72.0%</td>
+<td>70.8%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>62.7%</td>
+<td>57.8%</td>
+<td>69.2%</td>
+<td>60.9%</td>
+<td>78.8%</td>
+<td>64.0%</td>
+<td>69.3%</td>
+<td>72.5%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>63.9%</td>
+<td>56.5%</td>
+<td>69.8%</td>
+<td>61.5%</td>
+<td>78.8%</td>
+<td>63.4%</td>
+<td>72.2%</td>
+<td>72.3%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>75.9%</td>
+<td>65.2%</td>
+<td>78.0%</td>
+<td>60.9%</td>
+<td>80.1%</td>
+<td>64.6%</td>
+<td>73.5%</td>
+<td>76.4%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>63.3%</td>
+<td>49.7%</td>
+<td>67.9%</td>
+<td>32.1%</td>
+<td>67.3%</td>
+<td>37.3%</td>
+<td>68.2%</td>
+<td>63.2%</td>
+</tr>
+<tr>
+<td>DS-Coder-instruct<br>DS编码器指令</td>
+<td>33B</td>
+<td>33B</td>
+<td>61.4%</td>
+<td>44.7%</td>
+<td>53.5%</td>
+<td>31.4%</td>
+<td>68.6%</td>
+<td>46.0%</td>
+<td>70.1%</td>
+<td>61.9%</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>55.1%</td>
+<td>46.0%</td>
+<td>62.9%</td>
+<td>48.1%</td>
+<td>58.3%</td>
+<td>46.0%</td>
+<td>68.8%</td>
+<td>60.6%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>64.6%</td>
+<td>47.8%</td>
+<td>67.3%</td>
+<td>45.5%</td>
+<td>62.2%</td>
+<td>41.6%</td>
+<td>68.8%</td>
+<td>65.6%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>72.2%</td>
+<td>64.0%</td>
+<td>72.3%</td>
+<td>64.1%</td>
+<td>78.2%</td>
+<td>63.4%</td>
+<td>76.2%</td>
+<td>75.3%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 3: Performance Metrics for Various Models on HumanEval and MBPP Benchmarks</p>
+<p><strong>中.</strong> 表 3：HumanEval 和 MBPP 基准上各种模型的性能指标</p>
+<p><strong>EN.</strong> Table 3 provides an extensive overview of the performance metrics for various models across multiple programming languages on the HumanEval and <span class="arithmatex">\(\text{MBPP}^{+}\)</span> Benchmarks. The DeepSeek-Coder-V2-Instruct demonstrates exceptional performance, securing the second-highest average score of 75.3%. This performance is notable as it breaks the dominance typically seen from closed-source models, standing out as a leading open-source contender. It is surpassed only by GPT-4o, which leads with an average score of 76.4%. DeepSeek-Coder-V2-Instruct shows top-tier results across a variety of languages, including the highest scores in Java and PHP, and strong performances in Python, C++, C#, TypeScript, and JavaScript, underscoring its robustness and versatility in handling diverse coding challenges.</p>
+<p><strong>中.</strong> 表 3 全面概述了 HumanEval 和 <span class="arithmatex">\(\text{MBPP}^{+}\)</span> 基准上跨多种编程语言的各种模型的性能指标。 DeepSeek-Coder-V2-Instruct 展现了卓越的性能，获得了 75.3% 的第二高平均得分。这种性能值得注意，因为它打破了闭源模型通常的主导地位，成为领先的开源竞争者。仅次于 GPT-4o，后者以 76.4% 的平均分数领先。 DeepSeek-Coder-V2-Instruct 在多种语言上都显示了顶级结果，包括 Java 和 PHP 的最高得分，以及 Python、C++、C#、TypeScript 和 JavaScript 的强劲表现，凸显了其在处理各种编码挑战方面的稳健性和多功能性。</p>
+<p><strong>EN.</strong> Furthermore, the DeepSeek-Coder-V2-Lite-Instruct also performs impressively, surpassing the larger 33B model. With a considerable margin in average performance (65.6% vs. 61.9%), it highlights the effectiveness of the 16B model in delivering competitive results despite its smaller size. This underscores the model’s efficiency and the advancements in model architecture and training methodologies that allow it to outperform larger counterparts.</p>
+<p><strong>中.</strong> 此外，DeepSeek-Coder-V2-Lite-Instruct 的性能也令人印象深刻，超越了更大的 33B 模型。平均性能有相当大的差距（65.6% vs. 61.9%），凸显了 16B 模型尽管尺寸较小，但在提供有竞争力的结果方面的有效性。这强调了模型的效率以及模型架构和训练方法的进步，使其能够超越更大的同行。</p>
+<h4 id="competitive-programming--竞争性编程">Competitive Programming. / 竞争性编程。<a class="headerlink" href="#competitive-programming--竞争性编程" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> To further validate the model’s capability in real-world competitive programming problems, we utilize the LiveCodeBench ( Jain et al., 2024 ) and USACO benchmark ( Shi et al., 2024 ) to estimate the effectiveness of DeepSeek-Coder-V2. LiveCodeBench is a meticulous and contamination-free assessment of Large Language Models (LLMs) for code generation, systematically gathering novel challenges over time from three prominent competitive programming platforms: LeetCode, AtCoder, and CodeForces. Since the cut-off of the training data is before November 2023, we use the subset (1201-0601) of Livecodebench. USACO benchmark contains 307 problems from the USA Computing Olympiad, along with high-quality unit tests, reference code, and official analyses for each problem.</p>
+<p><strong>中.</strong> 为了进一步验证模型在现实世界竞争性编程问题中的能力，我们利用 LiveCodeBench (Jain et al., 2024) 和 USACO benchmark (Shi et al., 2024) 来估计 DeepSeek-Coder-V2 的有效性。 LiveCodeBench 是对用于代码生成的大型语言模型 (LLM) 进行的细致且无污染的评估，随着时间的推移系统地从三个著名的竞争性编程平台（LeetCode、AtCoder 和 CodeForces）收集新的挑战。由于训练数据的截止时间是在2023年11月之前，因此我们使用Livecodebench的子集（1201-0601）。 USACO 基准测试包含来自美国计算机奥林匹克竞赛的 307 个问题，以及每个问题的高质量单元测试、参考代码和官方分析。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>LiveCodeBench<br>实时代码平台</th>
+<th>LiveCodeBench<br>实时代码平台</th>
+<th>LiveCodeBench<br>实时代码平台</th>
+<th>LiveCodeBench<br>实时代码平台</th>
+<th>USACO<br>美国CO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model<br>型号</td>
+<td>#TP</td>
+<td>#AP<br>#美联社</td>
+<td>Easy (82)<br>简单 (82)</td>
+<td>Medium (87)<br>中型 (87)</td>
+<td>Hard (57)<br>硬 (57)</td>
+<td>Overall (226)<br>总体 (226)</td>
+<td>USACO<br>美国CO</td>
+</tr>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini-1.5-Pro<br>双子座-1.5-Pro</td>
+<td>-</td>
+<td>-</td>
+<td>74.9%</td>
+<td>16.8%</td>
+<td>1.8%</td>
+<td>34.1%</td>
+<td>4.9%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>77.2%</td>
+<td>16.7%</td>
+<td>0.7%</td>
+<td>34.6%</td>
+<td>7.8%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>78.4%</td>
+<td>20.2%</td>
+<td>3.5%</td>
+<td>37.1%</td>
+<td>11.1%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>84.1%</td>
+<td>35.4%</td>
+<td>6.1%</td>
+<td>45.7%</td>
+<td>12.3%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>87.4 %</td>
+<td>27.5%</td>
+<td>4.9%</td>
+<td>43.4%</td>
+<td>18.8%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>66.5%</td>
+<td>17.7%</td>
+<td>0.2%</td>
+<td>31.0%</td>
+<td>4.6%</td>
+</tr>
+<tr>
+<td>DS-Coder-instruct<br>DS编码器指令</td>
+<td>33B</td>
+<td>33B</td>
+<td>51.6%</td>
+<td>9.7%</td>
+<td>0.4%</td>
+<td>22.5%</td>
+<td>4.2%</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>62.4%</td>
+<td>14.4%</td>
+<td>2.1%</td>
+<td>28.7%</td>
+<td>3.3%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>58.5%</td>
+<td>8.0%</td>
+<td>0.0%</td>
+<td>24.3%</td>
+<td>6.5%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>84.1%</td>
+<td>29.9%</td>
+<td>5.3%</td>
+<td>43.4%</td>
+<td>12.1%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 4: Performance on the LiveCodeBench (LCB) and USACO benchmarks.</p>
+<p><strong>中.</strong> 表 4：LiveCodeBench (LCB) 和 USACO 基准测试的性能。</p>
+<p><strong>EN.</strong> Table 4 showcases the performance of various language models on the two benchmarks. Notably, DeepSeek-Coder-V2-Instruct delivers a standout performance, tying for the highest score among large models at 43.4%, on par with GPT-4o. This exceptional result places it second overall, just behind GPT-4-Turbo-0409, which leads with an overall performance of 45.7%. DeepSeek-Coder-V2-Instruct’s impressive ability to handle complex coding challenges firmly establishes it as a top contender, closely trailing the leading GPT-4-Turbo variant.</p>
+<p><strong>中.</strong> 表 4 显示了各种语言模型在两个基准测试中的性能。值得注意的是，DeepSeek-Coder-V2-Instruct 具有出色的性能，以 43.4% 的成绩并列大型模型中的最高分，与 GPT-4o 相当。这一出色的结果使其整体排名第二，仅次于 GPT-4-Turbo-0409，后者以 45.7% 的整体性能领先。 DeepSeek-Coder-V2-Instruct 处理复杂编码挑战的令人印象深刻的能力使其成为顶级竞争者，紧随领先的 GPT-4-Turbo 变体。</p>
+<h3 id="code-completion--代码完成">Code Completion / 代码完成<a class="headerlink" href="#code-completion--代码完成" title="Permanent link">&para;</a></h3>
+<h4 id="repository-level-code-completion-evaluation--存储库级代码完成评估">Repository-Level Code Completion Evaluation / 存储库级代码完成评估<a class="headerlink" href="#repository-level-code-completion-evaluation--存储库级代码完成评估" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> We use RepoBench ( Liu et al., 2023b ) to evaluate the capabilities of currently available open-source code models with sizes below 35B in repository-level code completion tasks. This dataset is constructed from a diverse set of real-world, open-sourced, permissively licensed repositories in two popular programming languages: Python and Java. Notably, the latest version (v1.1) of RepoBench sources its data from GitHub repositories created between October 6th and December 31st, 2023, while our pre-training data includes code created before November 2023. To ensure this dataset was not present in our pre-training data and avoid data leakage, we only use data from December 2023.</p>
+<p><strong>中.</strong> 我们使用 RepoBench（Liu et al., 2023b）来评估当前可用的大小低于 35B 的开源代码模型在存储库级代码补全任务中的能力。该数据集由一组不同的现实世界、开源、许可的存储库构建而成，采用两种流行的编程语言：Python 和 Java。值得注意的是，最新版本（v1.1）的 RepoBench 的数据来自 2023 年 10 月 6 日至 12 月 31 日之间创建的 GitHub 存储库，而我们的预训练数据包括 2023 年 11 月之前创建的代码。为了确保该数据集不存在于我们的预训练数据中并避免数据泄漏，我们仅使用 2023 年 12 月的数据。</p>
+<p><strong>EN.</strong> Our evaluation includes five context length levels—2k, 4k, 8k, 12k, and 16k tokens—across three settings: cross-file-first, cross-file-random, and in-file. We use greedy search for all models under evaluation. The models were constrained to generate a maximum of 64 new tokens per prompt, and the first non-empty and non-comment line of the output was selected as the prediction. The maximum token length for prompts was set to 15,800 by truncating excess cross-file context. We report the average exact match for the different context length levels.</p>
+<p><strong>中.</strong> 我们的评估包括五个上下文长度级别（2k、4k、8k、12k 和 16k 标记），跨三种设置：跨文件优先、跨文件随机和文件内。我们对所有正在评估的模型使用贪婪搜索。模型被限制为每个提示最多生成 64 个新标记，并且选择输出的第一个非空且非注释行作为预测。通过截断多余的跨文件上下文，将提示的最大标记长度设置为 15,800。我们报告不同上下文长度级别的平均精确匹配。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>Python<br>蟒蛇</th>
+<th>Python<br>蟒蛇</th>
+<th>Python<br>蟒蛇</th>
+<th>Python<br>蟒蛇</th>
+<th>Python<br>蟒蛇</th>
+<th>Python<br>蟒蛇</th>
+<th>Java<br>爪哇</th>
+<th>Java<br>爪哇</th>
+<th>Java<br>爪哇</th>
+<th>Java<br>爪哇</th>
+<th>Java<br>爪哇</th>
+<th>Java<br>爪哇</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model<br>型号</td>
+<td>#TP</td>
+<td>#AP<br>#美联社</td>
+<td>2k</td>
+<td>4k</td>
+<td>8k</td>
+<td>12k</td>
+<td>16k</td>
+<td>Avg<br>平均</td>
+<td>2k</td>
+<td>4k</td>
+<td>8k</td>
+<td>12k</td>
+<td>16k</td>
+<td>Avg<br>平均</td>
+</tr>
+<tr>
+<td>StarCoder2-Base</td>
+<td>15B</td>
+<td>15B</td>
+<td>35.7%</td>
+<td>36.7%</td>
+<td>34.6%</td>
+<td>27.4%</td>
+<td>25.1%</td>
+<td>32.1%</td>
+<td>46.2%</td>
+<td>45.0%</td>
+<td>39.8%</td>
+<td>30.5%</td>
+<td>30.7%</td>
+<td>38.7%</td>
+</tr>
+<tr>
+<td>CodeLlama-Base<br>代码骆驼基地</td>
+<td>7B</td>
+<td>7B</td>
+<td>32.0%</td>
+<td>34.4%</td>
+<td>35.3%</td>
+<td>33.3%</td>
+<td>32.2%</td>
+<td>33.5%</td>
+<td>43.1%</td>
+<td>42.1%</td>
+<td>40.4%</td>
+<td>37.0%</td>
+<td>40.3%</td>
+<td>40.6%</td>
+</tr>
+<tr>
+<td>CodeLlama-Base<br>代码骆驼基地</td>
+<td>13B</td>
+<td>13B</td>
+<td>33.0%</td>
+<td>36.5%</td>
+<td>37.0%</td>
+<td>34.6%</td>
+<td>35.0%</td>
+<td>35.2%</td>
+<td>43.5%</td>
+<td>44.8%</td>
+<td>40.7%</td>
+<td>38.6%</td>
+<td>41.1%</td>
+<td>41.8%</td>
+</tr>
+<tr>
+<td>CodeLlama-Base<br>代码骆驼基地</td>
+<td>34B</td>
+<td>34B</td>
+<td>35.3%</td>
+<td>37.5%</td>
+<td>39.5%</td>
+<td>34.9%</td>
+<td>35.6%</td>
+<td>36.6%</td>
+<td>45.9%</td>
+<td>45.4%</td>
+<td>42.5%</td>
+<td>41.0%</td>
+<td>41.2%</td>
+<td>43.3%</td>
+</tr>
+<tr>
+<td>DS-Coder-Base<br>DS 编码器库</td>
+<td>6.7B</td>
+<td>6.7B</td>
+<td>36.1%</td>
+<td>37.5%</td>
+<td>38.2%</td>
+<td>34.0%</td>
+<td>35.0%</td>
+<td>36.2%</td>
+<td>46.8%</td>
+<td>46.4%</td>
+<td>42.9%</td>
+<td>38.8%</td>
+<td>40.8%</td>
+<td>43.3%</td>
+</tr>
+<tr>
+<td>DS-Coder-Base<br>DS 编码器库</td>
+<td>33B</td>
+<td>33B</td>
+<td>39.7%</td>
+<td>40.1%</td>
+<td>40.0%</td>
+<td>36.9%</td>
+<td>38.5%</td>
+<td>39.1%</td>
+<td>47.9%</td>
+<td>47.7%</td>
+<td>43.3%</td>
+<td>40.9%</td>
+<td>43.6%</td>
+<td>44.8%</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>42.1%</td>
+<td>44.3%</td>
+<td>46.6%</td>
+<td>46.6%</td>
+<td>51.5%</td>
+<td>46.1%</td>
+<td>48.3%</td>
+<td>47.8%</td>
+<td>46.0%</td>
+<td>42.2%</td>
+<td>43.9%</td>
+<td>45.7%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Base</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>38.3%</td>
+<td>38.6%</td>
+<td>40.6%</td>
+<td>38.3%</td>
+<td>38.7%</td>
+<td>38.9%</td>
+<td>48.8%</td>
+<td>45.7%</td>
+<td>42.4%</td>
+<td>38.1%</td>
+<td>41.1%</td>
+<td>43.3%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 5: Performance of different models on December subset of RepoBench v1.1.</p>
+<p><strong>中.</strong> 表 5：不同模型在 RepoBench v1.1 12 月子集上的性能。</p>
+<p><strong>EN.</strong> As shown in Table 5 , the results indicate that the DeepSeek-Coder-V2-Lite-Base model, despite having only 2.4 billion active parameters, achieves code completion capabilities in Python comparable to the DeepSeek-Coder-Base 33B model and in Java comparable to the DeepSeek-Coder-Base 7B model. Compared to CodeStral, the DeepSeek-Coder-V2-Lite-Base model has only one-tenth of the active parameters of CodeStral, resulting in lower performance in code completion tasks. However, we believe that the smaller number of active parameters in DeepSeek-Coder-V2 makes it faster for code completion scenarios.</p>
+<p><strong>中.</strong> 如表 5 所示，结果表明 DeepSeek-Coder-V2-Lite-Base 模型尽管只有 24 亿个活跃参数，但在 Python 中实现了与 DeepSeek-Coder-Base 33B 模型相当的代码补全能力，在 Java 中实现了与 DeepSeek-Coder-Base 7B 模型相当的代码补全能力。与CodeStral相比，DeepSeek-Coder-V2-Lite-Base模型的活跃参数只有CodeStral的十分之一，导致代码补全任务的性能较低。然而，我们认为 DeepSeek-Coder-V2 中的活动参数数量较少，因此代码完成场景的速度更快。</p>
+<h4 id="fill-in-the-middle-code-completion--中间填写代码完成">Fill-in-the-Middle Code Completion / 中间填写代码完成<a class="headerlink" href="#fill-in-the-middle-code-completion--中间填写代码完成" title="Permanent link">&para;</a></h4>
+<p><strong>EN.</strong> DeepSeek-Coder-V2-Lite is trained with a unique approach that includes a 0.5 Fill-In-the-Middle (FIM) rate during their pre-training phase. This method allows the model to adeptly complete code by filling in blanks using the surrounding context, which includes both the preceding and following code segments. This ability is particularly advantageous for code completion tools. Several open-source models, such as SantaCoder ( Allal et al., 2023 ) , StarCoder ( Li et al., 2023b ) , and CodeLlama ( Roziere et al., 2023 ) , also leverage similar capabilities and have established high standards in the domain of code generation and completion.</p>
+<p><strong>中.</strong> DeepSeek-Coder-V2-Lite 采用独特的方法进行训练，其中在预训练阶段采用 0.5 的中间填充 (FIM) 率。该方法允许模型通过使用周围的上下文（包括前面和后面的代码段）填充空白来熟练地完成代码。这种能力对于代码完成工具特别有利。 SantaCoder (Allal et al., 2023)、StarCoder (Li et al., 2023b) 和 CodeLlama (Roziere et al., 2023) 等多个开源模型也利用类似的功能，并在代码生成和完成领域建立了高标准。</p>
+<p><strong>EN.</strong> To evaluate the performance of DeepSeek-Coder-V2 models, we conducted a comparative analysis against leading models. The assessment was based on the Single-Line Infilling benchmarks, covering three different programming languages as described by Allal et al. (2023) . The main metric for this evaluation was the line exact match accuracy <sup id="fnref:footnote5"><a class="footnote-ref" href="#fn:footnote5">5</a></sup> .</p>
+<p><strong>中.</strong> 为了评估 DeepSeek-Coder-V2 模型的性能，我们与领先模型进行了比较分析。该评估基于 Single-Line Infilling 基准，涵盖 Allal 等人描述的三种不同的编程语言。 （2023）。本次评估的主要指标是线路精确匹配精度 <sup id="fnref2:footnote5"><a class="footnote-ref" href="#fn:footnote5">5</a></sup> 。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>python<br>蟒蛇</th>
+<th>java<br>爪哇</th>
+<th>javascript</th>
+<th>Mean<br>平均值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>StarCoder <sup id="fnref:footnote6"><a class="footnote-ref" href="#fn:footnote6">6</a></sup></td>
+<td>16B</td>
+<td>16B</td>
+<td>71.5%</td>
+<td>82.3%</td>
+<td>83.0%</td>
+<td>80.2%</td>
+</tr>
+<tr>
+<td>CodeLlama-Base<br>代码骆驼基地</td>
+<td>7B</td>
+<td>7B</td>
+<td>58.6%</td>
+<td>70.6%</td>
+<td>70.7%</td>
+<td>68.0%</td>
+</tr>
+<tr>
+<td>CodeLlama-Base<br>代码骆驼基地</td>
+<td>13B</td>
+<td>13B</td>
+<td>60.7%</td>
+<td>74.3%</td>
+<td>78.5%</td>
+<td>73.1%</td>
+</tr>
+<tr>
+<td>DS-Coder-Base<br>DS 编码器库</td>
+<td>1B</td>
+<td>1B</td>
+<td>74.1%</td>
+<td>85.1%</td>
+<td>82.9%</td>
+<td>81.8%</td>
+</tr>
+<tr>
+<td>DS-Coder-Base<br>DS 编码器库</td>
+<td>7B</td>
+<td>7B</td>
+<td>79.8%</td>
+<td>89.6 %</td>
+<td>86.3%</td>
+<td>86.1%</td>
+</tr>
+<tr>
+<td>DS-Coder-Base<br>DS 编码器库</td>
+<td>33B</td>
+<td>33B</td>
+<td>80.5%</td>
+<td>88.4%</td>
+<td>86.6%</td>
+<td>86.4 %</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>77.2%</td>
+<td>83.2%</td>
+<td>85.9%</td>
+<td>83.0%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Base</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>80.0%</td>
+<td>89.1%</td>
+<td>87.2%</td>
+<td>86.4%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 6: Performance of different approaches on the FIM-Tasks.</p>
+<p><strong>中.</strong> 表 6：不同方法在 FIM 任务上的性能。</p>
+<p><strong>EN.</strong> The table presents the performance of various coding models on FIM (Fill-in-the-Middle) tasks across three programming languages: Python, Java, and JavaScript, with a Mean score indicating overall effectiveness. Among the compared models, DeepSeek-Coder-V2-Lite-Base, with a configuration of 2.4B active parameters, achieves outstanding results. It scores 80.0% in Python, 89.1% in Java, and 87.2% in JavaScript, leading to a top Mean score of 86.4%. This demonstrates the superior effectiveness of DeepSeek-Coder-V2-Lite-Base, particularly in handling FIM tasks across different programming languages, achieving comparable performance with other bigger models in the evaluation.</p>
+<p><strong>中.</strong> 该表显示了各种编码模型在 Python、Java 和 JavaScript 三种编程语言的 FIM（中间填充）任务上的性能，并用平均分表示总体有效性。在对比模型中，配置2.4B主动参数的DeepSeek-Coder-V2-Lite-Base取得了优异的成绩。它在 Python 中得分为 80.0%，在 Java 中得分为 89.1%，在 JavaScript 中得分为 87.2%，平均得分最高为 86.4%。这证明了 DeepSeek-Coder-V2-Lite-Base 的卓越有效性，特别是在跨不同编程语言处理 FIM 任务方面，在评估中实现了与其他更大模型相当的性能。</p>
+<h3 id="code-fixing--代码修复">Code Fixing / 代码修复<a class="headerlink" href="#code-fixing--代码修复" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> To evaluate the bug-fixing capabilities of the model, we used the Defects4J <sup id="fnref:footnote7"><a class="footnote-ref" href="#fn:footnote7">7</a></sup> , SWE-bench ( Jimenez et al., 2023 ) , and Aider <sup id="fnref:footnote8"><a class="footnote-ref" href="#fn:footnote8">8</a></sup> datasets for testing. Defects4J is a widely used dataset in the field of software engineering, specifically designed for the purpose of evaluating and testing program repair techniques. It consists of a collection of real-world software bugs from various open-source projects, including but not limited to Apache Commons, JFreeChart, and Closure Compiler. Each bug in the dataset is accompanied by test suites that can be used to validate the effectiveness of program repair tools. Since the original bugs in Defec4J may need modify several files in the repository resulting in a long context, we collect 238 bugs that only need to modify one method from this benchmark.</p>
+<p><strong>中.</strong> 为了评估模型的错误修复能力，我们使用 Defects4J <sup id="fnref2:footnote7"><a class="footnote-ref" href="#fn:footnote7">7</a></sup>、SWE-bench (Jimenez et al., 2023) 和 Aider <sup id="fnref2:footnote8"><a class="footnote-ref" href="#fn:footnote8">8</a></sup> 数据集进行测试。 Defects4J 是软件工程领域广泛使用的数据集，专门用于评估和测试程序修复技术。它由来自各种开源项目的真实软件错误集合组成，包括但不限于 Apache Commons、JFreeChart 和 Closure Compiler。数据集中的每个错误都附有测试套件，可用于验证程序修复工具的有效性。由于 Defec4J 中的原始错误可能需要修改存储库中的多个文件，从而导致上下文较长，因此我们在此基准测试中收集了 238 个仅需要修改一种方法的错误。</p>
+<p><strong>EN.</strong> SWE-bench is a comprehensive benchmark designed to evaluate the performance of large language models in addressing real-world software issues sourced from GitHub. The benchmark presents a codebase alongside a specific issue, challenging the language model to generate a patch that effectively resolves the described problem. This rigorous evaluation framework ensures that the language model’s ability to understand and fix real-world software issues is thoroughly tested, providing a clear measure of its practical utility and effectiveness in software development tasks.</p>
+<p><strong>中.</strong> SWE-bench 是一个综合基准测试，旨在评估大型语言模型在解决来自 GitHub 的实际软件问题时的性能。该基准测试提供了一个代码库以及一个特定问题，挑战语言模型以生成有效解决所描述问题的补丁。这种严格的评估框架确保语言模型理解和解决现实世界软件问题的能力得到彻底测试，从而清楚地衡量其在软件开发任务中的实用性和有效性。</p>
+<p><strong>EN.</strong> Aider’s code editing benchmark evaluates the LLM’s ability to modify Python source files, completing 133 distinct coding tasks. This benchmark not only tests the LLM’s coding skills but also checks its consistency in producing code edits according to the specifications in the prompt. For DeepSeek-Coder-V2 models, we use whole format to evaluate.</p>
+<p><strong>中.</strong> Aider 的代码编辑基准评估了LLM修改 Python 源文件、完成 133 项不同编码任务的能力。该基准测试不仅测试LLM的编码技能，还检查其根据提示中的规范生成代码编辑的一致性。对于 DeepSeek-Coder-V2 模型，我们使用完整格式来评估。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>Defects4J<br>缺陷4J</th>
+<th>SWE-Bench<br>SWE-长凳</th>
+<th>Aider<br>艾德尔</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini-1.5-Pro<br>双子座-1.5-Pro</td>
+<td>-</td>
+<td>-</td>
+<td>18.6%</td>
+<td>19.3%</td>
+<td>57.1%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>25.5%</td>
+<td>11.7%</td>
+<td>68.4%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>22.8%</td>
+<td>22.7%</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>24.3%</td>
+<td>18.3%</td>
+<td>63.9%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>26.1 %</td>
+<td>26.7 %</td>
+<td>72.9%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>17.8%</td>
+<td>2.7%</td>
+<td>51.1%</td>
+</tr>
+<tr>
+<td>DS-Coder-Instruct<br>DS 编码器指令</td>
+<td>33B</td>
+<td>33B</td>
+<td>11.3%</td>
+<td>0.0%</td>
+<td>54.5%</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>16.2%</td>
+<td>-</td>
+<td>49.2%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>9.2%</td>
+<td>0.0%</td>
+<td>44.4%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>21.0%</td>
+<td>12.7 %</td>
+<td>73.7%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 7: Performances of different models on repair benchmarks. We do not evaluate Llama3-Instruct on SWE-Bench as it just supports 8K context length.</p>
+<p><strong>中.</strong> 表 7：不同模型在修复基准上的表现。我们不在 SWE-Bench 上评估 Llama3-Instruct，因为它仅支持 8K 上下文长度。</p>
+<p><strong>EN.</strong> Table 7 outlines the performances of different language models on software repair benchmarks, including Defects4J, SWE-Bench, and Aider. Among open-source models, DeepSeek-Coder-Instruct emerges as a standout, achieving the best performance within the open source models. It scores 21% in Defects4J and 12.7% in SWE-Bench, closely approaching the results of leading closed-source models and demonstrating significant capability in handling longer code sequences. Notably, DeepSeek-Coder-V2-Instruct achieves the highest score of 73.7% in Aider, surpassing all other models listed, including closed-source counterparts. This superior performance highlights its efficiency and robustness in automated code repair tasks, positioning DeepSeek-Coder-V2-Instruct as the top open-source model and a formidable competitor to closed-source alternatives in the field.</p>
+<p><strong>中.</strong> 表 7 列出了不同语言模型在软件修复基准测试中的表现，包括 Defects4J、SWE-Bench 和 Aider。在开源模型中，DeepSeek-Coder-Instruct 脱颖而出，在开源模型中实现了最佳性能。它在 Defects4J 中得分为 21%，在 SWE-Bench 中得分为 12.7%，非常接近领先的闭源模型的结果，并展示了处理较长代码序列的强大能力。值得注意的是，DeepSeek-Coder-V2-Instruct 在 Aider 中获得了 73.7% 的最高分，超过了列出的所有其他模型，包括闭源模型。这种卓越的性能凸显了其在自动代码修复任务中的效率和稳健性，将 DeepSeek-Coder-V2-Instruct 定位为顶级开源模型，也是该领域闭源替代方案的强大竞争对手。</p>
+<h3 id="code-understanding-and-reasoning--代码理解与推理">Code Understanding and Reasoning / 代码理解与推理<a class="headerlink" href="#code-understanding-and-reasoning--代码理解与推理" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> To assess the code reasoning capabilities of our models, we utilize the CRUXEval benchmark. This benchmark comprises 800 Python functions paired with corresponding input-output examples. It is divided into two distinct tasks: CRUXEval-I, which requires the large language model (LLM) to predict the output based on the given input, and CRUXEval-O, where the model must predict the input from the known output. This structure challenges the model’s ability to understand and reason through Python code in both forward and reverse directions.</p>
+<p><strong>中.</strong> 为了评估我们模型的代码推理能力，我们利用 CRUXEval 基准。该基准测试包含 800 个 Python 函数以及相应的输入输出示例。它分为两个不同的任务：CRUXEval-I，它需要大语言模型（LLM）根据给定的输入预测输出；CRUXEval-O，其中模型必须根据已知的输出预测输入。这种结构挑战了模型通过 Python 代码进行正向和反向理解和推理的能力。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>CruxEval-I-COT</th>
+<th>CruxEval-O-COT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini-1.5-Pro<br>双子座-1.5-Pro</td>
+<td>-</td>
+<td>-</td>
+<td>67.0%</td>
+<td>77.5%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>73.4%</td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>75.5%</td>
+<td>77.1%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>75.7%</td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>77.4%</td>
+<td>88.7%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Codestral<br>共谱</td>
+<td>22B</td>
+<td>22B</td>
+<td>48.0%</td>
+<td>60.6%</td>
+</tr>
+<tr>
+<td>DS-Coder-Instruct<br>DS 编码器指令</td>
+<td>33B</td>
+<td>33B</td>
+<td>47.3%</td>
+<td>50.6%</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>61.1%</td>
+<td>64.3%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>53.0%</td>
+<td>52.9%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>70.0%</td>
+<td>75.1%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 8: Performance of different models on the CruxEval benchmark.</p>
+<p><strong>中.</strong> 表 8：不同模型在 CruxEval 基准上的性能。</p>
+<p><strong>EN.</strong> Table 8 presents the performance of various language models on the CruxEval benchmark, which assesses models on two metrics: CruxEval-I-COT and CruxEval-O-COT. Among the open-source models, DeepSeek-Coder-V2-Instruct stands out significantly. It scores 70.0% on CruxEval-I-COT and 75.1% on CruxEval-O-COT, showcasing its superior capability within the open-source domain. However, when compared to larger closed-source models, there is a performance gap. This performance gap may largely be attributed to the fact that DeepSeek-Coder-V2-Instruct operates with only 21 billion activation parameters, which is considerably fewer than those in larger, more advanced closed-source models like GPT-4o. This limitation in model complexity could restrict its learning and problem-solving capacities.</p>
+<p><strong>中.</strong> 表 8 显示了 CruxEval 基准上各种语言模型的性能，该基准根据两个指标评估模型：CruxEval-I-COT 和 CruxEval-O-COT。在开源模型中，DeepSeek-Coder-V2-Instruct 脱颖而出。它在 CruxEval-I-COT 上得分为 70.0%，在 CruxEval-O-COT 上得分为 75.1%，展示了其在开源领域的卓越能力。然而，与较大的闭源模型相比，存在性能差距。这种性能差距可能很大程度上归因于 DeepSeek-Coder-V2-Instruct 仅使用 210 亿个激活参数运行，这比 GPT-4o 等更大、更先进的闭源模型中的激活参数要少得多。模型复杂性的这种限制可能会限制其学习和解决问题的能力。</p>
+<h3 id="mathematical-reasoning--数学推理">Mathematical Reasoning / 数学推理<a class="headerlink" href="#mathematical-reasoning--数学推理" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> To assess the mathematical reasoning capabilities of DeepSeekCoder-V2, we utilized the popular grade-school benchmark GSM8K ( Cobbe et al., 2021 ) , along with advanced competition-level benchmarks including MATH ( Hendrycks et al., 2021 ) , the American Invitational Mathematics Examination (AIME) 2024 ( MAA, 2024 ) , and Math Odyssey ( Netmind.AI, 2024 ) <sup id="fnref:footnote9"><a class="footnote-ref" href="#fn:footnote9">9</a></sup> .</p>
+<p><strong>中.</strong> 为了评估 DeepSeekCoder-V2 的数学推理能力，我们利用了流行的小学基准 GSM8K（Cobbe 等人，2021）以及高级竞赛级别基准，包括 MATH（Hendrycks 等，2021）、2024 年美国数学邀请赛（AIME）（MAA，2024）和 Math Odyssey（ Netmind.AI，2024）<sup id="fnref2:footnote9"><a class="footnote-ref" href="#fn:footnote9">9</a></sup>。</p>
+<table>
+<thead>
+<tr>
+<th>Model<br>型号</th>
+<th>#TP</th>
+<th>#AP<br>#美联社</th>
+<th>GSM8K</th>
+<th>MATH<br>数学</th>
+<th>AIME 2024<br>2024年国际医疗器械展览会</th>
+<th>Math Odyssey<br>数学奥德赛</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+<td>Closed-Source Models<br>闭源模型</td>
+</tr>
+<tr>
+<td>Gemini 1.5 Pro<br>双子座1.5专业版</td>
+<td>-</td>
+<td>-</td>
+<td>90.8%</td>
+<td>67.7%</td>
+<td>2/30</td>
+<td>45.0%</td>
+</tr>
+<tr>
+<td>Claude-3-Opus<br>克劳德三号作品</td>
+<td>-</td>
+<td>-</td>
+<td>95.0%</td>
+<td>60.1%</td>
+<td>2/30</td>
+<td>40.6%</td>
+</tr>
+<tr>
+<td>GPT-4-1106</td>
+<td>-</td>
+<td>-</td>
+<td>91.4%</td>
+<td>64.3%</td>
+<td>1/30</td>
+<td>49.1%</td>
+</tr>
+<tr>
+<td>GPT-4-Turbo-0409</td>
+<td>-</td>
+<td>-</td>
+<td>93.7%</td>
+<td>73.4%</td>
+<td>3 / 30</td>
+<td>46.8%</td>
+</tr>
+<tr>
+<td>GPT-4o-0513</td>
+<td>-</td>
+<td>-</td>
+<td>95.8%</td>
+<td>76.6%</td>
+<td>2/30</td>
+<td>53.2%</td>
+</tr>
+<tr>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+<td>Open-Source Models<br>开源模型</td>
+</tr>
+<tr>
+<td>Llama3-Instruct<br>Llama3-指导</td>
+<td>70B</td>
+<td>70B</td>
+<td>93.0%</td>
+<td>50.4%</td>
+<td>1/30</td>
+<td>27.9%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Lite-Instruct<br>DS-Coder-V2-Lite-指令</td>
+<td>16B</td>
+<td>2.4B</td>
+<td>86.4%</td>
+<td>61.8%</td>
+<td>0/30</td>
+<td>44.4%</td>
+</tr>
+<tr>
+<td>DS-Coder-V2-Instruct<br>DS-Coder-V2-指令</td>
+<td>236B</td>
+<td>21B</td>
+<td>94.9%</td>
+<td>75.7%</td>
+<td>4 / 30</td>
+<td>53.7%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 9: Performance of different models on the mathematical reasoning. DeepSeek-Coder-V2-Instruct can achieve 5/30 on AIME 2024 with maj@64.</p>
+<p><strong>中.</strong> 表 9：不同模型在数学推理上的表现。 DeepSeek-Coder-V2-Instruct 在 maj@64 上可以在 AIME 2024 上达到 5/30。</p>
+<p><strong>EN.</strong> The results, presented in Table 9 , were obtained using greedy decoding without the aid of tools or voting techniques, unless otherwise specified. DeepSeek-Coder-V2 achieved an accuracy of 75.7% on the MATH benchmark and 53.7% on Math Odyssey, comparable to the state-of-the-art GPT-4o. Additionally, DeepSeek-Coder-V2 solves more problems from AIME 2024 than the other models, demonstrating its strong mathematical reasoning capabilities.</p>
+<p><strong>中.</strong> 除非另有说明，表9中呈现的结果是在没有工具或投票技术的帮助下使用贪婪解码获得的。 DeepSeek-Coder-V2 在 MATH 基准测试中的准确率达到 75.7%，在 Math Odyssey 上的准确率达到 53.7%，与最先进的 GPT-4o 相当。此外，DeepSeek-Coder-V2 比其他模型解决了更多的 AIME 2024 问题，展示了其强大的数学推理能力。</p>
+<h3 id="general-natural-language--通用自然语言">General Natural Language / 通用自然语言<a class="headerlink" href="#general-natural-language--通用自然语言" title="Permanent link">&para;</a></h3>
+<p><strong>EN.</strong> As DeepSeek-Coder-V2 is built upon DeepSeek-V2, it inherits the strong natural language capability, even surpassing DeepSeek-V2 on reasoning-related benchmarks. We compare DeepSeek-Coder-V2 Instruct with DeepSeek-V2 Chat on standard benchmarks, which covers both English and Chinese benchmarks, including BigBench Hard (BBH) ( Suzgun et al., 2022 ) , MMLU ( Hendrycks et al., 2020 ) , ARC ( Clark et al., 2018 ) , TriviaQA ( Joshi et al., 2017 ) , NaturalQuestions ( Kwiatkowski et al., 2019 ) , AGIEval ( Zhong et al., 2023 ) ， CLUEWSC ( Xu et al., 2020 ) , C-Eval ( Huang et al., 2023 ) , and CMMLU ( Li et al., 2023a ) . Besides, we also evaluate the open-ended generation ability of models, including Arena-Hard ( Li et al., 2024 ) , AlpacaEval2.0 ( Dubois et al., 2024 ) , MT-Bench ( Zheng et al., 2023 ) , and Alignbench ( Liu et al., 2023c ) . The evaluation pipeline and metrics are the same as in DeepSeek-V2, where the MMLU are evaluated using OpenAI simple-eval package <a href="https://github.com/openai/simple-evals">https://github.com/openai/simple-evals</a> .</p>
+<p><strong>中.</strong> 由于DeepSeek-Coder-V2是在DeepSeek-V2的基础上构建的，它继承了强大的自然语言能力，甚至在推理相关的基准测试上超越了DeepSeek-V2。我们在标准基准上将 DeepSeek-Coder-V2 Instruct 与 DeepSeek-V2 Chat 进行比较，其中涵盖英文和中文基准，包括 BigBench Hard (BBH) (Suzgun et al., 2022)、MMLU (Hendrycks et al., 2020)、ARC (Clark et al., 2018)、TriviaQA (Joshi et al., 2017) 、NaturalQuestions (Kwiatkowski et al., 2019)、AGIEval (Zhong et al., 2023)、CLUEWSC (Xu et al., 2020)、C-Eval (Huang et al., 2023) 和 CMMLU (Li et al., 2023a)。此外，我们还评估了模型的开放式生成能力，包括 Arena-Hard (Li et al., 2024)、AlpacaEval2.0 (Dubois et al., 2024)、MT-Bench (Zheng et al., 2023) 和 Alignbench (Liu et al., 2023c)。评估流程和指标与 DeepSeek-V2 中的相同，其中使用 OpenAI simple-eval 包 <a href="https://github.com/openai/simple-evals">https://github.com/openai/simple-evals</a> 评估 MMLU。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Benchmark (Metric)<br>基准（公制）</th>
+<th># Shots<br># 镜头</th>
+<th>DeepSeek-V2-Lite</th>
+<th>DeepSeek-Coder-V2-Lite</th>
+<th>DeepSeek-V2</th>
+<th>DeepSeek-Coder-V2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Benchmark (Metric)<br>基准（公制）</td>
+<td># Shots<br># 镜头</td>
+<td>Chat<br>聊天</td>
+<td>Instruct<br>指导</td>
+<td>Chat<br>聊天</td>
+<td>Instruct<br>指导</td>
+</tr>
+<tr>
+<td></td>
+<td># Active Params<br># 活动参数</td>
+<td>-</td>
+<td>2.4B</td>
+<td>2.4B</td>
+<td>21B</td>
+<td>21B</td>
+</tr>
+<tr>
+<td></td>
+<td># Total Params<br># 总参数</td>
+<td>-</td>
+<td>16B</td>
+<td>16B</td>
+<td>236B</td>
+<td>236B</td>
+</tr>
+<tr>
+<td></td>
+<td># Training Tokens<br># 训练代币</td>
+<td>-</td>
+<td>5.7T</td>
+<td>10.2T</td>
+<td>8.1T</td>
+<td>10.2T</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>BBH (EM)</td>
+<td>3-shot<br>3发</td>
+<td>48.1</td>
+<td>61.2</td>
+<td>79.7</td>
+<td>83.9</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>MMLU (Acc.)<br>MMLU（加速）</td>
+<td>5-shot<br>5发</td>
+<td>55.7</td>
+<td>60.1</td>
+<td>78.1</td>
+<td>79.2</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>ARC-Easy (Acc.)<br>ARC-Easy（附件）</td>
+<td>25-shot<br>25发</td>
+<td>86.1</td>
+<td>88.9</td>
+<td>98.1</td>
+<td>97.4</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>ARC-Challenge (Acc.)<br>ARC-挑战（附件）</td>
+<td>25-shot<br>25发</td>
+<td>73.4</td>
+<td>77.4</td>
+<td>92.3</td>
+<td>92.8</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>TriviaQA (EM)<br>问答问答 (EM)</td>
+<td>5-shot<br>5发</td>
+<td>65.2</td>
+<td>59.5</td>
+<td>86.7</td>
+<td>82.3</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>NaturalQuestions (EM)<br>自然问题 (EM)</td>
+<td>5-shot<br>5发</td>
+<td>35.5</td>
+<td>30.8</td>
+<td>53.4</td>
+<td>47.5</td>
+</tr>
+<tr>
+<td>English<br>英语</td>
+<td>AGIEval (Acc.)<br>AGIEval（加速）</td>
+<td>0-shot<br>0次射击</td>
+<td>42.8</td>
+<td>28.7</td>
+<td>61.4</td>
+<td>60.0</td>
+</tr>
+<tr>
+<td>Chinese<br>中文</td>
+<td>CLUEWSC (EM)</td>
+<td>5-shot<br>5发</td>
+<td>80.0</td>
+<td>76.5</td>
+<td>89.9</td>
+<td>85.9</td>
+</tr>
+<tr>
+<td>Chinese<br>中文</td>
+<td>C-Eval (Acc.)<br>C-评估（加速）</td>
+<td>5-shot<br>5发</td>
+<td>60.1</td>
+<td>61.6</td>
+<td>78.0</td>
+<td>79.4</td>
+</tr>
+<tr>
+<td>Chinese<br>中文</td>
+<td>CMMLU (Acc.)<br>CMMLU（加速）</td>
+<td>5-shot<br>5发</td>
+<td>62.5</td>
+<td>62.7</td>
+<td>81.6</td>
+<td>80.9</td>
+</tr>
+<tr>
+<td>Open-ended<br>开放式</td>
+<td>Arena-Hard<br>竞技场-困难</td>
+<td>-</td>
+<td>11.40</td>
+<td>38.10</td>
+<td>41.60</td>
+<td>65.00</td>
+</tr>
+<tr>
+<td>Open-ended<br>开放式</td>
+<td>AlpacaEval 2.0<br>羊驼评估2.0</td>
+<td>-</td>
+<td>16.85</td>
+<td>17.74</td>
+<td>38.90</td>
+<td>36.92</td>
+</tr>
+<tr>
+<td>Open-ended<br>开放式</td>
+<td>MT-Bench<br>MT 工作台</td>
+<td>-</td>
+<td>7.37</td>
+<td>7.81</td>
+<td>8.97</td>
+<td>8.77</td>
+</tr>
+<tr>
+<td>Open-ended<br>开放式</td>
+<td>Alignbench<br>对齐工作台</td>
+<td>-</td>
+<td>6.02</td>
+<td>6.83</td>
+<td>7.91</td>
+<td>7.84</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EN.</strong> Table 10: A Comparison of DeepSeek-Coder-V2 Instruct with DeepSeek-V2 Chat.</p>
+<p><strong>中.</strong> 表 10：DeepSeek-Coder-V2 Instruct 与 DeepSeek-V2 Chat 的比较。</p>
+<p><strong>EN.</strong> When comparing the performance of 16B models, it is evident that DeepSeek-Coder-V2-Lite-Instruct outperforms DeepSeek-V2-Lite-Chat in benchmarks like BBH and Arena-Hard. These benchmarks place a high demand on the model’s reasoning ability, which DeepSeek-Coder-V2-Lite-Instruct excels at. However, DeepSeek-Coder-V2-Lite Instruct falls behind in knowledge-intensive benchmarks like TriviaQA, primarily due to the relatively smaller amount of web data used during pre-training.</p>
+<p><strong>中.</strong> 在比较 16B 模型的性能时，很明显 DeepSeek-Coder-V2-Lite-Instruct 在 BBH 和 Arena-Hard 等基准测试中优于 DeepSeek-V2-Lite-Chat。这些基准测试对模型的推理能力提出了很高的要求，而 DeepSeek-Coder-V2-Lite-Instruct 擅长这一点。然而，DeepSeek-Coder-V2-Lite Instruct 在像 TriviaQA 这样的知识密集型基准测试中落后，主要是由于预训练期间使用的网络数据量相对较少。</p>
+<p><strong>EN.</strong> Moving on to 236B models, DeepSeek-Coder-V2 Instruct exhibits greater strength in reasoning benchmarks, particularly in Arena-Hard, which comprises a substantial proportion of code, math, and reasoning questions. On the other hand, DeepSeek-V2 Chat demonstrates slightly better results in benchmarks such as MT-bench ( Zheng et al., 2023 ) , AlpacaEval 2.0 ( Dubois et al., 2024 ) , and AlignBench ( Liu et al., 2023c ) . This advantage can be attributed to the general-purpose alignment stage of DeepSeek-V2 Chat.</p>
+<p><strong>中.</strong> 转向 236B 模型，DeepSeek-Coder-V2 Instruct 在推理基准测试中表现出更强的实力，特别是在 Arena-Hard 中，其中包含相当大比例的代码、数学和推理问题。另一方面，DeepSeek-V2 Chat 在 MT-bench (Zheng et al., 2023)、AlpacaEval 2.0 (Dubois et al., 2024) 和 AlignBench (Liu et al., 2023c) 等基准测试中表现出稍微更好的结果。这一优势可归因于 DeepSeek-V2 Chat 的通用对齐阶段。</p>
+<h2 id="conclusion--结论">Conclusion / 结论<a class="headerlink" href="#conclusion--结论" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> In this paper, we introduce DeepSeek-Coder-V2 to further advance the field of code intelligence, which is continually pre-trained from DeepSeek-V2 with 6 trillion tokens sourced from a high-quality and multi-source corpus. Through this continued pre-training, we find that DeepSeek-Coder-V2 significantly enhances the model’s capabilities in coding and mathematical reasoning while maintaining comparable general language performance to DeepSeek-V2. Compared to DeepSeek-Coder, DeepSeek-Coder-V2 supports a significantly larger number of programming languages, increasing from 86 to 338, and extends the maximum context length from 16K to 128K tokens. Experimental results demonstrate that DeepSeek-Coder-V2 achieves performance comparable to state-of-the-art closed-source models such as GPT-4 Turbo, Claude 3 Opus, and Gemini 1.5 Pro in code and math-specific tasks.</p>
+<p><strong>中.</strong> 在本文中，我们引入 DeepSeek-Coder-V2 来进一步推进代码智能领域，该领域是通过 DeepSeek-V2 使用来自高质量和多源语料库的 6 万亿个令牌不断进行预训练的。通过持续的预训练，我们发现 DeepSeek-Coder-V2 显着增强了模型的编码和数学推理能力，同时保持了与 DeepSeek-V2 相当的通用语言性能。与 DeepSeek-Coder 相比，DeepSeek-Coder-V2 支持的编程语言数量明显增多，从 86 种增加到 338 种，并将最大上下文长度从 16K 令牌扩展至 128K 令牌。实验结果表明，DeepSeek-Coder-V2 在代码和数学特定任务中的性能可与 GPT-4 Turbo、Claude 3 Opus 和 Gemini 1.5 Pro 等最先进的闭源模型相媲美。</p>
+<p><strong>EN.</strong> Although DeepSeek-Coder-V2 achieves impressive performance on standard benchmarks, we find that there is still a significant gap in instruction-following capabilities compared to current state-of-the-art models like GPT-4 Turbo. This gap leads to poor performance in complex scenarios and tasks such as those in SWEbench. Therefore, we believe that a code model needs not only strong coding abilities but also exceptional instruction-following capabilities to handle real-world complex programming scenarios. In the future, we will focus more on improving the model’s instruction-following capabilities to better handle real-world complex programming scenarios and enhance the productivity of the development process.</p>
+<p><strong>中.</strong> 尽管 DeepSeek-Coder-V2 在标准基准测试中取得了令人印象深刻的性能，但我们发现与 GPT-4 Turbo 等当前最先进的模型相比，指令跟踪能力仍然存在显着差距。这种差距导致复杂场景和任务（例如 SWEbench 中的任务）的性能不佳。因此，我们认为代码模型不仅需要强大的编码能力，还需要出色的指令跟踪能力来处理现实世界中复杂的编程场景。未来，我们将更加注重提高模型的指令跟随能力，以更好地处理现实复杂的编程场景，提高开发过程的生产力。</p>
+<h2 id="references--参考文献">References / 参考文献<a class="headerlink" href="#references--参考文献" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Allal et al. (2023) L. B. Allal, R. Li, D. Kocetkov, C. Mou, C. Akiki, C. M. Ferrandis, N. Muennighoff, M. Mishra, A. Gu, M. Dey, et al. Santacoder: don’t reach for the stars! arXiv preprint arXiv:2301.03988 , 2023.</p>
+</li>
+<li>
+<p>Anthropic (2024) A. Anthropic. The claude 3 model family: Opus, sonnet, haiku. Claude-3 Model Card , 2024.</p>
+</li>
+<li>
+<p>Austin et al. (2021a) J. Austin, A. Odena, M. Nye, M. Bosma, H. Michalewski, D. Dohan, E. Jiang, C. Cai, M. Terry, Q. Le, and C. Sutton. Program synthesis with large language models, 2021a.</p>
+</li>
+<li>
+<p>Austin et al. (2021b) J. Austin, A. Odena, M. Nye, M. Bosma, H. Michalewski, D. Dohan, E. Jiang, C. Cai, M. Terry, Q. Le, et al. Program synthesis with large language models. arXiv preprint arXiv:2108.07732 , 2021b.</p>
+</li>
+<li>
+<p>Bavarian et al. (2022) M. Bavarian, H. Jun, N. Tezak, J. Schulman, C. McLeavey, J. Tworek, and M. Chen. Efficient training of language models to fill in the middle. arXiv preprint arXiv:2207.14255 , 2022.</p>
+</li>
+<li>
+<p>Chen et al. (2021) M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. d. O. Pinto, J. Kaplan, H. Edwards, Y. Burda, N. Joseph, G. Brockman, et al. Evaluating large language models trained on code. arXiv preprint arXiv:2107.03374 , 2021.</p>
+</li>
+<li>
+<p>Clark et al. (2018) P. Clark, I. Cowhey, O. Etzioni, T. Khot, A. Sabharwal, C. Schoenick, and O. Tafjord. Think you have solved question answering? try arc, the AI2 reasoning challenge. CoRR , abs/1803.05457, 2018. URL <a href="http://arxiv.org/abs/1803.05457">http://arxiv.org/abs/1803.05457</a> .</p>
+</li>
+<li>
+<p>Cobbe et al. (2021) K. Cobbe, V. Kosaraju, M. Bavarian, M. Chen, H. Jun, L. Kaiser, M. Plappert, J. Tworek, J. Hilton, R. Nakano, et al. Training verifiers to solve math word problems. arXiv preprint arXiv:2110.14168 , 2021.</p>
+</li>
+<li>
+<p>DeepSeek-AI (2024) DeepSeek-AI. Deepseek-v2: A strong, economical, and efficient mixture-of-experts language model, 2024.</p>
+</li>
+<li>
+<p>Dubois et al. (2024) Y. Dubois, B. Galambosi, P. Liang, and T. B. Hashimoto. Length-controlled alpacaeval: A simple way to debias automatic evaluators. arXiv preprint arXiv:2404.04475 , 2024.</p>
+</li>
+<li>
+<p>Guo et al. (2024) D. Guo, Q. Zhu, D. Yang, Z. Xie, K. Dong, W. Zhang, G. Chen, X. Bi, Y. Wu, Y. Li, et al. Deepseek-coder: When the large language model meets programming–the rise of code intelligence. arXiv preprint arXiv:2401.14196 , 2024.</p>
+</li>
+<li>
+<p>Hendrycks et al. (2020) D. Hendrycks, C. Burns, S. Basart, A. Zou, M. Mazeika, D. Song, and J. Steinhardt. Measuring massive multitask language understanding. arXiv preprint arXiv:2009.03300 , 2020.</p>
+</li>
+<li>
+<p>Hendrycks et al. (2021) D. Hendrycks, C. Burns, S. Kadavath, A. Arora, S. Basart, E. Tang, D. Song, and J. Steinhardt. Measuring mathematical problem solving with the math dataset. arXiv preprint arXiv:2103.03874 , 2021.</p>
+</li>
+<li>
+<p>Huang et al. (2023) Y. Huang, Y. Bai, Z. Zhu, J. Zhang, J. Zhang, T. Su, J. Liu, C. Lv, Y. Zhang, J. Lei, et al. C-Eval: A multi-level multi-discipline chinese evaluation suite for foundation models. arXiv preprint arXiv:2305.08322 , 2023.</p>
+</li>
+<li>
+<p>Jain et al. (2024) N. Jain, K. Han, A. Gu, W.-D. Li, F. Yan, T. Zhang, S. Wang, A. Solar-Lezama, K. Sen, and I. Stoica. Livecodebench: Holistic and contamination free evaluation of large language models for code, 2024.</p>
+</li>
+<li>
+<p>Jimenez et al. (2023) C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. Narasimhan. Swe-bench: Can language models resolve real-world github issues? arXiv preprint arXiv:2310.06770 , 2023.</p>
+</li>
+<li>
+<p>Joshi et al. (2017) M. Joshi, E. Choi, D. Weld, and L. Zettlemoyer. TriviaQA: A large scale distantly supervised challenge dataset for reading comprehension. In R. Barzilay and M.-Y. Kan, editors, Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 1601–1611, Vancouver, Canada, July 2017. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/P17-1147">10.18653/v1/P17-1147</a> . URL <a href="https://aclanthology.org/P17-1147">https://aclanthology.org/P17-1147</a> .</p>
+</li>
+<li>
+<p>Joulin et al. (2016) A. Joulin, E. Grave, P. Bojanowski, M. Douze, H. Jégou, and T. Mikolov. Fasttext. zip: Compressing text classification models. arXiv preprint arXiv:1612.03651 , 2016.</p>
+</li>
+<li>
+<p>Kocetkov et al. (2022) D. Kocetkov, R. Li, L. Jia, C. Mou, Y. Jernite, M. Mitchell, C. M. Ferrandis, S. Hughes, T. Wolf, D. Bahdanau, et al. The stack: 3 tb of permissively licensed source code. Transactions on Machine Learning Research , 2022.</p>
+</li>
+<li>
+<p>Kwiatkowski et al. (2019) T. Kwiatkowski, J. Palomaki, O. Redfield, M. Collins, A. P. Parikh, C. Alberti, D. Epstein, I. Polosukhin, J. Devlin, K. Lee, K. Toutanova, L. Jones, M. Kelcey, M. Chang, A. M. Dai, J. Uszkoreit, Q. Le, and S. Petrov. Natural questions: a benchmark for question answering research. Trans. Assoc. Comput. Linguistics , 7:452–466, 2019. <a href="https://doi.org/10.1162/tacl_a_00276">10.1162/tacl_a_00276</a> . URL <a href="https://doi.org/10.1162/tacl_a_00276">https://doi.org/10.1162/tacl_a_00276</a> .</p>
+</li>
+<li>
+<p>Li et al. (2023a) H. Li, Y. Zhang, F. Koto, Y. Yang, H. Zhao, Y. Gong, N. Duan, and T. Baldwin. CMMLU: Measuring massive multitask language understanding in Chinese. arXiv preprint arXiv:2306.09212 , 2023a.</p>
+</li>
+<li>
+<p>Li et al. (2023b) R. Li, L. B. Allal, Y. Zi, N. Muennighoff, D. Kocetkov, C. Mou, M. Marone, C. Akiki, J. Li, J. Chim, et al. Starcoder: may the source be with you! arXiv preprint arXiv:2305.06161 , 2023b.</p>
+</li>
+<li>
+<p>Li et al. (2024) T. Li, W.-L. Chiang, E. Frick, L. Dunlap, B. Zhu, J. E. Gonzalez, and I. Stoica. From live data to high-quality benchmarks: The arena-hard pipeline, April 2024. URL <a href="https://lmsys.org/blog/2024-04-19-arena-hard/">https://lmsys.org/blog/2024-04-19-arena-hard/</a> .</p>
+</li>
+<li>
+<p>Liu et al. (2023a) J. Liu, C. S. Xia, Y. Wang, and L. Zhang. Is your code generated by chatGPT really correct? rigorous evaluation of large language models for code generation. In Thirty-seventh Conference on Neural Information Processing Systems , 2023a. URL <a href="https://openreview.net/forum?id=1qvx610Cu7">https://openreview.net/forum?id=1qvx610Cu7</a> .</p>
+</li>
+<li>
+<p>Liu et al. (2023b) T. Liu, C. Xu, and J. McAuley. Repobench: Benchmarking repository-level code auto-completion systems. In The Twelfth International Conference on Learning Representations , 2023b.</p>
+</li>
+<li>
+<p>Liu et al. (2023c) X. Liu, X. Lei, S. Wang, Y. Huang, Z. Feng, B. Wen, J. Cheng, P. Ke, Y. Xu, W. L. Tam, X. Zhang, L. Sun, H. Wang, J. Zhang, M. Huang, Y. Dong, and J. Tang. Alignbench: Benchmarking chinese alignment of large language models. CoRR , abs/2311.18743, 2023c. <a href="https://doi.org/10.48550/ARXIV.2311.18743">10.48550/ARXIV.2311.18743</a> . URL <a href="https://doi.org/10.48550/arXiv.2311.18743">https://doi.org/10.48550/arXiv.2311.18743</a> .</p>
+</li>
+<li>
+<p>Loshchilov and Hutter (2019) I. Loshchilov and F. Hutter. Decoupled weight decay regularization, 2019.</p>
+</li>
+<li>
+<p>Lozhkov et al. (2024) A. Lozhkov, R. Li, L. B. Allal, F. Cassano, J. Lamy-Poirier, N. Tazi, A. Tang, D. Pykhtar, J. Liu, Y. Wei, et al. Starcoder 2 and the stack v2: The next generation. arXiv preprint arXiv:2402.19173 , 2024.</p>
+</li>
+<li>
+<p>MAA (2024) MAA. American invitational mathematics examination - aime. American Invitational Mathematics Examination - AIME 2024 , 2024. URL <a href="https://maa.org/math-competitions/american-invitational-mathematics-examination-aime">https://maa.org/math-competitions/american-invitational-mathematics-examination-aime</a> .</p>
+</li>
+<li>
+<p>Meta (2024) Meta. Introducing meta llama 3: The most capable openly available llm to date. <a href="https://ai.meta.com/blog/meta-llama-3/">https://ai.meta.com/blog/meta-llama-3/</a> , April 2024.</p>
+</li>
+<li>
+<p>MistralAI (2024) MistralAI. Codestral. <a href="https://mistral.ai/news/codestral/">https://mistral.ai/news/codestral/</a> , 2024. Accessed: 2024-05-29.</p>
+</li>
+<li>
+<p>Netmind.AI (2024) Netmind.AI. Odyssey-math. <a href="https://github.com/protagolabs/odyssey-math/tree/main">https://github.com/protagolabs/odyssey-math/tree/main</a> , 2024. Accessed: April 22, 2024.</p>
+</li>
+<li>
+<p>OpenAI (2023) OpenAI. Gpt-4 technical report, 2023.</p>
+</li>
+<li>
+<p>Peng et al. (2023) B. Peng, J. Quesnelle, H. Fan, and E. Shippole. Yarn: Efficient context window extension of large language models. arXiv preprint arXiv:2309.00071 , 2023.</p>
+</li>
+<li>
+<p>Reid et al. (2024) M. Reid, N. Savinov, D. Teplyashin, D. Lepikhin, T. Lillicrap, J.-b. Alayrac, R. Soricut, A. Lazaridou, O. Firat, J. Schrittwieser, et al. Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context. arXiv preprint arXiv:2403.05530 , 2024.</p>
+</li>
+<li>
+<p>Roziere et al. (2023) B. Roziere, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan, Y. Adi, J. Liu, T. Remez, J. Rapin, et al. Code llama: Open foundation models for code. arXiv preprint arXiv:2308.12950 , 2023.</p>
+</li>
+<li>
+<p>Shao et al. (2024) Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, M. Zhang, Y. Li, Y. Wu, and D. Guo. Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 , 2024.</p>
+</li>
+<li>
+<p>Shi et al. (2024) Q. Shi, M. Tang, K. Narasimhan, and S. Yao. Can language models solve olympiad programming? arXiv preprint arXiv:2404.10952 , 2024.</p>
+</li>
+<li>
+<p>Suzgun et al. (2022) M. Suzgun, N. Scales, N. Schärli, S. Gehrmann, Y. Tay, H. W. Chung, A. Chowdhery, Q. V. Le, E. H. Chi, D. Zhou, et al. Challenging big-bench tasks and whether chain-of-thought can solve them. arXiv preprint arXiv:2210.09261 , 2022.</p>
+</li>
+<li>
+<p>Touvron et al. (2023) H. Touvron, L. Martin, K. Stone, P. Albert, A. Almahairi, Y. Babaei, N. Bashlykov, S. Batra, P. Bhargava, S. Bhosale, et al. Llama 2: Open foundation and fine-tuned chat models. arXiv preprint arXiv:2307.09288 , 2023.</p>
+</li>
+<li>
+<p>Xu et al. (2020) L. Xu, H. Hu, X. Zhang, L. Li, C. Cao, Y. Li, Y. Xu, K. Sun, D. Yu, C. Yu, Y. Tian, Q. Dong, W. Liu, B. Shi, Y. Cui, J. Li, J. Zeng, R. Wang, W. Xie, Y. Li, Y. Patterson, Z. Tian, Y. Zhang, H. Zhou, S. Liu, Z. Zhao, Q. Zhao, C. Yue, X. Zhang, Z. Yang, K. Richardson, and Z. Lan. CLUE: A chinese language understanding evaluation benchmark. In D. Scott, N. Bel, and C. Zong, editors, Proceedings of the 28th International Conference on Computational Linguistics, COLING 2020, Barcelona, Spain (Online), December 8-13, 2020 , pages 4762–4772. International Committee on Computational Linguistics, 2020. <a href="https://doi.org/10.18653/V1/2020.COLING-MAIN.419">10.18653/V1/2020.COLING-MAIN.419</a> . URL <a href="https://doi.org/10.18653/v1/2020.coling-main.419">https://doi.org/10.18653/v1/2020.coling-main.419</a> .</p>
+</li>
+<li>
+<p>Zheng et al. (2023) L. Zheng, W.-L. Chiang, Y. Sheng, S. Zhuang, Z. Wu, Y. Zhuang, Z. Lin, Z. Li, D. Li, E. P. Xing, H. Zhang, J. E. Gonzalez, and I. Stoica. Judging llm-as-a-judge with mt-bench and chatbot arena, 2023.</p>
+</li>
+<li>
+<p>Zhong et al. (2023) W. Zhong, R. Cui, Y. Guo, Y. Liang, S. Lu, Y. Wang, A. Saied, W. Chen, and N. Duan. AGIEval: A human-centric benchmark for evaluating foundation models. CoRR , abs/2304.06364, 2023. <a href="https://doi.org/10.48550/arXiv.2304.06364">10.48550/arXiv.2304.06364</a> . URL <a href="https://doi.org/10.48550/arXiv.2304.06364">https://doi.org/10.48550/arXiv.2304.06364</a> .</p>
+</li>
+</ul>
+<h2 id="supported-programming-languages--支持的编程语言">Supported Programming Languages / 支持的编程语言<a class="headerlink" href="#supported-programming-languages--支持的编程语言" title="Permanent link">&para;</a></h2>
+<p><strong>EN.</strong> ABAP, ActionScript, Ada, Agda, AGS Script, Alloy, AmbientTalk, AMD GPU, AMPL, ANSYS Parametric Design Language, ANTLR, Apache Configuration, APL, AppleScript, Arc, Arduino, ASP, AspectJ, Assembly, Asymptote, Augeas, AutoHotkey, AutoIt, AWK, BC, Berry, BitBake, BlitzBasic, BlitzMax, Bluespec, BNF, Boo, Boogie, Brainfuck, BrightScript, Bro, BST, C, C#, C2HS Haskell, CADL, CapDL, Ceylon, Chapel, ChucK, Cirru, Click, Clojure, CMake, COBOL, COBOLFree, CoffeeScript, ColdFusion CFC, Common Lisp, C++, Crystal, Csound, Csound Score, CSS, CUDA, Cypher, Cython, Darcs Patch, Dart, DASM16, Debian Control File, DeviceTree, Diff, DM, Docker, Dockerfile, Dylan, EBNF, eC, Eiffel, Elixir, Elm, ELPi, Emacs Lisp, EmberScript, Erlang, Execline, F#, Factor, Fancy, Fantom, Felix, Fennel, Fish, Flux, Fortran, Fortran Fixed Form, FoxPro, FreeFem, FreeMarker, F*, Futhark, G-Code, GAP, GAS, GDScript, Genshi, Gentoo Ebuild, Gentoo Eclass, Gettext Catalog, GLSL, Glyph, Gnuplot, Go, Gosu, Grace, Gradle, Grammatical Framework, GraphQL, Graphviz DOT, Groff, Groovy, Groovy Server Pages, GSQL, Handlebars, Haskell, Haxe, HCL, HLSL, HTML, HTML Django, HTML ERB, HTML PHP, HTTP, Hy, Idris, IGOR Pro, Inform 6 Template, Inno Setup, Io, Isabelle, J, Jade, JAGS, Jasmin, Java, Java Server Pages, JavaScript, JavaScript MozPreproc, JCL, JFlex, JSON, JSONiq, JSX, Julia, Jupyter Notebook, K, Kconfig, Koka, Kotlin, KRL, Lean, Less, Lex, LFE, Lighttpd Configuration File, LilyPond, Limbo, Linker Script, Liquid, Literate Agda, Literate CoffeeScript, LLVM, Logtalk, LSL, Lua, M4, Makefile, Mako, Mason, MATLAB, Maxima, Meson, Metal, MiniScript, Mirah, Mizar, Modelica, Modula-2, Monkey, MooCode, MoonScript, Mosel, MQL, MUF, MuPAD, NASM, NCL, NetLinx, Nginx Configuration File, Nimrod, Ninja, Nit, Nix, NSIS, Nu, NuSMV, Objdump, Objective-C, Objective-C++, OCaml, Octave, Odin, OMG Interface Definition Language, ooc, Opa, OpenCL, OpenEdge ABL, OpenSCAD, Ox, Oz, Papyrus, Parrot Internal Representation, Pascal, PAWN, PEG, Perl, Perl 6, PHP, Pike, PkgConfig, POD, Pony, POV-Ray, PowerShell, Praat, Processing, Propeller Spin, Protocol Buffer, Pug, Puppet, PureBasic, PureScript, Python, Q, QML, QVTO, R, Racket, Ragel in Ruby Host, RAML, RConsole, Rd, REALbasic, ReasonML, Red, RenderScript, Ren’Py, REXX, RHTML, Ride, Robot Framework, Rouge, Ruby, Rust, S, Sage, SARL, SAS, Sass, Scala, Scheme, Scilab, SCSS, Self, Shell, ShExC, Sieve, Silver, Singularity, Slim, Smali, Smarty, Smithy, SMT, Solidity, SourcePawn, SPARQL, SQF, SQL, Squirrel, Stan, Standard ML, Stata, Stylus, SuperCollider, Swift, SWIG, SystemVerilog, Tcl, Tcsh, Tea, Terminfo, TeX, Thrift, Transact-SQL, Treetop, Turing, Twig, TypeScript, TypoScript, Unity3D Asset, Uno, UnrealScript, UrWeb, USD, Vala, VBScript, VCL, Velocity, Verilog, VHDL, VimL, Visual Basic, Vue, WebAssembly, Web IDL, Whiley, X10, XBase, XC, XML, XML Lasso, XQuery, XS, XSLT, Xtend, Xtlang, YANG, Zeek, Zephir, Zig, Zimpl</p>
+<p><strong>中.</strong> ABAP、ActionScript、Ada、Agda、AGS 脚本、合金、AmbientTalk、AMD GPU、AMPL、ANSYS 参数化设计语言、ANTLR、Apache 配置、APL、AppleScript、Arc、Arduino、ASP、AspectJ、Assembly、Asymptote、Augeas、AutoHotkey、AutoIt、AWK、BC、Berry、BitBake、BlitzBasic、BlitzMax、Bluespec、BNF、 Boo、Boogie、Brainfuck、BrightScript、Bro、BST、C、C#、C2HS Haskell、CADL、CapDL、Ceylon、Chapel、ChucK、Cirru、Click、Clojure、CMake、COBOL、COBOLFree、CoffeeScript、ColdFusion CFC、Common Lisp、C++、Crystal、Csound、Csound Score、CSS、CUDA、Cypher、Cython、Darcs Patch、 Dart、DASM16、Debian 控制文件、DeviceTree、Diff、DM、Docker、Dockerfile、Dylan、EBNF、eC、Eiffel、Elixir、Elm、ELPi、Emacs Lisp、EmberScript、Erlang、Execline、F#、Factor、Fancy、Fantom、Felix、茴香、Fish、Flux、Fortran、Fortran 固定形式、FoxPro、FreeFem、FreeMarker、F*、 Futhark、G-Code、GAP、GAS、GDScript、Genshi、Gentoo Ebuild、Gentoo Eclass、Gettext Catalog、GLSL、Glyph、Gnuplot、Go、Gosu、Grace、Gradle、语法框架、GraphQL、Graphviz DOT、Groff、Groovy、Groovy 服务器页面、GSQL、Handlebars、Haskell、Haxe、HCL、HLSL、HTML、HTML Django、 HTML ERB、HTML PHP、HTTP、Hy、Idris、IGOR Pro、Inform 6 Template、Inno Setup、Io、Isabelle、J、Jade、JAGS、Jasmin、Java、Java Server Pages、JavaScript、JavaScript MozPreproc、JCL、JFlex、JSON、JSONiq、JSX、Julia、Jupyter Notebook、K、Kconfig、Koka、Kotlin、KRL、Lean、Less、Lex、LFE、 Lighttpd 配置文件、LilyPond、Limbo、链接器脚本、Liquid、Literate Agda、Literate CoffeeScript、LLVM、Logtalk、LSL、Lua、M4、Makefile、Mako、Mason、MATLAB、Maxima、Meson、Metal、MiniScript、Mirah、Mizar、Modelica、Modula-2、Monkey、MooCode、MoonScript、Mosel、MQL、MUF、MuPAD、NASM、NCL、 NetLinx、Nginx 配置文件、Nimrod、Ninja、Nit、Nix、NSIS、Nu、NuSMV、Objdump、Objective-C、Objective-C++、OCaml、Octave、Odin、OMG 接口定义语言、ooc、Opa、OpenCL、OpenEdge ABL、OpenSCAD、Ox、Oz、Papyrus、Parrot 内部表示、Pascal、PAWN、PEG、Perl、Perl 6、PHP、Pike、PkgConfig、POD、Pony、POV-Ray、PowerShell、Praat、Processing、Propeller Spin、Protocol Buffer、Pug、Puppet、PureBasic、PureScript、Python、Q、QML、QVTO、R、Racket、Ruby Host 中的 Ragel、RAML、RConsole、Rd、REALbasic、ReasonML、Red、RenderScript、Ren’Py、REXX、RHTML、Ride、 Robot Framework、Rouge、Ruby、Rust、S、Sage、SARL、SAS、Sass、Scala、Scheme、Scilab、SCSS、Self、Shell、ShExC、Sieve、Silver、Singularity、Slim、Smali、Smarty、Smithy、SMT、Solidity、SourcePawn、SPARQL、SQF、SQL、Squirrel、Stan、标准 ML、Stata、Stylus、SuperCollider、Swift、 SWIG、SystemVerilog、Tcl、Tcsh、Tea、Terminfo、TeX、Thrift、Transact-SQL、Treetop、Turing、Twig、TypeScript、TypoScript、Unity3D Asset、Uno、UnrealScript、UrWeb、USD、Vala、VBScript、VCL、Velocity、Verilog、VHDL、VimL、Visual Basic、Vue、WebAssembly、Web IDL、Whiley、X10、XBase、 XC、XML、XML 套索、XQuery、XS、XSLT、Xtend、Xtlang、YANG、Zeek、Zephir、Zig、Zimpl</p>
+<h2 id="footnotes--脚注">Footnotes / 脚注<a class="headerlink" href="#footnotes--脚注" title="Permanent link">&para;</a></h2>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:footnote1">
+<p><strong>EN.</strong> https://stackoverflow.com<br><strong>中.</strong> https://stackoverflow.com&#160;<a class="footnote-backref" href="#fnref:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote2">
+<p><strong>EN.</strong> https://pytorch.org/docs<br><strong>中.</strong> https://pytorch.org/docs&#160;<a class="footnote-backref" href="#fnref:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote3">
+<p><strong>EN.</strong> https://math.stackexchange.com<br><strong>中.</strong> https://math.stackexchange.com&#160;<a class="footnote-backref" href="#fnref:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote4">
+<p><strong>EN.</strong> We use the template ”Please complete the python function below. The final complete version of your function must be returned within a code block. Here is the unfinished function:\n <code>python\n{problem_description}\n\n” to build the instruction prompt.&lt;br&gt;**中.** 我们使用模板“请完成下面的 python 函数。函数的最终完整版本必须在代码块内返回。这是未完成的函数：\n</code>python\n{problem_description}\n\n”来构建指令提示符。&#160;<a class="footnote-backref" href="#fnref:footnote4" title="Jump back to footnote 4 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote5">
+<p><strong>EN.</strong> We use the first generated line rather than the whole generated chunk, thus the result is slightly different with DeepSeek-Coder.<br><strong>中.</strong> 我们使用第一个生成的行而不是整个生成的块，因此结果与 DeepSeek-Coder 略有不同。&#160;<a class="footnote-backref" href="#fnref:footnote5" title="Jump back to footnote 5 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote5" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote6">
+<p><strong>EN.</strong> StartCoder-2 has some problems with FIM, thus we still use StartCoder.<br><strong>中.</strong> StartCoder-2在FIM方面存在一些问题，因此我们仍然使用StartCoder。&#160;<a class="footnote-backref" href="#fnref:footnote6" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote7">
+<p><strong>EN.</strong> https://github.com/rjust/defects4j<br><strong>中.</strong> https://github.com/rjust/defects4j&#160;<a class="footnote-backref" href="#fnref:footnote7" title="Jump back to footnote 7 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote7" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote8">
+<p><strong>EN.</strong> https://github.com/paul-gauthier/aider<br><strong>中.</strong> https://github.com/paul-gauthier/aider&#160;<a class="footnote-backref" href="#fnref:footnote8" title="Jump back to footnote 8 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote8" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:footnote9">
+<p><strong>EN.</strong> The performance of DeepSeek-Coder-V2 on the four mathematical benchmarks was obtained with zero-shot chain-of-thought prompting; each test question was concatenated with the instruction: ” <span class="arithmatex">\(\backslash\)</span> nPlease reason step by step, and put your final answer within <span class="arithmatex">\(\backslash\)</span> boxed{}.”<br><strong>中.</strong> DeepSeek-Coder-V2在四个数学基准上的性能是通过零样本思维链提示获得的；每个测试问题都与说明相连：“<span class="arithmatex">\(\backslash\)</span> n请逐步推理，并将最终答案放在 <span class="arithmatex">\(\backslash\)</span> 框中{}”。&#160;<a class="footnote-backref" href="#fnref:footnote9" title="Jump back to footnote 9 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:footnote9" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../DeepSeek-Coder-V2%E8%AF%A6%E8%A7%A3/" class="md-footer__link md-footer__link--prev" aria-label="上一页: DeepSeek-Coder-V2：从通用 MoE 继续预训练代码与数学能力">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                DeepSeek-Coder-V2：从通用 MoE 继续预训练代码与数学能力
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../DeepSeek-GRM/DeepSeek-GRM%E8%A7%A3%E8%AF%BB/" class="md-footer__link md-footer__link--next" aria-label="下一页: DeepSeek-GRM：补充解读">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                DeepSeek-GRM：补充解读
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

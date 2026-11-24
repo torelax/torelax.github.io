@@ -1,0 +1,2655 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Embedding、LLM 与后训练的论文研读和技术调研笔记">
+      
+      
+      
+        <link rel="canonical" href="https://torelax.github.io/post-training/RLHF/GRPO%E7%B2%BE%E8%AE%B2/">
+      
+      
+        <link rel="prev" href="../DPO%E7%B2%BE%E8%AE%B2/">
+      
+      
+        <link rel="next" href="../DPO/DPO%E8%A7%A3%E8%AF%BB/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>GRPO 精讲：用同题多次尝试估计优势 - ai-learn 知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#grpo-精讲用同题多次尝试估计优势" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="ai-learn 知识库" class="md-header__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ai-learn 知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GRPO 精讲：用同题多次尝试估计优势
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到深色"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换到浅色"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ai-learn 知识库
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../embedding/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Embedding
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../llm/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  LLM
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  后训练
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ai-learn 知识库" class="md-nav__button md-logo" aria-label="ai-learn 知识库" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ai-learn 知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/torelax/ai-learn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    torelax/ai-learn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ai-learn 知识库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../embedding/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../llm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后训练
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    后训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RLHF
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RLHF
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DPO%E7%B2%BE%E8%AE%B2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO 精讲：从偏好数据到策略更新
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRPO 精讲：用同题多次尝试估计优势
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#先把四类模型角色分清" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        先把四类模型角色分清
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#从-reinforce-到组内优势" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从 REINFORCE 到组内优势
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#token-级重要性比率与裁剪" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        token 级重要性比率与裁剪
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kl-项到底在比较什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KL 项到底在比较什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome-reward-与-process-reward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        outcome reward 与 process reward
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#一轮训练实际做什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一轮训练实际做什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#一个可计算的小例子与-pytorch-核心" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个可计算的小例子与 PyTorch 核心
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#长度与难度偏置为什么后续方法要改原式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        长度与难度偏置：为什么后续方法要改原式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#奖励设计决定了模型会利用什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        奖励设计决定了模型会利用什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#怎么理解原始证据与-r1-的扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        怎么理解原始证据与 R1 的扩展
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dpo-与-grpo-如何衔接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DPO 与 GRPO 如何衔接
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../distillation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    知识蒸馏
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../distillation/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    知识蒸馏技术深度调研报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../peft/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PEFT 微调
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PEFT 微调
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/LLM%E6%8F%90%E7%A4%BA%E5%BE%AE%E8%B0%83%E7%BB%BC%E8%BF%B0_Prefix-Prompt-P-Tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM 提示微调：Prefix-Tuning、Prompt Tuning 与 P-Tuning 的方法谱系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/LoRA%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA 技术总章：原理、权重选择、超参数与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peft/%E8%B5%84%E6%96%99%E6%B8%85%E5%8D%95_%E8%AE%BA%E6%96%87%E4%B8%8E%E5%8D%9A%E5%AE%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA / PEFT 相关论文与博客资料清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/AdaLoRA/AdaLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AdaLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Adapter/Adapter%E4%B8%8EPEFT%E8%8C%83%E5%BC%8F%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/DoRA/DoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/LoRA/LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/LoRA%2B/LoRA%2B%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA+
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/P-Tuning/P-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/P-Tuning-v2/P-Tuning-v2%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P-Tuning-v2
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Prefix-Tuning/Prefix-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prefix-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/Prompt-Tuning/Prompt-Tuning%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt-Tuning
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/QA-LoRA/QA-LoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QA-LoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/QLoRA/QLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/VeRA/VeRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VeRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../peft/rsLoRA/rsLoRA%E8%AF%A6%E8%A7%A3/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rsLoRA
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#先把四类模型角色分清" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        先把四类模型角色分清
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#从-reinforce-到组内优势" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从 REINFORCE 到组内优势
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#token-级重要性比率与裁剪" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        token 级重要性比率与裁剪
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kl-项到底在比较什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KL 项到底在比较什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome-reward-与-process-reward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        outcome reward 与 process reward
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#一轮训练实际做什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一轮训练实际做什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#一个可计算的小例子与-pytorch-核心" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个可计算的小例子与 PyTorch 核心
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#长度与难度偏置为什么后续方法要改原式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        长度与难度偏置：为什么后续方法要改原式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#奖励设计决定了模型会利用什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        奖励设计决定了模型会利用什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#怎么理解原始证据与-r1-的扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        怎么理解原始证据与 R1 的扩展
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dpo-与-grpo-如何衔接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DPO 与 GRPO 如何衔接
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="grpo-精讲用同题多次尝试估计优势">GRPO 精讲：用同题多次尝试估计优势<a class="headerlink" href="#grpo-精讲用同题多次尝试估计优势" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>GRPO 对同一个问题采样多个回答，用组内奖励比较替代学习出来的价值基线，再以带裁剪的策略梯度提高较好回答的生成倾向。</p>
+<p>原始出处是 <a href="https://arxiv.org/abs/2402.03300">DeepSeekMath</a>，后在 <a href="https://arxiv.org/abs/2501.12948">DeepSeek-R1</a> 中广为使用；GRPO 不是一篇独立命名的 DeepSeek 原始论文。</p>
+</blockquote>
+<p>语言模型的在线强化学习需要回答“这一次生成，比通常水平好多少”。PPO 常训练价值模型提供基线，增加显存、计算和估计误差。GRPO 让同一道题的多个回答相互比较，以组均值和标准差构造优势，取消单独的 critic。这个设计适合能够多次采样、并用奖励区分质量的任务，但成本转移到了生成与评判上。它可以使用人类偏好训练的奖励模型，也可以使用数学答案、代码测试等可验证奖励；后者通常称 RLVR。理解组内比较、token 级更新和奖励口径，比把 GRPO 简化成“无 critic 的 PPO”更有实际价值。</p>
+<h2 id="先把四类模型角色分清">先把四类模型角色分清<a class="headerlink" href="#先把四类模型角色分清" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>符号</th>
+<th>作用与更新方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前策略</td>
+<td><span class="arithmatex">\(\pi_\theta\)</span></td>
+<td>正在训练、需要反向传播的语言模型</td>
+</tr>
+<tr>
+<td>旧策略／行为策略</td>
+<td><span class="arithmatex">\(\pi_{\mathrm{old}}\)</span></td>
+<td>产生当前批次回答的策略快照，用于重要性比率；收集新批次时更新</td>
+</tr>
+<tr>
+<td>参考策略</td>
+<td><span class="arithmatex">\(\pi_{\mathrm{ref}}\)</span></td>
+<td>KL 约束的行为锚点，通常在一个训练阶段内冻结</td>
+</tr>
+<tr>
+<td>奖励来源</td>
+<td><span class="arithmatex">\(r\)</span></td>
+<td>规则、执行器或奖励模型；可以是模型，也可以完全没有神经网络</td>
+</tr>
+</tbody>
+</table>
+<p>GRPO 省去的是<strong>价值模型</strong>，并不是必然省去奖励模型。DeepSeekMath 的原始实验确实训练奖励模型；R1 的推理训练大量使用规则奖励。原论文的 iterative RL 还会在外层迭代更新奖励模型和参考策略，不能据此把参考模型误当成每一步的旧策略。</p>
+<p><img alt="PPO 与 GRPO 的模型角色，DeepSeekMath 原文图 4" src="../../../llm/DeepSeek/DeepSeekMath/figs/S4-F4-01.png" /></p>
+<p>图中组内多次采样提供了基线，因而不再为每个 token 额外训练一个 value 预测器。省下的训练资源有意义，但一组长回答的生成成本仍然可能是主要开销。</p>
+<h2 id="从-reinforce-到组内优势">从 REINFORCE 到组内优势<a class="headerlink" href="#从-reinforce-到组内优势" title="Permanent link">&para;</a></h2>
+<p>对于一条回答 <span class="arithmatex">\(o\)</span>，基本策略梯度为</p>
+<div class="arithmatex">\[
+\nabla_\theta\mathbb E_{o\sim\pi_\theta}[r(o)]
+=\mathbb E\left[r(o)\sum_t\nabla_\theta\log\pi_\theta(o_t\mid q,o_{&lt;t})\right].
+\]</div>
+<p>减去不依赖当前动作的基线，在适当条件下不改变期望梯度，却可以降低方差。PPO 的 critic 学习状态价值；GRPO 对同题 <span class="arithmatex">\(q\)</span> 采样 <span class="arithmatex">\(G\)</span> 条回答 <span class="arithmatex">\(o_1,\ldots,o_G\)</span>，原始 outcome-supervision 形式为</p>
+<div class="arithmatex">\[
+\bar r=\frac1G\sum_i r_i,\qquad
+A_i=\frac{r_i-\bar r}{s_r+\epsilon_{\mathrm{num}}}.
+\]</div>
+<p>同一回答的有效 token 共用 <span class="arithmatex">\(A_i\)</span>。<span class="arithmatex">\(\epsilon_{\mathrm{num}}\)</span> 是实现中防止除零的数值常量，与后面的 PPO clip 参数不是同一个量。组内均值包含样本自身，组内标准差又依赖采样结果，因此不能把实际 GRPO 估计量无条件宣称为“原始无偏 REINFORCE 梯度”。后续关于偏置的研究正是在分析这些变化。</p>
+<p>若一组奖励为 <span class="arithmatex">\([1,1,0,0]\)</span>，使用总体标准差时均值为 0.5、标准差为 0.5，优势约为 <span class="arithmatex">\([1,1,-1,-1]\)</span>。若为 <span class="arithmatex">\([1,0,0,0]\)</span>，唯一正确回答的优势约 1.732，其余各约 −0.577。同样是二元奖励，题目在当前策略下的成功率不同，就会产生不同的权重。</p>
+<p>若全对或全错，减均值后的优势均为 0，任务奖励不提供学习信号；有 KL 项时仍可能发生 KL 更新。因而“奖励全是 0”和“奖励全是 1”都不适合长期占据训练批次。动态筛选可以提高有效样本比例，但也会改变训练问题分布，需要监控覆盖范围。</p>
+<h2 id="token-级重要性比率与裁剪">token 级重要性比率与裁剪<a class="headerlink" href="#token-级重要性比率与裁剪" title="Permanent link">&para;</a></h2>
+<p>定义 token 级比率</p>
+<div class="arithmatex">\[
+\rho_{i,t}(\theta)=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,&lt;t})}
+{\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,&lt;t})}.
+\]</div>
+<p>原始 GRPO 的最大化目标可写为</p>
+<div class="arithmatex">\[
+J(\theta)=\frac1G\sum_{i=1}^G\frac1{|o_i|}\sum_{t=1}^{|o_i|}
+\left[\min\left(\rho_{i,t}A_i,
+\operatorname{clip}(\rho_{i,t},1-\varepsilon,1+\varepsilon)A_i\right)
+-\beta k_{i,t}\right].
+\]</div>
+<p>正优势时，目标不再奖励把比率推到 <span class="arithmatex">\(1+\varepsilon\)</span> 之外；负优势时，不再奖励将其压到 <span class="arithmatex">\(1-\varepsilon\)</span> 之下。裁剪限制的是这个 surrogate 的激励，不是把模型概率或参数变化硬性锁在一个区间。</p>
+<p>旧 log-prob 要按生成该批样本的行为策略保存。对同一批样本做多个更新时，分母保持该快照值；不能每更新一步就以当前模型重算分母冒充旧策略。训练与生成引擎的精度、权重同步和采样实现也会带来偏移，因此现代实现常额外讨论 off-policy correction。</p>
+<p>即使只更新一次、起始 <span class="arithmatex">\(\rho=1\)</span>，分子仍然有梯度，学习并未消失。错误地把分子和分母都 detach，才会把策略梯度切断。</p>
+<h2 id="kl-项到底在比较什么">KL 项到底在比较什么<a class="headerlink" href="#kl-项到底在比较什么" title="Permanent link">&para;</a></h2>
+<p>令 <span class="arithmatex">\(d_{i,t}=\log\pi_{\mathrm{ref}}-\log\pi_\theta\)</span>，原文采用</p>
+<div class="arithmatex">\[
+k_{i,t}=e^{d_{i,t}}-d_{i,t}-1\ge0.
+\]</div>
+<p>当 token 按当前策略采样且支持条件满足时，其期望等于 <span class="arithmatex">\(D_{\mathrm{KL}}(\pi_\theta\Vert\pi_{\mathrm{ref}})\)</span>。训练中复用旧策略样本会涉及 off-policy 近似；应区分“估计量在指定采样分布下的性质”和“所有训练实现都无偏”。KL 系数 <span class="arithmatex">\(\beta\)</span> 控制行为锚定强度，不等于 clip 参数 <span class="arithmatex">\(\varepsilon\)</span>。</p>
+<p>原始 DeepSeekMath 把 KL 直接放进目标，不把它混入组内标准化奖励。后续一些 RLVR 配方令 <span class="arithmatex">\(\beta=0\)</span>，不再维护参考模型，可能获得更自由的优化，但也失去了这项显式约束。当前 <a href="https://huggingface.co/docs/trl/main/en/grpo_trainer">TRL 文档</a> 展示了这些变化；阅读代码时必须看具体配置，不能仅凭类名 <code>GRPOTrainer</code> 判断其目标等于 2024 年原式。</p>
+<h2 id="outcome-reward-与-process-reward">outcome reward 与 process reward<a class="headerlink" href="#outcome-reward-与-process-reward" title="Permanent link">&para;</a></h2>
+<p>结果奖励给整条回答一个分数，再把优势广播到所有 token。它简单，也容易获得自动监督，但不能明确区分哪个推理步骤真正导致成功：答案猜对、过程错误的轨迹也可能被奖励。</p>
+<p>过程奖励在步骤结尾评分。DeepSeekMath 将过程分数进行组内标准化，token 的优势取它之后各步骤标准化奖励之和：</p>
+<div class="arithmatex">\[
+A_{i,t}=\sum_{j:\operatorname{end}(j)\ge t}\widetilde r_{i,j}.
+\]</div>
+<p>这增加了时间上的监督结构，同时依赖可靠的过程评判器和步骤切分。格式奖励、最终正确性、过程分数不宜随意相加；它们的尺度与可被利用方式不同。例如只要“看起来有推理步骤”就得分，会鼓励无效冗长输出。</p>
+<h2 id="一轮训练实际做什么">一轮训练实际做什么<a class="headerlink" href="#一轮训练实际做什么" title="Permanent link">&para;</a></h2>
+<ol>
+<li>从题目池抽取问题，每题由旧策略采样 <span class="arithmatex">\(G\)</span> 个回答，保存生成 token、mask 和旧 log-prob。</li>
+<li>奖励函数读取回答及必要的题目信息，返回可比较的分数；规则执行失败和答案解析失败要有明确语义。</li>
+<li>按题目分组，计算优势并停止对奖励与优势求梯度。分组不能误跨不同题目或不同分布式 worker 的索引。</li>
+<li>当前策略前向得到新 log-prob；有 KL 时再得到冻结参考模型 log-prob。应用裁剪、KL 和规定的归一化方式。</li>
+<li>反向传播并更新；按配方决定同一批样本是否复用、何时同步生成模型、何时重新采样。</li>
+</ol>
+<p>这描述的是基本数据流。DeepSeekMath 主实验每次探索后只更新一次，而它给出的外层迭代算法还会更新奖励模型并混入历史数据；不同层次的“iteration”不应混在一起。</p>
+<h2 id="一个可计算的小例子与-pytorch-核心">一个可计算的小例子与 PyTorch 核心<a class="headerlink" href="#一个可计算的小例子与-pytorch-核心" title="Permanent link">&para;</a></h2>
+<p>以下只展示 outcome reward、原始“每回答平均”目标和可选 KL 的损失核心。输入 log-prob、mask 为 <code>[B, G, T]</code>，reward 为 <code>[B, G]</code>；生产训练还需要可靠的生成、分布式分组、模型同步和奖励执行。</p>
+<div class="language-python highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">grpo_loss</span><span class="p">(</span><span class="n">logp</span><span class="p">,</span> <span class="n">old_logp</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">completion_mask</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>              <span class="n">ref_logp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">clip_eps</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">mask</span> <span class="o">=</span> <span class="n">completion_mask</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">logp</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="n">centered</span> <span class="o">=</span> <span class="n">rewards</span> <span class="o">-</span> <span class="n">rewards</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">std</span> <span class="o">=</span> <span class="n">rewards</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">advantage</span> <span class="o">=</span> <span class="n">centered</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">ratio</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logp</span> <span class="o">-</span> <span class="n">old_logp</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">unclipped</span> <span class="o">=</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">advantage</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">clipped</span> <span class="o">=</span> <span class="n">ratio</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">clip_eps</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">clip_eps</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">token_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="n">unclipped</span><span class="p">,</span> <span class="n">clipped</span> <span class="o">*</span> <span class="n">advantage</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">if</span> <span class="n">beta</span><span class="p">:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="k">if</span> <span class="n">ref_logp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ref_logp is required when beta is nonzero"</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">delta</span> <span class="o">=</span> <span class="n">ref_logp</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span> <span class="o">-</span> <span class="n">logp</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="n">kl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">-</span> <span class="n">delta</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">token_loss</span> <span class="o">=</span> <span class="n">token_loss</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">kl</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">lengths</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clamp_min</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="k">return</span> <span class="p">((</span><span class="n">token_loss</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">lengths</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</code></pre></div>
+<p>这里明确使用总体标准差；若实现采用样本标准差，优势会有一个依赖 <span class="arithmatex">\(G\)</span> 的缩放差异。<code>expm1</code> 提高接近零时的数值精度，但不能解决任意大的 log-ratio；出现溢出时要排查策略漂移与数值问题。真实批次不应含没有任何有效回答 token 的样本，代码中的 <code>clamp_min</code> 只是避免除零。</p>
+<h2 id="长度与难度偏置为什么后续方法要改原式">长度与难度偏置：为什么后续方法要改原式<a class="headerlink" href="#长度与难度偏置为什么后续方法要改原式" title="Permanent link">&para;</a></h2>
+<p><strong>每回答除以长度</strong>让每条回答拥有近似相等的总权重，较长回答中每个 token 的权重更小；它与“所有有效 token 等权”不是同一个目标。对正负优势和不同长度的组合，可能出现不希望的长度激励。</p>
+<p><strong>再除以组内标准差</strong>会按当前题目的成功率等因素重加权。二元奖励下，方差近似 <span class="arithmatex">\(p(1-p)\)</span>；不同难度问题的信号尺度因此变化。它不只是让数值好看，也改变优化贡献。</p>
+<p><a href="https://arxiv.org/abs/2503.20783">Dr. GRPO</a> 针对长度与难度偏置讨论去除 reward 标准差归一化，并使用与单条回答长度无关的常量分母。<a href="https://arxiv.org/abs/2503.14476">DAPO</a> 则结合 token 级损失聚合、非对称裁剪、动态采样和过长回答处理。这些是后续独立研究，不能全部归功于 DeepSeek，也不能把它们的目标直接称为原始 GRPO。</p>
+<table>
+<thead>
+<tr>
+<th>配方要点</th>
+<th>原始 GRPO</th>
+<th>后续常见选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>奖励缩放</td>
+<td>同题均值与标准差</td>
+<td>仅减均值，或其他 batch 缩放</td>
+</tr>
+<tr>
+<td>token 聚合</td>
+<td>每回答除以自身长度，再平均</td>
+<td>全 batch 有效 token 平均，或固定长度常量</td>
+</tr>
+<tr>
+<td>KL</td>
+<td>原式显式包含</td>
+<td>某些 RLVR 配方关闭</td>
+</tr>
+<tr>
+<td>裁剪</td>
+<td>对称区间</td>
+<td>可设置不同上下界</td>
+</tr>
+<tr>
+<td>无组内方差</td>
+<td>奖励项梯度为零</td>
+<td>动态筛选或改变题目采样</td>
+</tr>
+</tbody>
+</table>
+<p>复现实验应同时记录这些项、生成温度、样本数、最大生成长度与截断处理。只说“用了 GRPO”不足以复现。</p>
+<h2 id="奖励设计决定了模型会利用什么">奖励设计决定了模型会利用什么<a class="headerlink" href="#奖励设计决定了模型会利用什么" title="Permanent link">&para;</a></h2>
+<p>数学题应区分答案提取成功与数学等价；只用字符串相等会错罚等价答案，也可能奖励格式投机。代码题要在隔离、资源受限的执行环境中评测，避免测试被改写、无限循环或答案泄漏。过程评判器则要检查是否把自信语气、长度和模板当成正确性。</p>
+<p>“格式奖励 + 正确性奖励”不是保证正确的配方。若格式项轻易取得、权重又高，模型可能只优化格式；若正确率几乎为零，又缺少有效探索，组内比较没有可用方向。通常需要先保证基座具备一定成功概率，再通过题目难度分布和训练信号逐步改进。</p>
+<h2 id="怎么理解原始证据与-r1-的扩展">怎么理解原始证据与 R1 的扩展<a class="headerlink" href="#怎么理解原始证据与-r1-的扩展" title="Permanent link">&para;</a></h2>
+<p>DeepSeekMath 在 DeepSeekMath-Instruct 7B 上训练，使用约 144k 道 GSM8K／MATH 相关问题，每题 64 个候选、最大回答长 1024，策略学习率 <span class="arithmatex">\(10^{-6}\)</span>、KL 系数 0.04。论文报告 GSM8K 从 82.9% 到 88.2%，MATH 从 46.8% 到 51.7%，并观察到部分域外收益。这是数学专域、特定基座与奖励设置下的结果。</p>
+<p>R1-Zero 进一步探索不经前置 SFT 的大规模推理 RL，展示反思与更长推理等行为；R1 再加入冷启动、拒绝采样与更多阶段来处理可读性及通用能力。不能把 R1 的全部提升归因于 GRPO 的一个公式，也不能把“没有前置 SFT”误解为“没有预训练知识或数据”。</p>
+<p>对于训练监控，奖励均值之外，应观察组内标准差为零的比例、有效题目覆盖、回答长度与截断率、clip fraction、策略 KL、独立任务正确率，以及固定生成预算下的 pass@1／pass@k。奖励上升而独立评测不升，通常意味着奖励定义、数据泄漏或分布变化需要检查。</p>
+<h2 id="dpo-与-grpo-如何衔接">DPO 与 GRPO 如何衔接<a class="headerlink" href="#dpo-与-grpo-如何衔接" title="Permanent link">&para;</a></h2>
+<p>DPO 通过离线回答对拟合相对偏好；GRPO 通过在线同题采样探索并更新。前者容易启动、计算可控，后者可以反复产生新轨迹，但需要奖励、探索和生成基础设施。将二者放在 RLHF 章节，是按后训练技术组织；数学和代码的规则奖励训练应明确标为 RLVR，避免把奖励来源与优化算法混为一谈。</p>
+<p>进一步阅读：<a href="https://arxiv.org/abs/2402.03300">DeepSeekMath 论文</a>、<a href="https://arxiv.org/abs/2501.12948">DeepSeek-R1 论文</a>、<a href="https://huggingface.co/docs/trl/main/en/grpo_trainer">TRL GRPOTrainer</a>、Nathan Lambert 的 <a href="https://rlhfbook.com/c/11-policy-gradients">RLHF Book：Policy Gradients</a>、<a href="https://arxiv.org/abs/2503.20783">Dr. GRPO</a>、<a href="https://arxiv.org/abs/2503.14476">DAPO</a>。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../DPO%E7%B2%BE%E8%AE%B2/" class="md-footer__link md-footer__link--prev" aria-label="上一页: DPO 精讲：从偏好数据到策略更新">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                DPO 精讲：从偏好数据到策略更新
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../DPO/DPO%E8%A7%A3%E8%AF%BB/" class="md-footer__link md-footer__link--next" aria-label="下一页: DPO 补充解读：一个分类损失为什么能改变生成模型">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                DPO 补充解读：一个分类损失为什么能改变生成模型
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
