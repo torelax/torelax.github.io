@@ -7247,6 +7247,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    rerank-v3.5 · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -7263,6 +7281,268 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        jina-reranker-v3.5：带混合注意力与自蒸馏的高效列表级精排器
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method--方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method / 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Method / 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-attention-for-lbnl-reranking--面向-lbnl-精排的混合注意力" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Attention for LBNL Reranking / 面向 LBNL 精排的混合注意力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-domain-training-mixture--多域训练混合物" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Domain Training Mixture / 多域训练混合物
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#three-stage-self-distillation--三阶段自蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-Stage Self-Distillation / 三阶段自蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evaluation--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evaluation / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evaluation / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experimental-setup--设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Setup / 设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overall-results--总体结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall Results / 总体结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multilingual--多语" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual / 多语
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#domain-specific--专业域" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domain-specific / 专业域
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structured-retrieval--结构化检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structured retrieval / 结构化检索
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-efficiency--推理效率" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference Efficiency / 推理效率
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discussion--讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discussion / 讨论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a--beir-per-dataset--附录-a--beir-分集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A · BEIR per dataset / 附录 A · BEIR 分集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b--miracl-per-language--附录-b--miracl-分语" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B · MIRACL per language / 附录 B · MIRACL 分语
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c--model-configuration--附录-c--模型配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C · Model configuration / 附录 C · 模型配置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -20572,6 +20852,257 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        jina-reranker-v3.5：带混合注意力与自蒸馏的高效列表级精排器
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method--方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method / 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Method / 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-attention-for-lbnl-reranking--面向-lbnl-精排的混合注意力" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Attention for LBNL Reranking / 面向 LBNL 精排的混合注意力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-domain-training-mixture--多域训练混合物" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Domain Training Mixture / 多域训练混合物
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#three-stage-self-distillation--三阶段自蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-Stage Self-Distillation / 三阶段自蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evaluation--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evaluation / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evaluation / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experimental-setup--设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Setup / 设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overall-results--总体结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall Results / 总体结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multilingual--多语" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual / 多语
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#domain-specific--专业域" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domain-specific / 专业域
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structured-retrieval--结构化检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structured retrieval / 结构化检索
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-efficiency--推理效率" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference Efficiency / 推理效率
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discussion--讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discussion / 讨论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a--beir-per-dataset--附录-a--beir-分集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A · BEIR per dataset / 附录 A · BEIR 分集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b--miracl-per-language--附录-b--miracl-分语" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B · MIRACL per language / 附录 B · MIRACL 分语
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c--model-configuration--附录-c--模型配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C · Model configuration / 附录 C · 模型配置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -20598,7 +21129,7 @@
 <p><strong>权重：</strong> https://huggingface.co/jinaai/jina-reranker-v3.5 （非商用）</p>
 <hr />
 <h1 id="jina-reranker-v35-an-efficient-listwise-reranker-with-hybrid-attention-and-self-distillation">jina-reranker-v3.5: An Efficient Listwise Reranker with Hybrid Attention and Self-Distillation<a class="headerlink" href="#jina-reranker-v35-an-efficient-listwise-reranker-with-hybrid-attention-and-self-distillation" title="Permanent link">&para;</a></h1>
-<h1 id="jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器">jina-reranker-v3.5：带混合注意力与自蒸馏的高效列表级精排器<a class="headerlink" href="#jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器" title="Permanent link">&para;</a></h1>
+<h2 id="jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器">jina-reranker-v3.5：带混合注意力与自蒸馏的高效列表级精排器<a class="headerlink" href="#jina-reranker-v35带混合注意力与自蒸馏的高效列表级精排器" title="Permanent link">&para;</a></h2>
 <p><strong>Authors / 作者：</strong> Christina Nasika, Feng Wang, Antonis Krasakis, Han Xiao</p>
 <p><strong>Affiliation / 单位：</strong> Jina AI by Elastic，33 New Montgomery Street, Floor 9, San Francisco, CA 94105, USA · research@jina.ai</p>
 <hr />

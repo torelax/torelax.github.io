@@ -5937,6 +5937,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InPars · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -5953,6 +5971,285 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#inpars用大语言模型为信息检索做数据增强" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InPars：用大语言模型为信息检索做数据增强
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--引言原文-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 引言（原文 §1）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work--相关工作原文-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work / 相关工作（原文 §2）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#our-method-inpars--方法inpars原文-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Our Method: InPars / 方法：InPars（原文 §3）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-setup--实验设置原文-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Setup / 实验设置（原文 §4）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experimental Setup / 实验设置（原文 §4）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datasets--数据集原文-41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets / 数据集（原文 §4.1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-generation--训练数据生成原文-42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Data Generation / 训练数据生成（原文 §4.2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-methods--检索方法原文-43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrieval Methods / 检索方法（原文 §4.3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results--结果原文-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results / 结果（原文 §5）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ablation-study-and-analysis--消融与分析原文-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study and Analysis / 消融与分析（原文 §6）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ablation Study and Analysis / 消融与分析（原文 §6）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompt-selection-and-source-corpus--提示选择与来源语料原文-61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Selection and Source Corpus / 提示选择与来源语料（原文 §6.1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-size-impact-on-ir-metrics--模型规模对检索指标的影响原文-62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Size Impact on IR Metrics / 模型规模对检索指标的影响（原文 §6.2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-by-the-most-likely-questions--按最可能的问题过滤原文-63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering by the Most Likely Questions / 按最可能的问题过滤（原文 §6.3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#was-gpt-3-trained-on-supervised-ir-data--gpt-3-是否在有监督-ir-数据上训练过原文-64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Was GPT-3 Trained on Supervised IR Data? / GPT-3 是否在有监督 IR 数据上训练过？（原文 §6.4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion-and-future-work--结论与未来工作原文-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion and Future Work / 结论与未来工作（原文 §7）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgments--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgments / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix--附录原文-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix / 附录（原文 A）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix / 附录（原文 A）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-3--表-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 3 / 表 3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-4--表-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 4 / 表 4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-5--表-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 5 / 表 5
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -20570,6 +20867,274 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#inpars用大语言模型为信息检索做数据增强" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InPars：用大语言模型为信息检索做数据增强
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#introduction--引言原文-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction / 引言（原文 §1）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work--相关工作原文-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Work / 相关工作（原文 §2）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#our-method-inpars--方法inpars原文-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Our Method: InPars / 方法：InPars（原文 §3）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-setup--实验设置原文-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Setup / 实验设置（原文 §4）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experimental Setup / 实验设置（原文 §4）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datasets--数据集原文-41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets / 数据集（原文 §4.1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-generation--训练数据生成原文-42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Data Generation / 训练数据生成（原文 §4.2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-methods--检索方法原文-43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrieval Methods / 检索方法（原文 §4.3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results--结果原文-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results / 结果（原文 §5）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ablation-study-and-analysis--消融与分析原文-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ablation Study and Analysis / 消融与分析（原文 §6）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ablation Study and Analysis / 消融与分析（原文 §6）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompt-selection-and-source-corpus--提示选择与来源语料原文-61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Selection and Source Corpus / 提示选择与来源语料（原文 §6.1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-size-impact-on-ir-metrics--模型规模对检索指标的影响原文-62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Size Impact on IR Metrics / 模型规模对检索指标的影响（原文 §6.2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-by-the-most-likely-questions--按最可能的问题过滤原文-63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering by the Most Likely Questions / 按最可能的问题过滤（原文 §6.3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#was-gpt-3-trained-on-supervised-ir-data--gpt-3-是否在有监督-ir-数据上训练过原文-64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Was GPT-3 Trained on Supervised IR Data? / GPT-3 是否在有监督 IR 数据上训练过？（原文 §6.4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion-and-future-work--结论与未来工作原文-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion and Future Work / 结论与未来工作（原文 §7）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgments--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgments / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix--附录原文-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix / 附录（原文 A）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix / 附录（原文 A）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#table-3--表-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 3 / 表 3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-4--表-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 4 / 表 4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-5--表-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table 5 / 表 5
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -20596,7 +21161,7 @@
 <p><strong>开源：</strong> https://github.com/zetaalphavector/inpars</p>
 <hr />
 <h1 id="inpars-data-augmentation-for-information-retrieval-using-large-language-models">InPars: Data Augmentation for Information Retrieval using Large Language Models<a class="headerlink" href="#inpars-data-augmentation-for-information-retrieval-using-large-language-models" title="Permanent link">&para;</a></h1>
-<h1 id="inpars用大语言模型为信息检索做数据增强">InPars：用大语言模型为信息检索做数据增强<a class="headerlink" href="#inpars用大语言模型为信息检索做数据增强" title="Permanent link">&para;</a></h1>
+<h2 id="inpars用大语言模型为信息检索做数据增强">InPars：用大语言模型为信息检索做数据增强<a class="headerlink" href="#inpars用大语言模型为信息检索做数据增强" title="Permanent link">&para;</a></h2>
 <p><strong>Authors / 作者：</strong> Luiz Bonifacio<sup>†⋄‡⋆</sup>, Hugo Abonizio<sup>†⋄⋆</sup>, Marzieh Fadaee<sup>†⋆</sup>, and Rodrigo Nogueira<sup>†⋄‡◃⋆</sup></p>
 <p><sup>†</sup> Zeta Alpha。 <sup>⋄</sup> NeuralMind。 <sup>‡</sup> University of Campinas / 坎皮纳斯大学。 <sup>◃</sup> University of Waterloo / 滑铁卢大学。 <sup>⋆</sup> All authors contributed equally. / 全体作者贡献相等。</p>
 <hr />

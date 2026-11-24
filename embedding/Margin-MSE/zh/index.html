@@ -8990,6 +8990,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Margin-MSE · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -9006,6 +9024,324 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#用跨架构知识蒸馏改进高效神经排序模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        用跨架构知识蒸馏改进高效神经排序模型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-retrieval-models--检索模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Retrieval Models / 检索模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Retrieval Models / 检索模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-bert_mathrmcat-concatenated-scoring--bert_mathrmcat-拼接打分" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 BERT\(_\mathrm{CAT}\) Concatenated Scoring / BERT\(_\mathrm{CAT}\) 拼接打分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-bert_mathrmdot-dot-product-scoring--bert_mathrmdot-点积打分" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 BERT\(_\mathrm{DOT}\) Dot Product Scoring / BERT\(_\mathrm{DOT}\) 点积打分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-colbert--colbert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 ColBERT / ColBERT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-prett--prett" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 PreTT / PreTT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-transformer-kernel--transformer-核模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Transformer-Kernel / Transformer 核模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-comparison--对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Comparison / 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cross-architecture-knowledge-distillation--跨架构知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Cross-Architecture Knowledge Distillation / 跨架构知识蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiment-design--实验设计" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiment Design / 实验设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiment Design / 实验设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-collection--query-sets--语料与查询集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Collection &amp; Query Sets / 语料与查询集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-training-configuration--训练配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Training Configuration / 训练配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-model-parameters--模型参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Model Parameters / 模型参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-results--结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Results / 结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Results / 结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-optimization-study--优化研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Optimization Study / 优化研究
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-knowledge-distillation-results--知识蒸馏结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Knowledge Distillation Results / 知识蒸馏结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-closing-the-efficiency-effectiveness-gap--缩小效率-效果差距" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Closing the Efficiency-Effectiveness Gap / 缩小效率-效果差距
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-teacher-analysis--教师分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Teacher Analysis / 教师分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6 Teacher Analysis / 教师分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-teacher-score-distribution-analysis--教师分数分布分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Teacher Score Distribution Analysis / 教师分数分布分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-per-query-teacher-impact-analysis--逐查询的教师影响分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Per-Query Teacher Impact Analysis / 逐查询的教师影响分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8 Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -20570,6 +20906,313 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#用跨架构知识蒸馏改进高效神经排序模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        用跨架构知识蒸馏改进高效神经排序模型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-retrieval-models--检索模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Retrieval Models / 检索模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Retrieval Models / 检索模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-bert_mathrmcat-concatenated-scoring--bert_mathrmcat-拼接打分" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 BERT\(_\mathrm{CAT}\) Concatenated Scoring / BERT\(_\mathrm{CAT}\) 拼接打分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-bert_mathrmdot-dot-product-scoring--bert_mathrmdot-点积打分" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 BERT\(_\mathrm{DOT}\) Dot Product Scoring / BERT\(_\mathrm{DOT}\) 点积打分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-colbert--colbert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 ColBERT / ColBERT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-prett--prett" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 PreTT / PreTT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-transformer-kernel--transformer-核模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Transformer-Kernel / Transformer 核模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-comparison--对比" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Comparison / 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cross-architecture-knowledge-distillation--跨架构知识蒸馏" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Cross-Architecture Knowledge Distillation / 跨架构知识蒸馏
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiment-design--实验设计" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiment Design / 实验设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiment Design / 实验设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-collection--query-sets--语料与查询集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Collection &amp; Query Sets / 语料与查询集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-training-configuration--训练配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Training Configuration / 训练配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-model-parameters--模型参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Model Parameters / 模型参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-results--结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Results / 结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Results / 结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-optimization-study--优化研究" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Optimization Study / 优化研究
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-knowledge-distillation-results--知识蒸馏结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Knowledge Distillation Results / 知识蒸馏结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-closing-the-efficiency-effectiveness-gap--缩小效率-效果差距" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Closing the Efficiency-Effectiveness Gap / 缩小效率-效果差距
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-teacher-analysis--教师分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Teacher Analysis / 教师分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6 Teacher Analysis / 教师分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-teacher-score-distribution-analysis--教师分数分布分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Teacher Score Distribution Analysis / 教师分数分布分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-per-query-teacher-impact-analysis--逐查询的教师影响分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Per-Query Teacher Impact Analysis / 逐查询的教师影响分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8 Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -20596,7 +21239,7 @@
 <p><strong>代码与教师分数文件：</strong> https://github.com/sebastian-hofstaetter/neural-ranking-kd</p>
 <hr />
 <h1 id="improving-efficient-neural-ranking-models-with-cross-architecture-knowledge-distillation">Improving Efficient Neural Ranking Models with Cross-Architecture Knowledge Distillation<a class="headerlink" href="#improving-efficient-neural-ranking-models-with-cross-architecture-knowledge-distillation" title="Permanent link">&para;</a></h1>
-<h1 id="用跨架构知识蒸馏改进高效神经排序模型">用跨架构知识蒸馏改进高效神经排序模型<a class="headerlink" href="#用跨架构知识蒸馏改进高效神经排序模型" title="Permanent link">&para;</a></h1>
+<h2 id="用跨架构知识蒸馏改进高效神经排序模型">用跨架构知识蒸馏改进高效神经排序模型<a class="headerlink" href="#用跨架构知识蒸馏改进高效神经排序模型" title="Permanent link">&para;</a></h2>
 <p><strong>Authors / 作者：</strong> Sebastian Hofstätter, Sophia Althammer, Michael Schröder, Mete Sertkan, Allan Hanbury</p>
 <p><strong>Affiliation / 单位：</strong> TU Wien, Vienna, Austria / 维也纳工业大学，奥地利维也纳</p>
 <p><strong>Email / 邮箱：</strong> first.last@tuwien.ac.at</p>

@@ -10085,6 +10085,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Promptagator · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -10101,6 +10119,379 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#promptagator从-8-条示例做少样本稠密检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Promptagator：从 8 条示例做少样本稠密检索
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-few-shot-retrieval-task--少样本检索任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Few-shot Retrieval Task / 少样本检索任务
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Few-shot Retrieval Task / 少样本检索任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-retrieval-task--检索任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Retrieval Task / 检索任务
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-few-shot-beir-setting--少样本-beir-设定" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Few-shot BEIR Setting / 少样本 BEIR 设定
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-promptagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Promptagator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Promptagator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-prompt-base-query-generation--基于提示的查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Prompt-base Query Generation / 基于提示的查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-consistency-filtering-using-only-generated-data--只用生成数据做一致性过滤" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Consistency Filtering Using Only Generated Data / 只用生成数据做一致性过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-few-shot-promptagator-retriever--少样本-promptagator-检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Few-shot Promptagator Retriever / 少样本 Promptagator 检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-zero-shot-promptagator-retriever--零样本-promptagator-检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Zero-shot Promptagator Retriever / 零样本 Promptagator 检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-discussion--讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Discussion / 讨论
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiments--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiments / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiments / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-implementation--实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Implementation / 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-main-results--主要结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Main Results / 主要结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ablation-study--消融实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Ablation Study / 消融实验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-qualitative-analysis--定性分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Qualitative Analysis / 定性分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Related Work / 相关工作">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#neural-retrieval-models--神经检索模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neural retrieval models / 神经检索模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#few-shot-learning--少样本学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Few-shot Learning / 少样本学习
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-based-query-generation--基于提示的查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt-based Query Generation / 基于提示的查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrievers-with-late-interactions--带迟交互的检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrievers with late interactions / 带迟交互的检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-conclusion-and-discussions--结论与讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Conclusion and Discussions / 结论与讨论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-compute-usage-and-environmental-impact--计算用量与环境影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Compute Usage and Environmental Impact / 计算用量与环境影响
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgements / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-analysis-on-prompts--附录-a-提示分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A. Analysis on Prompts / 附录 A 提示分析
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-detailed-implementation--附录-b-实现细节" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B. Detailed Implementation / 附录 B 实现细节
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c-query-generation-statistics--附录-c-查询生成统计" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C. Query Generation Statistics / 附录 C 查询生成统计
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-d-author-contributions--附录-d-作者贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix D. Author Contributions / 附录 D 作者贡献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -20570,6 +20961,368 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#promptagator从-8-条示例做少样本稠密检索" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Promptagator：从 8 条示例做少样本稠密检索
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-few-shot-retrieval-task--少样本检索任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Few-shot Retrieval Task / 少样本检索任务
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Few-shot Retrieval Task / 少样本检索任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-retrieval-task--检索任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Retrieval Task / 检索任务
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-few-shot-beir-setting--少样本-beir-设定" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Few-shot BEIR Setting / 少样本 BEIR 设定
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-promptagator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Promptagator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Promptagator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-prompt-base-query-generation--基于提示的查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Prompt-base Query Generation / 基于提示的查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-consistency-filtering-using-only-generated-data--只用生成数据做一致性过滤" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Consistency Filtering Using Only Generated Data / 只用生成数据做一致性过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-few-shot-promptagator-retriever--少样本-promptagator-检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Few-shot Promptagator Retriever / 少样本 Promptagator 检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-zero-shot-promptagator-retriever--零样本-promptagator-检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Zero-shot Promptagator Retriever / 零样本 Promptagator 检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-discussion--讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Discussion / 讨论
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiments--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiments / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiments / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-implementation--实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Implementation / 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-main-results--主要结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Main Results / 主要结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ablation-study--消融实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Ablation Study / 消融实验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-qualitative-analysis--定性分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Qualitative Analysis / 定性分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Related Work / 相关工作">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#neural-retrieval-models--神经检索模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neural retrieval models / 神经检索模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#few-shot-learning--少样本学习" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Few-shot Learning / 少样本学习
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-based-query-generation--基于提示的查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt-based Query Generation / 基于提示的查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrievers-with-late-interactions--带迟交互的检索器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrievers with late interactions / 带迟交互的检索器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-conclusion-and-discussions--结论与讨论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Conclusion and Discussions / 结论与讨论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-compute-usage-and-environmental-impact--计算用量与环境影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Compute Usage and Environmental Impact / 计算用量与环境影响
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgements / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-analysis-on-prompts--附录-a-提示分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A. Analysis on Prompts / 附录 A 提示分析
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-detailed-implementation--附录-b-实现细节" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B. Detailed Implementation / 附录 B 实现细节
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c-query-generation-statistics--附录-c-查询生成统计" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C. Query Generation Statistics / 附录 C 查询生成统计
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-d-author-contributions--附录-d-作者贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix D. Author Contributions / 附录 D 作者贡献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -20595,7 +21348,7 @@
 <p><strong>预印本：</strong> arXiv:2209.11755v1 [cs.CL]，2022 年 9 月 23 日。</p>
 <hr />
 <h1 id="promptagator-few-shot-dense-retrieval-from-8-examples">Promptagator: Few-shot Dense Retrieval From 8 Examples<a class="headerlink" href="#promptagator-few-shot-dense-retrieval-from-8-examples" title="Permanent link">&para;</a></h1>
-<h1 id="promptagator从-8-条示例做少样本稠密检索">Promptagator：从 8 条示例做少样本稠密检索<a class="headerlink" href="#promptagator从-8-条示例做少样本稠密检索" title="Permanent link">&para;</a></h1>
+<h2 id="promptagator从-8-条示例做少样本稠密检索">Promptagator：从 8 条示例做少样本稠密检索<a class="headerlink" href="#promptagator从-8-条示例做少样本稠密检索" title="Permanent link">&para;</a></h2>
 <p><strong>Authors / 作者：</strong> Zhuyun Dai<sup>∗†</sup>, Vincent Y. Zhao<sup>∗†</sup>, Ji Ma<sup>∗†</sup>, Yi Luan<sup>∗†</sup>, Jianmo Ni, Jing Lu, Anton Bakalov, Kelvin Guu, Keith B. Hall and Ming-Wei Chang<sup>†</sup></p>
 <p><sup>∗</sup> Equal contributions. / 同等贡献。 <sup>†</sup> Corresponding authors. / 通讯作者。</p>
 <p><strong>Affiliation / 单位：</strong> Google Research</p>

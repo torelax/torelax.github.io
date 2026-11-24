@@ -4969,6 +4969,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPL · 中英对照
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -4985,6 +5003,451 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gpl面向稠密检索无监督域适应的生成式伪标签" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPL：面向稠密检索无监督域适应的生成式伪标签
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Related Work / 相关工作">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-based-domain-adaptation--基于预训练的域适应" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Training based Domain Adaptation / 基于预训练的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-generation--查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Generation / 查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-methods--其他方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other Methods / 其他方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pseudo-labeling-and-cross-encoders--伪标签与交叉编码器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pseudo Labeling and Cross-Encoders / 伪标签与交叉编码器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-method--方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Method / 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Method / 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-generation--查询生成_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Generation / 查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marginmse-loss--marginmse-损失" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarginMSE loss / MarginMSE 损失
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiments--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiments / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiments / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-experimental-setup--实验设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Experimental Setup / 实验设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-evaluation--评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Evaluation / 评测
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-baselines--基线" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Baselines / 基线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-results--结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Results / 结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Results / 结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-based-domain-adaptation--基于预训练的域适应_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Training based Domain Adaptation / 基于预训练的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previous-domain-adaptation-methods--既往域适应方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Previous Domain Adaptation Methods / 既往域适应方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generation-based-domain-adaptation--基于生成的域适应" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generation-based Domain Adaptation / 基于生成的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generative-pseudo-labeling-gpl-proposed-method--生成式伪标签gpl本文方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generative Pseudo Labeling (GPL, proposed method) / 生成式伪标签（GPL，本文方法）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-ranking-with-cross-encoders--用交叉编码器重排" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-ranking with Cross-Encoders / 用交叉编码器重排
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-analysis--分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Analysis / 分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6 Analysis / 分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-influence-of-training-steps--训练步数的影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Influence of Training Steps / 训练步数的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-influence-of-corpus-size--语料规模的影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Influence of Corpus Size / 语料规模的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-robustness-against-query-generation--对查询生成的稳健性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Robustness against Query Generation / 对查询生成的稳健性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-sensitivity-to-starting-checkpoints--对起始检查点的敏感度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Sensitivity to Starting Checkpoints / 对起始检查点的敏感度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-case-study-fine-grained-labels--案例研究细粒度标签" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Case Study: Fine-Grained Labels / 案例研究：细粒度标签
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8 Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgments--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgments / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-performance-of-using-different-retrievers-for-negative-mining-in-gpl--附录-agpl-中用不同检索器挖掘负例的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Performance of Using Different Retrievers for Negative Mining in GPL / 附录 A：GPL 中用不同检索器挖掘负例的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-performance-of-the-zero-shot-retrievers-in-hard-negative-mining--附录-b难负例挖掘中零样本检索器的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B Performance of the Zero-Shot Retrievers in Hard-Negative Mining / 附录 B：难负例挖掘中零样本检索器的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-target-datasets--附录-c目标数据集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C Target Datasets / 附录 C：目标数据集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d-results-on-full-beir--附录-d全部-beir-上的结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D Results on full BeIR / 附录 D：全部 BeIR 上的结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e-performance-of-unsupervised-pre-training--附录-e无监督预训练的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E Performance of Unsupervised Pre-Training / 附录 E：无监督预训练的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f-examples-of-generated-queries-under-different-temperatures--附录-f不同温度下生成查询的例子" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F Examples of Generated Queries under Different Temperatures / 附录 F：不同温度下生成查询的例子
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -20570,6 +21033,440 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gpl面向稠密检索无监督域适应的生成式伪标签" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPL：面向稠密检索无监督域适应的生成式伪标签
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abstract--摘要" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract / 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction--引言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Introduction / 引言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-related-work--相关工作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Related Work / 相关工作
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2 Related Work / 相关工作">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-based-domain-adaptation--基于预训练的域适应" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Training based Domain Adaptation / 基于预训练的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-generation--查询生成" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Generation / 查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-methods--其他方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other Methods / 其他方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pseudo-labeling-and-cross-encoders--伪标签与交叉编码器" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pseudo Labeling and Cross-Encoders / 伪标签与交叉编码器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-method--方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Method / 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3 Method / 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-generation--查询生成_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Generation / 查询生成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#marginmse-loss--marginmse-损失" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarginMSE loss / MarginMSE 损失
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experiments--实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Experiments / 实验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4 Experiments / 实验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-experimental-setup--实验设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Experimental Setup / 实验设置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-evaluation--评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Evaluation / 评测
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-baselines--基线" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Baselines / 基线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-results--结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Results / 结果
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5 Results / 结果">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-training-based-domain-adaptation--基于预训练的域适应_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Training based Domain Adaptation / 基于预训练的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previous-domain-adaptation-methods--既往域适应方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Previous Domain Adaptation Methods / 既往域适应方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generation-based-domain-adaptation--基于生成的域适应" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generation-based Domain Adaptation / 基于生成的域适应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generative-pseudo-labeling-gpl-proposed-method--生成式伪标签gpl本文方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generative Pseudo Labeling (GPL, proposed method) / 生成式伪标签（GPL，本文方法）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-ranking-with-cross-encoders--用交叉编码器重排" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-ranking with Cross-Encoders / 用交叉编码器重排
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-analysis--分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Analysis / 分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6 Analysis / 分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-influence-of-training-steps--训练步数的影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Influence of Training Steps / 训练步数的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-influence-of-corpus-size--语料规模的影响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Influence of Corpus Size / 语料规模的影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-robustness-against-query-generation--对查询生成的稳健性" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Robustness against Query Generation / 对查询生成的稳健性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-sensitivity-to-starting-checkpoints--对起始检查点的敏感度" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Sensitivity to Starting Checkpoints / 对起始检查点的敏感度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-case-study-fine-grained-labels--案例研究细粒度标签" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Case Study: Fine-Grained Labels / 案例研究：细粒度标签
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-conclusion--结论" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8 Conclusion / 结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgments--致谢" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acknowledgments / 致谢
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references--参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References / 参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-performance-of-using-different-retrievers-for-negative-mining-in-gpl--附录-agpl-中用不同检索器挖掘负例的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Performance of Using Different Retrievers for Negative Mining in GPL / 附录 A：GPL 中用不同检索器挖掘负例的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-performance-of-the-zero-shot-retrievers-in-hard-negative-mining--附录-b难负例挖掘中零样本检索器的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B Performance of the Zero-Shot Retrievers in Hard-Negative Mining / 附录 B：难负例挖掘中零样本检索器的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-target-datasets--附录-c目标数据集" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C Target Datasets / 附录 C：目标数据集
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d-results-on-full-beir--附录-d全部-beir-上的结果" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D Results on full BeIR / 附录 D：全部 BeIR 上的结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e-performance-of-unsupervised-pre-training--附录-e无监督预训练的性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E Performance of Unsupervised Pre-Training / 附录 E：无监督预训练的性能
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f-examples-of-generated-queries-under-different-temperatures--附录-f不同温度下生成查询的例子" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F Examples of Generated Queries under Different Temperatures / 附录 F：不同温度下生成查询的例子
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -20596,7 +21493,7 @@
 <p><strong>代码：</strong> https://github.com/UKPLab/gpl</p>
 <hr />
 <h1 id="gpl-generative-pseudo-labeling-for-unsupervised-domain-adaptation-of-dense-retrieval">GPL: Generative Pseudo Labeling for Unsupervised Domain Adaptation of Dense Retrieval<a class="headerlink" href="#gpl-generative-pseudo-labeling-for-unsupervised-domain-adaptation-of-dense-retrieval" title="Permanent link">&para;</a></h1>
-<h1 id="gpl面向稠密检索无监督域适应的生成式伪标签">GPL：面向稠密检索无监督域适应的生成式伪标签<a class="headerlink" href="#gpl面向稠密检索无监督域适应的生成式伪标签" title="Permanent link">&para;</a></h1>
+<h2 id="gpl面向稠密检索无监督域适应的生成式伪标签">GPL：面向稠密检索无监督域适应的生成式伪标签<a class="headerlink" href="#gpl面向稠密检索无监督域适应的生成式伪标签" title="Permanent link">&para;</a></h2>
 <p><strong>Authors / 作者：</strong> Kexin Wang<sup>1</sup>, Nandan Thakur<sup>2∗</sup>, Nils Reimers<sup>3</sup>, Iryna Gurevych<sup>1</sup></p>
 <p><sup>∗</sup> Contributions made during the stay at the UKP Lab. / 贡献主要在 UKP Lab 访学期间完成。</p>
 <p><strong>Affiliation / 单位：</strong> <sup>1</sup> Ubiquitous Knowledge Processing Lab, Technical University of Darmstadt；<sup>2</sup> University of Waterloo；<sup>3</sup> Hugging Face</p>
